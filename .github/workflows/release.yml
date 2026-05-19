@@ -15,47 +15,35 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate extension
+        env:
+          GITHUB_REF_NAME: ${{ github.ref_name }}
+        run: npm run validate
+
       - name: Create zip file
-        run: |
-          # Create a temporary directory for the release content
-          mkdir -p release-temp/PlaybackKeys
+        env:
+          GITHUB_REF_NAME: ${{ github.ref_name }}
+        run: npm run package
 
-          # Copy source files (respecting .gitignore patterns)
-          rsync -av \
-            --exclude='.git' \
-            --exclude='.github' \
-            --exclude='node_modules' \
-            --exclude='dist' \
-            --exclude='build' \
-            --exclude='.DS_Store' \
-            --exclude='*.swp' \
-            --exclude='*.swo' \
-            --exclude='.vscode' \
-            --exclude='.idea' \
-            --exclude='reviews' \
-            --exclude='design' \
-            --exclude='store' \
-            --exclude='notes' \
-            --exclude='scratch' \
-            --exclude='SPEC.md' \
-            --exclude='RELEASE_CHECKLIST.md' \
-            --exclude='TODO.md' \
-            --exclude='.claude' \
-            --exclude='memory' \
-            --exclude='CLAUDE.md' \
-            ./ release-temp/PlaybackKeys/
-
-          # Create the zip file
-          cd release-temp
-          zip -r PlaybackKeys-${{ github.ref_name }}.zip PlaybackKeys/
-          cd ..
-
-          # Move zip to root for upload
-          mv release-temp/PlaybackKeys-${{ github.ref_name }}.zip .
+      - name: Extract release notes from CHANGELOG
+        env:
+          GITHUB_REF_NAME: ${{ github.ref_name }}
+        run: npm run release-notes
 
       - name: Upload to Release
         uses: softprops/action-gh-release@v1
         with:
-          files: PlaybackKeys-${{ github.ref_name }}.zip
+          name: PlaybackKeys ${{ github.ref_name }}
+          body_path: dist/release-notes.md
+          files: dist/PlaybackKeys-${{ github.ref_name }}.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

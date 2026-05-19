@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "PlaybackKeys",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "Control browser videos with global keyboard shortcuts. Pause, skip, rewind, and change speed without switching tabs.",
   "minimum_chrome_version": "111",
   "background": {
@@ -73,12 +73,12 @@
   ],
   "commands": {
     "1-play-pause": {
-      "suggested_key": { "default": "Ctrl+Shift+1" },
+      "suggested_key": { "default": "Ctrl+Shift+1", "mac": "Command+Shift+1" },
       "description": "Play / Pause",
       "global": true
     },
     "2-speed-up": {
-      "suggested_key": { "default": "Ctrl+Shift+2" },
+      "suggested_key": { "default": "Ctrl+Shift+2", "mac": "Command+Shift+2" },
       "description": "Speed +",
       "global": true
     },

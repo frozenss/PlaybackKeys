@@ -352,6 +352,8 @@ function wireOnce() {
     const el = e.currentTarget;
     const next = !el.classList.contains("on");
     if (next) {
+      const confirmed = confirm("Run on all sites asks Chrome for access to every website you visit. You can usually use the per-site Enable button instead. Continue?");
+      if (!confirmed) return;
       const ok = await chrome.permissions.request({ origins: ["<all_urls>"] });
       if (!ok) return;
       await setSetting({ runOnAllSites: true });

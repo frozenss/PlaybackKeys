@@ -13,19 +13,30 @@
 
   // ---------- Video discovery ----------
 
-  function visibleArea(el) {
+  function videoScore(el) {
     const r = el.getBoundingClientRect();
-    return Math.max(0, r.width) * Math.max(0, r.height);
+    if (r.width < 80 || r.height < 60) return 0;
+    if (r.bottom < 0 || r.right < 0) return 0;
+    if (r.top > (window.innerHeight || 1e6)) return 0;
+    if (r.left > (window.innerWidth || 1e6)) return 0;
+    if (el.readyState < 1 && !el.currentSrc && !el.src) return 0;
+    const cs = getComputedStyle(el);
+    if (cs.visibility === "hidden" || cs.display === "none" || Number(cs.opacity) === 0) return 0;
+    const area = Math.max(0, r.width) * Math.max(0, r.height);
+    return (!el.paused && el.readyState > 1 ? area * 2 : area);
   }
 
   function pickBestVideo() {
-    const vids = Array.from(document.querySelectorAll("video"));
-    if (vids.length === 0) return null;
-    // Prefer playing, then largest.
-    const playing = vids.filter((v) => !v.paused && v.readyState > 1);
-    const pool = playing.length > 0 ? playing : vids;
-    pool.sort((a, b) => visibleArea(b) - visibleArea(a));
-    return pool[0] || null;
+    let best = null;
+    let bestScore = 0;
+    for (const video of document.querySelectorAll("video")) {
+      const score = videoScore(video);
+      if (score > bestScore) {
+        best = video;
+        bestScore = score;
+      }
+    }
+    return best;
   }
 
   // ---------- Anti-fightback (per-instance, narrow blast radius) ----------

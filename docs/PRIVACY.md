@@ -43,6 +43,8 @@ This data never leaves your device.
 - **`tabs`** to query which tab contains the video to control.
 - **`scripting`** to inject the content script into a tab you have
   granted optional permission for.
+- **`contextMenus`** to add a "Reset speed to 1x" action to the
+  extension toolbar icon's right-click menu.
 
 ## Third parties
 

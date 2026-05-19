@@ -4,29 +4,30 @@
 
 [![Add to Chrome](https://img.shields.io/badge/Chrome%20Web%20Store-Install-4285F4?style=flat-square&logo=google-chrome)](https://chromewebstore.google.com/detail/bhncnmnpinmgjpeoneoplieaakbkfdmn)
 
-A Chrome / Edge extension for developers and students who watch tutorials or
-lectures on a second monitor while typing in another app. Works on YouTube,
-Vimeo, Udemy, and Coursera out of the box. You can opt in to any other site
-from the extension popup.
+A Chromium extension for developers and students who watch tutorials or
+lectures on a second monitor while typing in another app. Built and tested on
+Chrome. Also runs on Edge, Brave, Arc, Opera, and other Chromium browsers.
+Works on YouTube, Vimeo, Udemy, and Coursera out of the box. Other sites are
+opt-in from the extension popup.
 
 No account. No telemetry. No network requests. Open source under MIT.
 
-![PlaybackKeys hero](assets/hero.jpg)
+![Control video without leaving your work. Global shortcuts pause, skip, rewind, and change speed while your editor or notes app stays focused.](assets/chrome-web-store/01-global-video-shortcuts.png)
 
 ## Quick Start
 
 1. **Visit:** [PlaybackKeys website](https://mehmetdemircs.github.io/PlaybackKeys/) for full details
 2. **Install:** [Add to Chrome](https://chromewebstore.google.com/detail/bhncnmnpinmgjpeoneoplieaakbkfdmn)
-2. **Open a video** on YouTube, Vimeo, Udemy, or Coursera
-3. **Press `Ctrl+Shift+1`** to pause/play — even if Chrome isn't focused
-4. **Customize shortcuts** at `chrome://extensions/shortcuts`
+3. **Open a video** on YouTube, Vimeo, Udemy, or Coursera
+4. **Press the play/pause shortcut** (`Ctrl+Shift+1` on Windows/Linux, `Command+Shift+1` on Mac), even when Chrome isn't focused
+5. **Customize shortcuts** at `chrome://extensions/shortcuts`
 
 ## Why
 
 The four built-in player shortcuts on most sites only fire when the video tab
 is focused. The moment you switch to your editor or notes app, you lose
 control. Native hardware media keys partially work on YouTube and Spotify, but
-not on Udemy or Coursera, and they cover only play/pause and seek - not speed
+not on Udemy or Coursera, and they cover only play/pause and seek, not speed
 or fine skip intervals.
 
 PlaybackKeys registers `chrome.commands` with `"global": true`, so the
@@ -91,6 +92,8 @@ in the bottom-left of the video tab showing the current speed. Click it to
 reset to 1x. The popup also shows the current speed and a Reset button, and
 right-clicking the toolbar icon offers a one-click "Reset speed to 1x".
 
+![Popup showing the active video, playback state, speed, progress, and per-site enablement.](assets/chrome-web-store/03-popup-controls.png)
+
 ## Install (development)
 
 1. `git clone https://github.com/mehmetdemircs/PlaybackKeys`
@@ -109,13 +112,29 @@ content/
 popup/                     Toolbar popup with playback controls
 options/                   Settings page
 onboarding/                Install-time welcome page
-icons/                     Toolbar icons (placeholder, pending design)
+icons/                     Toolbar icons
+scripts/                   Release validation and packaging
 ```
 
 ## Stack
 
 Vanilla JavaScript. No build step. No TypeScript. No framework. The whole
 thing is plain HTML / CSS / JS files loaded directly by the browser.
+
+## Release checks
+
+Run `npm run validate` before tagging a release. It checks the manifest,
+version/changelog alignment, required permissions, and runtime files. Run
+`npm run package` to create the Chrome Web Store ZIP in `dist/`; the package
+intentionally excludes docs, screenshots, GitHub metadata, and source-only
+assets.
+
+For a browser smoke test, run `npm install` once and then `npm run smoke`.
+It launches Chromium with the unpacked extension against a local video fixture
+and verifies that the service worker can dispatch a speed command to the page.
+
+Run `npm run screenshots` to regenerate the Chrome Web Store screenshots in
+`assets/chrome-web-store/`.
 
 ## Privacy
 
@@ -126,10 +145,12 @@ PlaybackKeys collects nothing. No data leaves your device. Settings live in
 
 The host permissions list is intentionally narrow (only the four built-in
 sites). For any other site, you grant access per-origin via the popup's
-**Enable on this site** button — Chrome shows its native permission prompt
+**Enable on this site** button. Chrome shows its native permission prompt
 for that one origin only. Power users can opt into a single bulk **Run on
 all sites** toggle in settings, which requests `<all_urls>` once. Both
 paths are off by default.
+
+![Settings panel. Built-in sites work by default. Other sites are opt-in, with a single 'Run on all sites' toggle behind a confirmation.](assets/chrome-web-store/04-sites-and-permissions.png)
 
 ## What this extension does not do
 

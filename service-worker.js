@@ -70,6 +70,66 @@ async function forgetVideoTab(tabId) {
   await setSession({ knownVideoTabs, lastVideoTabId });
 }
 
+// Single injected function that handles all per-frame video operations.
+// Defined once to avoid drift between probe/seek/status copies. Runs in MAIN
+// world via chrome.scripting.executeScript — must be self-contained.
+function videoPageAction(action, payload) {
+  function videoScore(v) {
+    const r = v.getBoundingClientRect();
+    if (r.width < 80 || r.height < 60) return 0;
+    if (r.bottom < 0 || r.right < 0) return 0;
+    if (r.top > (window.innerHeight || 1e6)) return 0;
+    if (r.left > (window.innerWidth || 1e6)) return 0;
+    if (v.readyState < 1 && !v.currentSrc && !v.src) return 0;
+    const cs = getComputedStyle(v);
+    if (cs.visibility === "hidden" || cs.display === "none" || Number(cs.opacity) === 0) return 0;
+    const area = Math.max(0, r.width) * Math.max(0, r.height);
+    return (!v.paused && v.readyState > 1 ? area * 2 : area);
+  }
+  function pickBestVideo() {
+    let best = null;
+    let bestScore = 0;
+    for (const candidate of document.querySelectorAll("video")) {
+      const score = videoScore(candidate);
+      if (score > bestScore) {
+        best = candidate;
+        bestScore = score;
+      }
+    }
+    return best;
+  }
+
+  if (action === "hasVideo") {
+    return pickBestVideo() != null;
+  }
+  if (action === "seek") {
+    const v = pickBestVideo();
+    if (!v) return false;
+    const dur = v.duration;
+    const seekable = v.seekable;
+    const upper = Number.isFinite(dur) && dur > 0
+      ? dur
+      : (seekable && seekable.length > 0 ? seekable.end(seekable.length - 1) : Infinity);
+    const target = Math.max(0, Math.min(upper, payload));
+    if (!Number.isFinite(target)) return false;
+    try { v.currentTime = target; } catch { return false; }
+    return true;
+  }
+  if (action === "status") {
+    const v = pickBestVideo();
+    if (!v) return null;
+    const r = v.getBoundingClientRect();
+    return {
+      currentSpeed: v.playbackRate,
+      paused: v.paused,
+      duration: v.duration || 0,
+      currentTime: v.currentTime || 0,
+      area: r.width * r.height,
+    };
+  }
+  return null;
+}
+
 // Probe: does this tab have a video that's worth targeting? Filters out
 // hidden / tiny / decorative / not-yet-loaded elements.
 async function tabHasVideo(tabId) {
@@ -77,23 +137,8 @@ async function tabHasVideo(tabId) {
     const results = await chrome.scripting.executeScript({
       target: { tabId, allFrames: true },
       world: "MAIN",
-      func: () => {
-        for (const v of document.querySelectorAll("video")) {
-          const r = v.getBoundingClientRect();
-          if (r.width < 80 || r.height < 60) continue;
-          // Visible in viewport at all?
-          if (r.bottom < 0 || r.right < 0) continue;
-          if (r.top > (window.innerHeight || 1e6)) continue;
-          if (r.left > (window.innerWidth || 1e6)) continue;
-          // Has a usable source?
-          if (v.readyState < 1 && !v.currentSrc && !v.src) continue;
-          // CSS hidden?
-          const cs = getComputedStyle(v);
-          if (cs.visibility === "hidden" || cs.display === "none") continue;
-          return true;
-        }
-        return false;
-      },
+      func: videoPageAction,
+      args: ["hasVideo", null],
     });
     return results.some((r) => r?.result === true);
   } catch {
@@ -283,29 +328,8 @@ async function seekVideoTo(tabId, absoluteTime) {
     const results = await chrome.scripting.executeScript({
       target: { tabId, allFrames: true },
       world: "MAIN",
-      func: (t) => {
-        const vids = Array.from(document.querySelectorAll("video"));
-        if (vids.length === 0) return false;
-        const playing = vids.filter((v) => !v.paused && v.readyState > 1);
-        const pool = playing.length > 0 ? playing : vids;
-        pool.sort((a, b) => {
-          const ar = a.getBoundingClientRect();
-          const br = b.getBoundingClientRect();
-          return (br.width * br.height) - (ar.width * ar.height);
-        });
-        const v = pool[0];
-        if (!v) return false;
-        const dur = v.duration;
-        const seekable = v.seekable;
-        const upper = Number.isFinite(dur) && dur > 0
-          ? dur
-          : (seekable && seekable.length > 0 ? seekable.end(seekable.length - 1) : Infinity);
-        const target = Math.max(0, Math.min(upper, t));
-        if (!Number.isFinite(target)) return false;
-        try { v.currentTime = target; } catch { return false; }
-        return true;
-      },
-      args: [absoluteTime],
+      func: videoPageAction,
+      args: ["seek", absoluteTime],
     });
     return results.some((r) => r?.result === true);
   } catch (e) {
@@ -322,25 +346,8 @@ async function readVideoStatus(tabId) {
     const results = await chrome.scripting.executeScript({
       target: { tabId, allFrames: true },
       world: "MAIN",
-      func: () => {
-        const vids = Array.from(document.querySelectorAll("video"));
-        if (vids.length === 0) return null;
-        const playing = vids.filter((v) => !v.paused && v.readyState > 1);
-        const pool = playing.length > 0 ? playing : vids;
-        pool.sort((a, b) => {
-          const ar = a.getBoundingClientRect();
-          const br = b.getBoundingClientRect();
-          return (br.width * br.height) - (ar.width * ar.height);
-        });
-        const v = pool[0];
-        return {
-          currentSpeed: v.playbackRate,
-          paused: v.paused,
-          duration: v.duration || 0,
-          currentTime: v.currentTime || 0,
-          area: (() => { const r = v.getBoundingClientRect(); return r.width * r.height; })(),
-        };
-      },
+      func: videoPageAction,
+      args: ["status", null],
     });
     // executeScript returns an array of { result, frameId }. Pick the frame
     // whose video is biggest (most likely the actual player vs an ad iframe).

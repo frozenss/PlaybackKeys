@@ -14,6 +14,8 @@ TODO.md
 *.pem
 dist/
 build/
+.tmp-smoke/
+.tmp-smoke-profile/
 
 # Claude Code internal state
 .claude/
@@ -41,7 +43,6 @@ npm-debug.log*
 
 # Dependencies (none today, future-proofing)
 node_modules/
-package-lock.json
 yarn.lock
 
 # Env / secrets
