@@ -1,0 +1,568 @@
+{
+  "appName": {
+    "message": "PlaybackKeys",
+    "description": "Extension name. Do not translate the product name."
+  },
+  "appDescription": {
+    "message": "YouTube、Udemy、Vimeo、Coursera、ブラウザ動画向けのグローバルキーボードショートカット。",
+    "description": "Short extension description used by the manifest."
+  },
+  "commandPlayPause": {
+    "message": "再生 / 一時停止",
+    "description": "Keyboard command label."
+  },
+  "commandSpeedUp": {
+    "message": "速度を上げる",
+    "description": "Keyboard command label."
+  },
+  "commandSkipBack": {
+    "message": "巻き戻し",
+    "description": "Keyboard command label."
+  },
+  "commandSkipForward": {
+    "message": "早送り",
+    "description": "Keyboard command label."
+  },
+  "commandSpeedDown": {
+    "message": "速度を下げる",
+    "description": "Keyboard command label."
+  },
+  "commandResetSpeed": {
+    "message": "速度を1xにリセット",
+    "description": "Keyboard command label."
+  },
+  "commandSwitchTarget": {
+    "message": "対象の動画タブを切り替え",
+    "description": "Keyboard command label."
+  },
+  "commandSpeedUpStep": {
+    "message": "速度 +0.25×",
+    "description": "Keyboard command label with speed step."
+  },
+  "commandSpeedDownStep": {
+    "message": "速度 −0.25×",
+    "description": "Keyboard command label with speed step."
+  },
+  "commandResetSpeed1x": {
+    "message": "速度を1×にリセット",
+    "description": "Keyboard command label with target speed."
+  },
+  "commandSwitchTargetShort": {
+    "message": "対象タブを切り替え",
+    "description": "Short keyboard command label."
+  },
+  "commandSkipBack5s": {
+    "message": "5秒戻る",
+    "description": "Keyboard command label with skip amount."
+  },
+  "commandSkipForward5s": {
+    "message": "5秒進む",
+    "description": "Keyboard command label with skip amount."
+  },
+  "settingsPageTitle": {
+    "message": "PlaybackKeys 設定",
+    "description": "Options page title."
+  },
+  "navSettings": {
+    "message": "設定",
+    "description": "Navigation label."
+  },
+  "navShortcuts": {
+    "message": "ショートカット",
+    "description": "Navigation label."
+  },
+  "sectionPlayback": {
+    "message": "再生",
+    "description": "Section heading."
+  },
+  "sectionSpeed": {
+    "message": "速度",
+    "description": "Section heading."
+  },
+  "sectionSites": {
+    "message": "サイト",
+    "description": "Section heading."
+  },
+  "sectionDisplay": {
+    "message": "表示",
+    "description": "Section heading."
+  },
+  "sectionAbout": {
+    "message": "概要",
+    "description": "Section heading."
+  },
+  "sectionPrivacy": {
+    "message": "プライバシー",
+    "description": "Section heading."
+  },
+  "labelVersion": {
+    "message": "バージョン",
+    "description": "Version label."
+  },
+  "footerMitOpenSource": {
+    "message": "MIT · オープンソース",
+    "description": "Footer license text."
+  },
+  "savedAutomatically": {
+    "message": "自動保存済み",
+    "description": "Settings saved status."
+  },
+  "settingsSubtitle": {
+    "message": "変更は自動的に保存されます。サイトごとの切り替えは全体設定より優先されます。",
+    "description": "Settings page helper text."
+  },
+  "playbackSteps": {
+    "message": "再生ステップ",
+    "description": "Settings group heading."
+  },
+  "playbackStepsDesc": {
+    "message": "各ショートカットでプレイヤーをどう変更するか",
+    "description": "Settings group description."
+  },
+  "skipInterval": {
+    "message": "スキップ間隔",
+    "description": "Setting label."
+  },
+  "skipIntervalDesc": {
+    "message": "戻る / 進むで移動する秒数",
+    "description": "Setting description."
+  },
+  "unitSeconds": {
+    "message": "秒",
+    "description": "Unit label."
+  },
+  "speedStep": {
+    "message": "速度ステップ",
+    "description": "Setting label."
+  },
+  "speedStepDesc": {
+    "message": "1回押すごとの速度変更",
+    "description": "Setting description."
+  },
+  "unitPerPress": {
+    "message": "× / 回",
+    "description": "Unit label."
+  },
+  "speedRange": {
+    "message": "速度範囲",
+    "description": "Setting label."
+  },
+  "speedRangeDesc": {
+    "message": "最小速度と最大速度",
+    "description": "Setting description."
+  },
+  "wrapOnMinMax": {
+    "message": "最小/最大で循環",
+    "description": "Setting label."
+  },
+  "wrapOnMinMaxDesc": {
+    "message": "最大で止まらず最小に戻る",
+    "description": "Setting description."
+  },
+  "sitesDesc": {
+    "message": "ショートカットを有効にする場所",
+    "description": "Settings group description."
+  },
+  "runOnAllSites": {
+    "message": "すべてのサイトで実行",
+    "description": "Setting label."
+  },
+  "runOnAllSitesDesc": {
+    "message": "既定ではオフです。上級者向けの設定で、Chrome が訪問するすべてのサイトへのアクセスを求めます。ほとんどのユーザーは内蔵サイトだけで十分です。",
+    "description": "Setting description."
+  },
+  "activeOnHosts": {
+    "message": "有効なホスト",
+    "description": "Setting label."
+  },
+  "activeOnHostsDesc": {
+    "message": "内蔵サイトは常にサポートされます。別のサイトを有効にするには、そのサイトを開き、ツールバーアイコンをクリックして「このサイトで有効にする」を選びます。",
+    "description": "Setting description."
+  },
+  "displayDesc": {
+    "message": "ページ内 UI",
+    "description": "Settings group description."
+  },
+  "showToastOnAction": {
+    "message": "操作時に通知を表示",
+    "description": "Setting label."
+  },
+  "showToastOnActionDesc": {
+    "message": "各操作後に右下へカードを表示",
+    "description": "Setting description."
+  },
+  "showSpeedBadge": {
+    "message": "速度バッジを表示",
+    "description": "Setting label."
+  },
+  "showSpeedBadgeDesc": {
+    "message": "速度が1×のときは非表示",
+    "description": "Setting description."
+  },
+  "toastDuration": {
+    "message": "通知の表示時間",
+    "description": "Setting label."
+  },
+  "toastDurationDesc": {
+    "message": "通知を表示しておく時間",
+    "description": "Setting description."
+  },
+  "shortcutsDesc": {
+    "message": "読み取り専用。chrome://extensions/shortcuts で割り当てます",
+    "description": "Settings group description."
+  },
+  "openChromeShortcutSettings": {
+    "message": "Chrome のショートカット設定を開く ↗",
+    "description": "Button label."
+  },
+  "privacyProse": {
+    "message": "PlaybackKeys は何も収集しません。テレメトリ、ネットワークリクエスト、分析はありません。設定はお使いのデバイスの <code>chrome.storage</code> に保存されます。ソースコードは <a href=\"https://github.com/mehmetdemircs/PlaybackKeys\" target=\"_blank\" rel=\"noopener\">github.com/mehmetdemircs/PlaybackKeys</a> にあります。",
+    "description": "Privacy section text. Contains trusted extension HTML."
+  },
+  "privacyMeta": {
+    "message": "テレメトリなし · ネットワークリクエストなし · 設定はローカル保存",
+    "description": "Privacy footer text."
+  },
+  "resetAllDefaults": {
+    "message": "すべて既定値に戻す",
+    "description": "Button label."
+  },
+  "off": {
+    "message": "オフ",
+    "description": "Disabled preset label."
+  },
+  "custom": {
+    "message": "カスタム",
+    "description": "Custom preset label."
+  },
+  "builtInTag": {
+    "message": "内蔵",
+    "description": "Built-in site tag."
+  },
+  "customTag": {
+    "message": "カスタム",
+    "description": "Custom site tag."
+  },
+  "remove": {
+    "message": "削除",
+    "description": "Button label."
+  },
+  "add": {
+    "message": "追加",
+    "description": "Unbound shortcut label."
+  },
+  "unbound": {
+    "message": "未設定",
+    "description": "Unbound shortcut status."
+  },
+  "confirmRunOnAllSites": {
+    "message": "すべてのサイトで実行すると、訪問するすべての Web サイトへのアクセスを Chrome が求めます。通常はサイトごとの有効化ボタンで十分です。続行しますか？",
+    "description": "Permission confirmation message."
+  },
+  "confirmResetDefaults": {
+    "message": "PlaybackKeys のすべての設定を既定値に戻しますか？付与済みのサイト権限は削除されません。",
+    "description": "Reset confirmation message."
+  },
+  "statusControlling": {
+    "message": "操作中",
+    "description": "Current playback status."
+  },
+  "popupNoActiveVideoTab": {
+    "message": "アクティブな動画タブがありません",
+    "description": "Popup empty-state title."
+  },
+  "ariaSeek": {
+    "message": "シーク",
+    "description": "Seek bar aria label."
+  },
+  "buttonSkipBack": {
+    "message": "戻る",
+    "description": "Button label."
+  },
+  "buttonPlay": {
+    "message": "再生",
+    "description": "Button label."
+  },
+  "buttonPause": {
+    "message": "一時停止",
+    "description": "Button label."
+  },
+  "buttonSkipForwardShort": {
+    "message": "進む",
+    "description": "Short button label."
+  },
+  "buttonSkipForwardShortTitle": {
+    "message": "進む",
+    "description": "Short button label with title case."
+  },
+  "buttonSlower": {
+    "message": "遅く",
+    "description": "Button label."
+  },
+  "buttonSlowerUpper": {
+    "message": "遅く",
+    "description": "Uppercase button label."
+  },
+  "buttonResetSpeed": {
+    "message": "速度をリセット",
+    "description": "Button aria label."
+  },
+  "buttonResetUpper": {
+    "message": "リセット",
+    "description": "Uppercase button label."
+  },
+  "buttonFaster": {
+    "message": "速く",
+    "description": "Button label."
+  },
+  "buttonFasterUpper": {
+    "message": "速く",
+    "description": "Uppercase button label."
+  },
+  "popupEnabledOnEllipsis": {
+    "message": "有効: …",
+    "description": "Popup toggle placeholder text."
+  },
+  "emptyNoVideoFound": {
+    "message": "動画が見つかりません",
+    "description": "Empty state title."
+  },
+  "emptyOpenVideoTab": {
+    "message": "操作する動画タブを開いてください。",
+    "description": "Empty state helper text."
+  },
+  "emptySiteDisabledTitle": {
+    "message": "$HOSTNAME$ は無効です",
+    "description": "Empty state title with hostname.",
+    "placeholders": {
+      "hostname": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "emptyReEnableFromMenu": {
+    "message": "このメニューから再度有効にしてください。",
+    "description": "Empty state helper text."
+  },
+  "emptyNoVideoOnPageYet": {
+    "message": "このページにはまだ動画がありません",
+    "description": "Empty state title."
+  },
+  "emptyOpenVideoTryAgain": {
+    "message": "動画を開いてもう一度お試しください。",
+    "description": "Empty state helper text."
+  },
+  "emptyOnHostname": {
+    "message": "$HOSTNAME$ 上",
+    "description": "Empty state helper with hostname.",
+    "placeholders": {
+      "hostname": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "emptySiteNotEnabled": {
+    "message": "サイトが有効ではありません",
+    "description": "Empty state title."
+  },
+  "emptyEnableSiteInstruction": {
+    "message": "$HOSTNAME$ で使うには「Enable on this site」をクリックしてください。",
+    "description": "Empty state helper with hostname.",
+    "placeholders": {
+      "hostname": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "emptyHostnameNoVideoFound": {
+    "message": "$HOSTNAME$ · 動画が見つかりません",
+    "description": "Empty state helper with hostname.",
+    "placeholders": {
+      "hostname": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "emptyNoVideoFoundLower": {
+    "message": "動画が見つかりません",
+    "description": "Lowercase empty state text."
+  },
+  "statusNotActive": {
+    "message": "非アクティブ",
+    "description": "Current playback status."
+  },
+  "untitledTab": {
+    "message": "無題のタブ",
+    "description": "Fallback tab title."
+  },
+  "ariaTimeOfDuration": {
+    "message": "$TIME$ / $DURATION$",
+    "description": "Seek bar aria value with current time and duration.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "0:42"
+      },
+      "duration": {
+        "content": "$2",
+        "example": "3:15"
+      }
+    }
+  },
+  "liveLabel": {
+    "message": "ライブ",
+    "description": "Live stream label."
+  },
+  "ariaTimeLive": {
+    "message": "$TIME$（ライブ）",
+    "description": "Seek bar aria value for live stream.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "0:42"
+      }
+    }
+  },
+  "statusPausedUpper": {
+    "message": "一時停止中",
+    "description": "Uppercase playback status."
+  },
+  "statusPlayingUpper": {
+    "message": "再生中",
+    "description": "Uppercase playback status."
+  },
+  "toggleEnabledOnHost": {
+    "message": "$HOSTNAME$ で有効",
+    "description": "Site toggle enabled label with hostname.",
+    "placeholders": {
+      "hostname": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "toggleDisabledOnHost": {
+    "message": "$HOSTNAME$ で無効",
+    "description": "Site toggle disabled label with hostname.",
+    "placeholders": {
+      "hostname": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "toggleEnableOnHost": {
+    "message": "$HOSTNAME$ で有効にする",
+    "description": "Site toggle action label with hostname.",
+    "placeholders": {
+      "hostname": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "clickToResetTo1x": {
+    "message": "クリックして1×にリセット",
+    "description": "Speed badge title."
+  },
+  "resetLower": {
+    "message": "リセット",
+    "description": "Lowercase reset action label."
+  },
+  "toastPlay": {
+    "message": "再生",
+    "description": "Toast action label."
+  },
+  "toastPlaying": {
+    "message": "再生中",
+    "description": "Toast status label."
+  },
+  "toastPaused": {
+    "message": "一時停止中",
+    "description": "Toast status label."
+  },
+  "toastResetTo1x": {
+    "message": "1×にリセット",
+    "description": "Toast action label."
+  },
+  "onboardingPageTitle": {
+    "message": "PlaybackKeys へようこそ",
+    "description": "Onboarding page title."
+  },
+  "installed": {
+    "message": "インストール済み",
+    "description": "Onboarding status label."
+  },
+  "onboardingHeroTitle": {
+    "message": "準備完了です。ショートカットを押してください。",
+    "description": "Onboarding hero title."
+  },
+  "onboardingHeroSubtitle": {
+    "message": "ブラウザ動画用のグローバルショートカット。エディタを離れずに一時停止、スキップ、速度変更ができます。",
+    "description": "Onboarding hero subtitle."
+  },
+  "yourDefaultChords": {
+    "message": "既定のショートカット",
+    "description": "Onboarding section heading."
+  },
+  "onboardingDefaultChordsHint": {
+    "message": "下の3つの推奨ショートカットは既定では空です。<a href=\"#\" id=\"ob-go-shortcuts-inline\">Chrome のショートカット設定</a>で割り当てるか、<a href=\"#\" id=\"ob-go-settings-inline\">設定</a>でスキップ間隔と速度ステップを調整してください。",
+    "description": "Onboarding helper text. Contains trusted extension HTML."
+  },
+  "tryItOnThisPage": {
+    "message": "このページで試す",
+    "description": "Onboarding section heading."
+  },
+  "demoVideoLabel": {
+    "message": "デモ · video.mp4",
+    "description": "Demo video label."
+  },
+  "onboardingMacCallout": {
+    "message": "スキップには <b>8</b> と <b>9</b> を使います。macOS では <code>⌘⇧3</code> から <code>⌘⇧6</code> がスクリーンショット用に使われるためです。<code>chrome://extensions/shortcuts</code> で自由に割り当て直せます。",
+    "description": "Onboarding macOS note. Contains trusted extension HTML."
+  },
+  "onboardingNonMacCallout": {
+    "message": "スキップは既定で <b>3</b> と <b>4</b> を使います。<code>chrome://extensions/shortcuts</code> で自由に割り当て直せます。",
+    "description": "Onboarding non-macOS note. Contains trusted extension HTML."
+  },
+  "chromeOsGlobalCommandsNote": {
+    "message": "注意: ChromeOS はグローバルコマンドに対応していません。Chrome がフォーカスされている間だけショートカットが動作します。",
+    "description": "Onboarding ChromeOS note."
+  },
+  "useItOnAnyVideoSite": {
+    "message": "どの動画サイトでも使う",
+    "description": "Onboarding section heading."
+  },
+  "useItOnAnyVideoSiteDesc": {
+    "message": "YouTube、Vimeo、Udemy、Coursera ではこれで完了です。それ以外ではページを開き、ツールバーアイコンをクリックして <b>このサイトで有効にする</b> を選びます。",
+    "description": "Onboarding helper text. Contains trusted extension HTML."
+  },
+  "settingsCardDesc": {
+    "message": "スキップ · 速度ステップ · サイト別切り替え",
+    "description": "Onboarding settings card description."
+  },
+  "shortcutsCardDesc": {
+    "message": "chrome://extensions/shortcuts で割り当て直す",
+    "description": "Onboarding shortcuts card description."
+  },
+  "githubCardDesc": {
+    "message": "Issue · 機能リクエスト · MIT ソース",
+    "description": "Onboarding GitHub card description."
+  },
+  "privacyMetaShort": {
+    "message": "テレメトリなし · 通信なし · MIT ライセンス",
+    "description": "Short privacy footer text."
+  },
+  "suggested": {
+    "message": "候補",
+    "description": "Suggested shortcut tag."
+  },
+  "yourChoice": {
+    "message": "自由に設定",
+    "description": "Unbound shortcut tag."
+  }
+}

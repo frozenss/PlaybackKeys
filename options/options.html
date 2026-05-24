@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="utf-8" />
-  <title>PlaybackKeys Settings</title>
+  <title data-i18n="settingsPageTitle">PlaybackKeys Settings</title>
   <link rel="stylesheet" href="../shared/tokens.css" />
   <link rel="stylesheet" href="options.css" />
 </head>
@@ -16,55 +16,55 @@
         <span>PlaybackKeys</span>
       </div>
       <nav class="opt-nav">
-        <span class="grp">Settings</span>
-        <a href="#playback" class="nav-link">Playback</a>
-        <a href="#sites" class="nav-link">Sites</a>
-        <a href="#display" class="nav-link">Display</a>
-        <a href="#shortcuts" class="nav-link">Shortcuts</a>
-        <span class="grp" style="margin-top:12px">About</span>
-        <a href="#privacy" class="nav-link">Privacy</a>
-        <a href="#version" class="nav-link" id="opt-version">Version</a>
+        <span class="grp" data-i18n="navSettings">Settings</span>
+        <a href="#playback" class="nav-link" data-i18n="sectionPlayback">Playback</a>
+        <a href="#sites" class="nav-link" data-i18n="sectionSites">Sites</a>
+        <a href="#display" class="nav-link" data-i18n="sectionDisplay">Display</a>
+        <a href="#shortcuts" class="nav-link" data-i18n="navShortcuts">Shortcuts</a>
+        <span class="grp" style="margin-top:12px" data-i18n="sectionAbout">About</span>
+        <a href="#privacy" class="nav-link" data-i18n="sectionPrivacy">Privacy</a>
+        <a href="#version" class="nav-link" id="opt-version" data-i18n="labelVersion">Version</a>
       </nav>
       <div class="opt-side-foot">
-        MIT · open source<br>
+        <span data-i18n="footerMitOpenSource">MIT · open source</span><br>
         <a href="https://github.com/mehmetdemircs/PlaybackKeys" target="_blank" rel="noopener">github ↗</a>
       </div>
     </aside>
 
     <main class="opt-main">
       <div class="opt-h">
-        <h1>Settings</h1>
-        <span class="save"><span class="dot"></span>Saved automatically</span>
+        <h1 data-i18n="navSettings">Settings</h1>
+        <span class="save"><span class="dot"></span><span data-i18n="savedAutomatically">Saved automatically</span></span>
       </div>
-      <p class="opt-sub">Changes save automatically. Per-site toggles override the global defaults.</p>
+      <p class="opt-sub" data-i18n="settingsSubtitle">Changes save automatically. Per-site toggles override the global defaults.</p>
 
       <section class="opt-group" id="playback">
-        <div class="opt-group-h"><span class="name">Playback steps</span><span class="desc">how each chord changes the player</span></div>
+        <div class="opt-group-h"><span class="name" data-i18n="playbackSteps">Playback steps</span><span class="desc" data-i18n="playbackStepsDesc">how each chord changes the player</span></div>
 
         <div class="opt-row">
-          <div class="lbl">Skip interval<small>Seconds jumped by Skip back / forward</small></div>
+          <div class="lbl"><span data-i18n="skipInterval">Skip interval</span><small data-i18n="skipIntervalDesc">Seconds jumped by Skip back / forward</small></div>
           <div>
             <div class="seg" id="seg-skip"></div>
             <div class="seg-custom" id="custom-skip" hidden>
               <input type="number" id="custom-skip-input" min="1" />
-              <span class="unit">seconds</span>
+              <span class="unit" data-i18n="unitSeconds">seconds</span>
             </div>
           </div>
         </div>
 
         <div class="opt-row">
-          <div class="lbl">Speed step<small>Speed change per press</small></div>
+          <div class="lbl"><span data-i18n="speedStep">Speed step</span><small data-i18n="speedStepDesc">Speed change per press</small></div>
           <div>
             <div class="seg" id="seg-step"></div>
             <div class="seg-custom" id="custom-step" hidden>
               <input type="number" id="custom-step-input" min="0.01" step="0.01" />
-              <span class="unit">× per press</span>
+              <span class="unit" data-i18n="unitPerPress">× per press</span>
             </div>
           </div>
         </div>
 
         <div class="opt-row">
-          <div class="lbl">Speed range<small>Min and max speed</small></div>
+          <div class="lbl"><span data-i18n="speedRange">Speed range</span><small data-i18n="speedRangeDesc">Min and max speed</small></div>
           <div class="range-input">
             <input class="opt-input" id="speed-min" type="number" min="0.05" step="0.05" />
             <span class="range-arrow">→</span>
@@ -73,60 +73,61 @@
         </div>
 
         <div class="opt-row">
-          <div class="lbl">Wrap on min/max<small>Loop back to min instead of stopping at max</small></div>
+          <div class="lbl"><span data-i18n="wrapOnMinMax">Wrap on min/max</span><small data-i18n="wrapOnMinMaxDesc">Loop back to min instead of stopping at max</small></div>
           <div class="switch-lg" id="wrap-toggle" role="switch" tabindex="0"></div>
         </div>
       </section>
 
       <section class="opt-group" id="sites">
-        <div class="opt-group-h"><span class="name">Sites</span><span class="desc">where shortcuts are active</span></div>
+        <div class="opt-group-h"><span class="name" data-i18n="sectionSites">Sites</span><span class="desc" data-i18n="sitesDesc">where shortcuts are active</span></div>
 
         <div class="opt-row toggle-row">
-          <div class="lbl">Run on all sites<small>Off by default. Power-user toggle: Chrome will prompt for access to every site you visit. Most users only need the four built-ins.</small></div>
+          <div class="lbl"><span data-i18n="runOnAllSites">Run on all sites</span><small data-i18n="runOnAllSitesDesc">Off by default. Power-user toggle: Chrome will prompt for access to every site you visit. Most users only need the built-ins.</small></div>
           <div class="switch-lg" id="all-sites-toggle" role="switch" tabindex="0"></div>
         </div>
 
         <div class="opt-row" style="grid-template-columns:1fr; gap:8px; align-items:flex-start;">
-          <div class="lbl">Active on these hosts<small>The four built-ins are always supported. To enable on another site, open it, click the toolbar icon, and choose "Enable on this site".</small></div>
+          <div class="lbl"><span data-i18n="activeOnHosts">Active on these hosts</span><small data-i18n="activeOnHostsDesc">The built-ins are always supported. To enable on another site, open it, click the toolbar icon, and choose "Enable on this site".</small></div>
           <div class="site-list" id="site-list"></div>
         </div>
       </section>
 
       <section class="opt-group" id="display">
-        <div class="opt-group-h"><span class="name">Display</span><span class="desc">in-page UI</span></div>
+        <div class="opt-group-h"><span class="name" data-i18n="sectionDisplay">Display</span><span class="desc" data-i18n="displayDesc">in-page UI</span></div>
 
         <div class="opt-row toggle-row">
-          <div class="lbl">Show toast on action<small>Bottom-right card after each action</small></div>
+          <div class="lbl"><span data-i18n="showToastOnAction">Show toast on action</span><small data-i18n="showToastOnActionDesc">Bottom-right card after each action</small></div>
           <div class="switch-lg" id="toast-toggle" role="switch" tabindex="0"></div>
         </div>
         <div class="opt-row toggle-row">
-          <div class="lbl">Show speed badge<small>Hidden when speed is 1×</small></div>
+          <div class="lbl"><span data-i18n="showSpeedBadge">Show speed badge</span><small data-i18n="showSpeedBadgeDesc">Hidden when speed is 1×</small></div>
           <div class="switch-lg" id="badge-toggle" role="switch" tabindex="0"></div>
         </div>
         <div class="opt-row">
-          <div class="lbl">Toast duration<small>How long the toast stays visible</small></div>
+          <div class="lbl"><span data-i18n="toastDuration">Toast duration</span><small data-i18n="toastDurationDesc">How long the toast stays visible</small></div>
           <div class="seg" id="seg-toastdur"></div>
         </div>
       </section>
 
       <section class="opt-group" id="shortcuts">
-        <div class="opt-group-h"><span class="name">Shortcuts</span><span class="desc">read-only, bound in chrome://extensions/shortcuts</span></div>
+        <div class="opt-group-h"><span class="name" data-i18n="navShortcuts">Shortcuts</span><span class="desc" data-i18n="shortcutsDesc">read-only, bound in chrome://extensions/shortcuts</span></div>
         <div id="shortcut-list"></div>
-        <button class="btn-ghost" id="open-shortcuts" style="margin-top:12px">Open Chrome shortcut settings ↗</button>
+        <button class="btn-ghost" id="open-shortcuts" style="margin-top:12px" data-i18n="openChromeShortcutSettings">Open Chrome shortcut settings ↗</button>
       </section>
 
       <section class="opt-group" id="privacy">
-        <div class="opt-group-h"><span class="name">Privacy</span></div>
-        <p class="opt-prose">PlaybackKeys collects nothing. No telemetry, no network requests, no analytics. Settings live in <code>chrome.storage</code> on your device. Source code at <a href="https://github.com/mehmetdemircs/PlaybackKeys" target="_blank" rel="noopener">github.com/mehmetdemircs/PlaybackKeys</a>.</p>
+        <div class="opt-group-h"><span class="name" data-i18n="sectionPrivacy">Privacy</span></div>
+        <p class="opt-prose" data-i18n-html="privacyProse">PlaybackKeys collects nothing. No telemetry, no network requests, no analytics. Settings live in <code>chrome.storage</code> on your device. Source code at <a href="https://github.com/mehmetdemircs/PlaybackKeys" target="_blank" rel="noopener">github.com/mehmetdemircs/PlaybackKeys</a>.</p>
       </section>
 
       <div class="opt-foot">
-        <span class="meta">No telemetry · No network requests · Settings stored locally</span>
-        <button class="btn-ghost" id="reset-defaults">Reset all to defaults</button>
+        <span class="meta" data-i18n="privacyMeta">No telemetry · No network requests · Settings stored locally</span>
+        <button class="btn-ghost" id="reset-defaults" data-i18n="resetAllDefaults">Reset all to defaults</button>
       </div>
     </main>
   </div>
 
+  <script src="../shared/i18n.js"></script>
   <script src="options.js"></script>
 </body>
 </html>

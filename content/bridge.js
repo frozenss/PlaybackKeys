@@ -7,6 +7,7 @@
   const REQ = `${TAG}:req`;
   const RES = `${TAG}:res`;
   const PRESENCE = `${TAG}:presence`;
+  const I18N = `${TAG}:i18n`;
 
   if (window.__playbackkeysBridgeInstalled) return;
   window.__playbackkeysBridgeInstalled = true;
@@ -41,6 +42,31 @@
     } catch {
       extensionAlive = false;
     }
+  }
+
+  function message(key, fallback) {
+    try {
+      const value = chrome.i18n.getMessage(key);
+      return value || fallback;
+    } catch {
+      return fallback;
+    }
+  }
+
+  function postI18n() {
+    if (!isExtensionAlive()) return;
+    window.postMessage({
+      source: I18N,
+      messages: {
+        clickToResetTo1x: message("clickToResetTo1x", "Click to reset to 1×"),
+        reset: message("resetLower", "reset"),
+        toastPlay: message("toastPlay", "Play"),
+        toastPlaying: message("toastPlaying", "Playing"),
+        toastPaused: message("toastPaused", "Paused"),
+        toastResetTo1x: message("toastResetTo1x", "Reset to 1×"),
+        statusControlling: message("statusControlling", "Controlling"),
+      },
+    }, "*");
   }
 
   // SW -> page: relay command into MAIN world.
@@ -120,4 +146,8 @@
       if (type) safeSendMessage({ type });
     }
   });
+
+  postI18n();
+  setTimeout(postI18n, 100);
+  setTimeout(postI18n, 1000);
 })();

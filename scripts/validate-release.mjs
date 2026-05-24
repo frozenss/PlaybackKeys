@@ -6,6 +6,7 @@ import { execFileSync } from "node:child_process";
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const RUNTIME_PATHS = [
   "manifest.json",
+  "_locales",
   "service-worker.js",
   "content",
   "popup",
@@ -19,6 +20,18 @@ const RUNTIME_PATHS = [
   "LICENSE",
 ];
 const REQUIRED_PERMISSIONS = ["storage", "tabs", "scripting", "contextMenus"];
+const STORE_LISTING_LOCALES = {
+  English: "en",
+  Spanish: "es",
+  "Portuguese Brazil": "pt_BR",
+  German: "de",
+  French: "fr",
+  Turkish: "tr",
+  Japanese: "ja",
+  Korean: "ko",
+  "Chinese Simplified": "zh_CN",
+};
+const STORE_SUPPORTED_SITES = ["YouTube", "Udemy", "Vimeo", "Coursera"];
 const FORBIDDEN_PACKAGE_PATHS = [
   ".git",
   ".github",
@@ -103,9 +116,102 @@ function validateRuntimeFiles() {
   }
 }
 
+function placeholderKeys(message) {
+  return Object.keys(message.placeholders || {}).sort();
+}
+
+function validateLocales() {
+  const localeRoot = join(ROOT, "_locales");
+  assert(existsSync(localeRoot), "Missing _locales directory.");
+  if (!existsSync(localeRoot)) return;
+
+  const basePath = join(localeRoot, "en", "messages.json");
+  assert(existsSync(basePath), "Missing _locales/en/messages.json.");
+  if (!existsSync(basePath)) return;
+
+  const base = readJson("_locales/en/messages.json");
+  const baseKeys = Object.keys(base).sort();
+  const localeDirs = readdirSync(localeRoot)
+    .filter((name) => statSync(join(localeRoot, name)).isDirectory())
+    .sort();
+
+  for (const locale of localeDirs) {
+    const relPath = `_locales/${locale}/messages.json`;
+    assert(existsSync(join(ROOT, relPath)), `Missing ${relPath}.`);
+    if (!existsSync(join(ROOT, relPath))) continue;
+
+    const messages = readJson(relPath);
+    const keys = Object.keys(messages).sort();
+    const missing = baseKeys.filter((key) => !keys.includes(key));
+    const extra = keys.filter((key) => !baseKeys.includes(key));
+    assert(missing.length === 0, `${relPath} missing keys: ${missing.join(", ")}`);
+    assert(extra.length === 0, `${relPath} has extra keys: ${extra.join(", ")}`);
+
+    for (const key of baseKeys) {
+      const entry = messages[key];
+      if (!entry) continue;
+      assert(typeof entry.message === "string" && entry.message.length > 0, `${relPath}:${key} must have a non-empty message.`);
+      assert(typeof entry.description === "string" && entry.description.length > 0, `${relPath}:${key} must have a non-empty description.`);
+
+      const expectedPlaceholders = placeholderKeys(base[key]);
+      const actualPlaceholders = placeholderKeys(entry);
+      assert(
+        expectedPlaceholders.join("\0") === actualPlaceholders.join("\0"),
+        `${relPath}:${key} placeholders must match en (${expectedPlaceholders.join(", ")}).`,
+      );
+    }
+  }
+}
+
+function parseStoreListing() {
+  const doc = readFileSync(join(ROOT, "docs/chrome-store-localized-listing.md"), "utf8");
+  const sections = {};
+  const matches = [...doc.matchAll(/^## (.+)$/gm)];
+
+  for (let i = 0; i < matches.length; i += 1) {
+    const heading = matches[i][1];
+    const start = matches[i].index + matches[i][0].length;
+    const end = i + 1 < matches.length ? matches[i + 1].index : doc.length;
+    sections[heading] = doc.slice(start, end).trim();
+  }
+
+  return sections;
+}
+
+function validateStoreListing() {
+  const sections = parseStoreListing();
+
+  for (const [heading, locale] of Object.entries(STORE_LISTING_LOCALES)) {
+    const section = sections[heading];
+    assert(!!section, `Chrome Store listing is missing locale section: ${heading}.`);
+    if (!section) continue;
+
+    const localeMessages = readJson(`_locales/${locale}/messages.json`);
+    const nameMatch = section.match(/^Extension name: (.+)$/m);
+    const shortMatch = section.match(/^Short description: (.+)$/m);
+    const fullMatch = section.match(/^Full description:\n\n([\s\S]+?)\n\nInternal search keywords,/m);
+
+    assert(nameMatch?.[1] === localeMessages.appName.message, `${heading} store listing name must match _locales/${locale}/messages.json appName.`);
+    assert(shortMatch?.[1] === localeMessages.appDescription.message, `${heading} store listing short description must match _locales/${locale}/messages.json appDescription.`);
+    assert(!!fullMatch?.[1]?.trim(), `${heading} store listing must have a full description.`);
+    assert(section.includes("https://github.com/mehmetdemircs/PlaybackKeys"), `${heading} store listing must include the source-code URL.`);
+    assert(section.includes("https://mehmetdemircs.github.io/PlaybackKeys/PRIVACY/"), `${heading} store listing must include the privacy-policy URL.`);
+
+    const fullDescription = fullMatch?.[1] || "";
+    const siteIndexes = STORE_SUPPORTED_SITES.map((site) => fullDescription.indexOf(site));
+    assert(siteIndexes.every((index) => index >= 0), `${heading} store listing full description must mention ${STORE_SUPPORTED_SITES.join(", ")}.`);
+    assert(
+      siteIndexes.every((index, i) => i === 0 || index > siteIndexes[i - 1]),
+      `${heading} store listing must mention supported sites in this order: ${STORE_SUPPORTED_SITES.join(", ")}.`,
+    );
+  }
+}
+
 function makePackage() {
   validateManifest();
   validateRuntimeFiles();
+  validateLocales();
+  validateStoreListing();
   if (process.exitCode) process.exit(process.exitCode);
 
   const manifest = readJson("manifest.json");
@@ -145,6 +251,8 @@ function makePackage() {
 
 validateManifest();
 validateRuntimeFiles();
+validateLocales();
+validateStoreListing();
 
 if (process.argv.includes("--package")) makePackage();
 else if (!process.exitCode) console.log("PlaybackKeys release checks passed.");

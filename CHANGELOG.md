@@ -2,6 +2,21 @@
 
 All notable changes to PlaybackKeys will be documented in this file.
 
+## [0.6.0] - 2026-05-24
+
+### Added
+- Added Chrome extension i18n support with localized manifest metadata, popup, settings, onboarding, command labels, context menu text, and in-page playback UI strings.
+- Added locale catalogs for English, Spanish, Portuguese (Brazil), German, French, Turkish, Japanese, Korean, and Simplified Chinese.
+- Added localized Chrome Web Store listing copy under `docs/chrome-store-localized-listing.md`.
+
+### Changed
+- Updated release packaging validation so `_locales` is included in the Chrome Web Store ZIP.
+- Added release validation for locale key parity, required message fields, and placeholder consistency across all locale catalogs.
+- Updated Chrome Web Store listing copy to emphasize YouTube, Udemy, Vimeo, Coursera, global shortcut usage, privacy, limitations, and open-source links.
+
+### Fixed
+- Hardened in-page i18n delivery so late-arriving localized strings update shared toast and speed badge UI state consistently.
+
 ## [0.5.0] - 2026-05-19
 
 ### Changed

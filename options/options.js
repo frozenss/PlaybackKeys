@@ -14,15 +14,16 @@ function detectIsMac() {
   return false;
 }
 const isMac = detectIsMac();
+const t = globalThis.PlaybackKeysI18n?.t || ((key, _subs, fallback) => fallback || key);
 
 const COMMAND_LABELS = {
-  "1-play-pause":   { label: "Play / Pause" },
-  "2-speed-up":     { label: "Speed +0.25×" },
-  "3-skip-back":    { label: "Skip back" },
-  "4-skip-forward": { label: "Skip forward" },
-  "5-speed-down":   { label: "Speed −0.25×" },
-  "6-speed-reset":  { label: "Reset speed to 1×" },
-  "7-switch-target":{ label: "Switch target tab" },
+  "1-play-pause":   { key: "commandPlayPause", fallback: "Play / Pause" },
+  "2-speed-up":     { key: "commandSpeedUpStep", fallback: "Speed +0.25×" },
+  "3-skip-back":    { key: "commandSkipBack", fallback: "Skip back" },
+  "4-skip-forward": { key: "commandSkipForward", fallback: "Skip forward" },
+  "5-speed-down":   { key: "commandSpeedDownStep", fallback: "Speed −0.25×" },
+  "6-speed-reset":  { key: "commandResetSpeed1x", fallback: "Reset speed to 1×" },
+  "7-switch-target":{ key: "commandSwitchTargetShort", fallback: "Switch target tab" },
 };
 
 const SEEK_PRESETS  = [2, 5, 10, 15, 30];
@@ -43,7 +44,7 @@ const DEFAULTS = {
   runOnAllSites: false,
 };
 
-function fmtToastDur(ms) { return ms === 0 ? "off" : `${(ms / 1000).toFixed(1)}s`; }
+function fmtToastDur(ms) { return ms === 0 ? t("off", undefined, "off") : `${(ms / 1000).toFixed(1)}s`; }
 function fmtSpeed(s)     { return `${s.toFixed(2)}×`; }
 function fmtSeek(s)      { return `${s}s`; }
 
@@ -73,7 +74,7 @@ function buildSeg(containerId, presets, currentValue, fmtFn, onPick, allowCustom
   }
   if (allowCustom) {
     const custom = document.createElement("button");
-    custom.textContent = "Custom";
+    custom.textContent = t("custom", undefined, "Custom");
     custom.classList.toggle("on", !isPreset);
     custom.addEventListener("click", () => { onPick("custom"); });
     c.appendChild(custom);
@@ -128,11 +129,11 @@ async function renderSites(settings) {
     const isOn = !settings.perSiteDisabled[site.origin];
     row.innerHTML = `
       <span class="host">${site.hostname}</span>
-      <span class="tag">BUILT-IN</span>
+      <span class="tag">${t("builtInTag", undefined, "BUILT-IN")}</span>
     `;
     const sw = document.createElement("div");
     sw.className = "switch-lg";
-    sw.setAttribute("aria-label", `Enable on ${site.hostname}`);
+    sw.setAttribute("aria-label", t("toggleEnableOnHost", [site.hostname], `Enable on ${site.hostname}`));
     bindSwitch(sw, () => isOn, async () => {
       const cur = (await chrome.storage.local.get({ perSiteDisabled: {} })).perSiteDisabled;
       const wasOn = sw.classList.contains("on");
@@ -155,11 +156,11 @@ async function renderSites(settings) {
     row.className = "site-row custom";
     row.innerHTML = `
       <span class="host">${hostname}</span>
-      <span class="tag">CUSTOM</span>
+      <span class="tag">${t("customTag", undefined, "CUSTOM")}</span>
     `;
     const removeBtn = document.createElement("button");
     removeBtn.className = "btn-ghost";
-    removeBtn.textContent = "Remove";
+    removeBtn.textContent = t("remove", undefined, "Remove");
     removeBtn.addEventListener("click", async () => {
       await chrome.permissions.remove({ origins: [`${origin}/*`] }).catch(() => {});
       const { enabledOrigins = {} } = await chrome.storage.local.get({ enabledOrigins: {} });
@@ -174,7 +175,7 @@ async function renderSites(settings) {
 
 function chordHTML(shortcut) {
   if (!shortcut) {
-    return `<span class="kbd-chord unbound"><span class="key">+</span><span class="key">add</span></span>`;
+    return `<span class="kbd-chord unbound"><span class="key">+</span><span class="key">${t("add", undefined, "add")}</span></span>`;
   }
   const parts = shortcut.split("+").map((p) => {
     if (!isMac) return p;
@@ -200,8 +201,10 @@ async function renderShortcuts() {
     if (!meta) continue;
     const row = document.createElement("div");
     row.className = "shortcut-row" + (cmd.shortcut ? "" : " is-unbound");
+    const label = t(meta.key, undefined, meta.fallback);
+    const unbound = t("unbound", undefined, "unbound");
     row.innerHTML = `
-      <span class="name">${meta.label}${cmd.shortcut ? "" : "<small>unbound</small>"}</span>
+      <span class="name">${label}${cmd.shortcut ? "" : `<small>${unbound}</small>`}</span>
       ${chordHTML(cmd.shortcut)}
     `;
     list.appendChild(row);
@@ -343,7 +346,7 @@ function wireOnce() {
 
   // All-sites toggle: requests / removes the <all_urls> optional permission.
   const allSitesEl = document.getElementById("all-sites-toggle");
-  allSitesEl.setAttribute("aria-label", "Run on all sites");
+  allSitesEl.setAttribute("aria-label", t("runOnAllSites", undefined, "Run on all sites"));
   applyAria(allSitesEl, allSitesEl.classList.contains("on"));
   allSitesEl.addEventListener("keydown", (e) => {
     if (e.key === " " || e.key === "Enter") { e.preventDefault(); allSitesEl.click(); }
@@ -352,7 +355,11 @@ function wireOnce() {
     const el = e.currentTarget;
     const next = !el.classList.contains("on");
     if (next) {
-      const confirmed = confirm("Run on all sites asks Chrome for access to every website you visit. You can usually use the per-site Enable button instead. Continue?");
+      const confirmed = confirm(t(
+        "confirmRunOnAllSites",
+        undefined,
+        "Run on all sites asks Chrome for access to every website you visit. You can usually use the per-site Enable button instead. Continue?",
+      ));
       if (!confirmed) return;
       const ok = await chrome.permissions.request({ origins: ["<all_urls>"] });
       if (!ok) return;
@@ -371,7 +378,11 @@ function wireOnce() {
 
   // Reset to defaults
   document.getElementById("reset-defaults").addEventListener("click", async () => {
-    if (!confirm("Reset all PlaybackKeys settings to defaults? This won't remove granted site permissions.")) return;
+    if (!confirm(t(
+      "confirmResetDefaults",
+      undefined,
+      "Reset all PlaybackKeys settings to defaults? This won't remove granted site permissions.",
+    ))) return;
     await chrome.storage.local.set(DEFAULTS);
     flashSaved();
     render();

@@ -1,0 +1,568 @@
+{
+  "appName": {
+    "message": "PlaybackKeys",
+    "description": "Extension name. Do not translate the product name."
+  },
+  "appDescription": {
+    "message": "YouTube, Udemy, Vimeo, Coursera ve tarayıcı videoları için global klavye kısayolları.",
+    "description": "Short extension description used by the manifest."
+  },
+  "commandPlayPause": {
+    "message": "Oynat / Duraklat",
+    "description": "Keyboard command label."
+  },
+  "commandSpeedUp": {
+    "message": "Hızlandır",
+    "description": "Keyboard command label."
+  },
+  "commandSkipBack": {
+    "message": "Geri sar",
+    "description": "Keyboard command label."
+  },
+  "commandSkipForward": {
+    "message": "İleri sar",
+    "description": "Keyboard command label."
+  },
+  "commandSpeedDown": {
+    "message": "Yavaşlat",
+    "description": "Keyboard command label."
+  },
+  "commandResetSpeed": {
+    "message": "Hızı 1x’e sıfırla",
+    "description": "Keyboard command label."
+  },
+  "commandSwitchTarget": {
+    "message": "Hedef video sekmesini değiştir",
+    "description": "Keyboard command label."
+  },
+  "commandSpeedUpStep": {
+    "message": "Hız +0,25×",
+    "description": "Keyboard command label with speed step."
+  },
+  "commandSpeedDownStep": {
+    "message": "Hız −0,25×",
+    "description": "Keyboard command label with speed step."
+  },
+  "commandResetSpeed1x": {
+    "message": "Hızı 1×’e sıfırla",
+    "description": "Keyboard command label with target speed."
+  },
+  "commandSwitchTargetShort": {
+    "message": "Hedef sekmeyi değiştir",
+    "description": "Short keyboard command label."
+  },
+  "commandSkipBack5s": {
+    "message": "5 sn geri sar",
+    "description": "Keyboard command label with skip amount."
+  },
+  "commandSkipForward5s": {
+    "message": "5 sn ileri sar",
+    "description": "Keyboard command label with skip amount."
+  },
+  "settingsPageTitle": {
+    "message": "PlaybackKeys Ayarları",
+    "description": "Options page title."
+  },
+  "navSettings": {
+    "message": "Ayarlar",
+    "description": "Navigation label."
+  },
+  "navShortcuts": {
+    "message": "Kısayollar",
+    "description": "Navigation label."
+  },
+  "sectionPlayback": {
+    "message": "Oynatma",
+    "description": "Section heading."
+  },
+  "sectionSpeed": {
+    "message": "Hız",
+    "description": "Section heading."
+  },
+  "sectionSites": {
+    "message": "Siteler",
+    "description": "Section heading."
+  },
+  "sectionDisplay": {
+    "message": "Görünüm",
+    "description": "Section heading."
+  },
+  "sectionAbout": {
+    "message": "Hakkında",
+    "description": "Section heading."
+  },
+  "sectionPrivacy": {
+    "message": "Gizlilik",
+    "description": "Section heading."
+  },
+  "labelVersion": {
+    "message": "Sürüm",
+    "description": "Version label."
+  },
+  "footerMitOpenSource": {
+    "message": "MIT · açık kaynak",
+    "description": "Footer license text."
+  },
+  "savedAutomatically": {
+    "message": "Otomatik kaydedildi",
+    "description": "Settings saved status."
+  },
+  "settingsSubtitle": {
+    "message": "Değişiklikler otomatik kaydedilir. Siteye özel anahtarlar genel varsayılanların önüne geçer.",
+    "description": "Settings page helper text."
+  },
+  "playbackSteps": {
+    "message": "Oynatma adımları",
+    "description": "Settings group heading."
+  },
+  "playbackStepsDesc": {
+    "message": "her kısayolun oynatıcıyı nasıl değiştirdiği",
+    "description": "Settings group description."
+  },
+  "skipInterval": {
+    "message": "Atlama aralığı",
+    "description": "Setting label."
+  },
+  "skipIntervalDesc": {
+    "message": "Geri sar / İleri sar için atlanan saniye",
+    "description": "Setting description."
+  },
+  "unitSeconds": {
+    "message": "saniye",
+    "description": "Unit label."
+  },
+  "speedStep": {
+    "message": "Hız adımı",
+    "description": "Setting label."
+  },
+  "speedStepDesc": {
+    "message": "Her basıştaki hız değişimi",
+    "description": "Setting description."
+  },
+  "unitPerPress": {
+    "message": "× her basışta",
+    "description": "Unit label."
+  },
+  "speedRange": {
+    "message": "Hız aralığı",
+    "description": "Setting label."
+  },
+  "speedRangeDesc": {
+    "message": "Minimum ve maksimum hız",
+    "description": "Setting description."
+  },
+  "wrapOnMinMax": {
+    "message": "Min./maks. değerlerde döngü",
+    "description": "Setting label."
+  },
+  "wrapOnMinMaxDesc": {
+    "message": "Maksimumda durmak yerine minimuma dön",
+    "description": "Setting description."
+  },
+  "sitesDesc": {
+    "message": "kısayolların etkin olduğu yerler",
+    "description": "Settings group description."
+  },
+  "runOnAllSites": {
+    "message": "Tüm sitelerde çalıştır",
+    "description": "Setting label."
+  },
+  "runOnAllSitesDesc": {
+    "message": "Varsayılan olarak kapalıdır. İleri düzey seçenek: Chrome ziyaret ettiğiniz her siteye erişim ister. Çoğu kullanıcı yalnızca yerleşik sitelere ihtiyaç duyar.",
+    "description": "Setting description."
+  },
+  "activeOnHosts": {
+    "message": "Bu ana makinelerde etkin",
+    "description": "Setting label."
+  },
+  "activeOnHostsDesc": {
+    "message": "Yerleşik siteler her zaman desteklenir. Başka bir siteyi etkinleştirmek için siteyi açın, araç çubuğu simgesine tıklayın ve “Bu sitede etkinleştir” seçeneğini seçin.",
+    "description": "Setting description."
+  },
+  "displayDesc": {
+    "message": "sayfa içi arayüz",
+    "description": "Settings group description."
+  },
+  "showToastOnAction": {
+    "message": "Eylemde bildirim göster",
+    "description": "Setting label."
+  },
+  "showToastOnActionDesc": {
+    "message": "Her eylemden sonra sağ altta kart",
+    "description": "Setting description."
+  },
+  "showSpeedBadge": {
+    "message": "Hız rozetini göster",
+    "description": "Setting label."
+  },
+  "showSpeedBadgeDesc": {
+    "message": "Hız 1× olduğunda gizlenir",
+    "description": "Setting description."
+  },
+  "toastDuration": {
+    "message": "Bildirim süresi",
+    "description": "Setting label."
+  },
+  "toastDurationDesc": {
+    "message": "Bildirimin ne kadar görünür kalacağı",
+    "description": "Setting description."
+  },
+  "shortcutsDesc": {
+    "message": "salt okunur, chrome://extensions/shortcuts içinde atanır",
+    "description": "Settings group description."
+  },
+  "openChromeShortcutSettings": {
+    "message": "Chrome kısayol ayarlarını aç ↗",
+    "description": "Button label."
+  },
+  "privacyProse": {
+    "message": "PlaybackKeys hiçbir şey toplamaz. Telemetri yok, ağ isteği yok, analiz yok. Ayarlar cihazınızdaki <code>chrome.storage</code> içinde tutulur. Kaynak kodu <a href=\"https://github.com/mehmetdemircs/PlaybackKeys\" target=\"_blank\" rel=\"noopener\">github.com/mehmetdemircs/PlaybackKeys</a> adresindedir.",
+    "description": "Privacy section text. Contains trusted extension HTML."
+  },
+  "privacyMeta": {
+    "message": "Telemetri yok · Ağ isteği yok · Ayarlar yerel olarak saklanır",
+    "description": "Privacy footer text."
+  },
+  "resetAllDefaults": {
+    "message": "Tümünü varsayılanlara sıfırla",
+    "description": "Button label."
+  },
+  "off": {
+    "message": "kapalı",
+    "description": "Disabled preset label."
+  },
+  "custom": {
+    "message": "Özel",
+    "description": "Custom preset label."
+  },
+  "builtInTag": {
+    "message": "YERLEŞİK",
+    "description": "Built-in site tag."
+  },
+  "customTag": {
+    "message": "ÖZEL",
+    "description": "Custom site tag."
+  },
+  "remove": {
+    "message": "Kaldır",
+    "description": "Button label."
+  },
+  "add": {
+    "message": "ekle",
+    "description": "Unbound shortcut label."
+  },
+  "unbound": {
+    "message": "atanmadı",
+    "description": "Unbound shortcut status."
+  },
+  "confirmRunOnAllSites": {
+    "message": "Tüm sitelerde çalıştırmak, ziyaret ettiğiniz her web sitesi için Chrome’dan erişim ister. Genellikle siteye özel Etkinleştir düğmesini kullanabilirsiniz. Devam edilsin mi?",
+    "description": "Permission confirmation message."
+  },
+  "confirmResetDefaults": {
+    "message": "Tüm PlaybackKeys ayarları varsayılanlara sıfırlansın mı? Verilmiş site izinleri kaldırılmaz.",
+    "description": "Reset confirmation message."
+  },
+  "statusControlling": {
+    "message": "Kontrol ediliyor",
+    "description": "Current playback status."
+  },
+  "popupNoActiveVideoTab": {
+    "message": "Etkin video sekmesi yok",
+    "description": "Popup empty-state title."
+  },
+  "ariaSeek": {
+    "message": "Sar",
+    "description": "Seek bar aria label."
+  },
+  "buttonSkipBack": {
+    "message": "GERİ SAR",
+    "description": "Button label."
+  },
+  "buttonPlay": {
+    "message": "OYNAT",
+    "description": "Button label."
+  },
+  "buttonPause": {
+    "message": "DURAKLAT",
+    "description": "Button label."
+  },
+  "buttonSkipForwardShort": {
+    "message": "İLERİ SAR",
+    "description": "Short button label."
+  },
+  "buttonSkipForwardShortTitle": {
+    "message": "İleri sar",
+    "description": "Short button label with title case."
+  },
+  "buttonSlower": {
+    "message": "Daha yavaş",
+    "description": "Button label."
+  },
+  "buttonSlowerUpper": {
+    "message": "DAHA YAVAŞ",
+    "description": "Uppercase button label."
+  },
+  "buttonResetSpeed": {
+    "message": "Hızı sıfırla",
+    "description": "Button aria label."
+  },
+  "buttonResetUpper": {
+    "message": "SIFIRLA",
+    "description": "Uppercase button label."
+  },
+  "buttonFaster": {
+    "message": "Daha hızlı",
+    "description": "Button label."
+  },
+  "buttonFasterUpper": {
+    "message": "DAHA HIZLI",
+    "description": "Uppercase button label."
+  },
+  "popupEnabledOnEllipsis": {
+    "message": "Şurada etkin: …",
+    "description": "Popup toggle placeholder text."
+  },
+  "emptyNoVideoFound": {
+    "message": "Video bulunamadı",
+    "description": "Empty state title."
+  },
+  "emptyOpenVideoTab": {
+    "message": "Kontrol etmek için bir video sekmesi açın.",
+    "description": "Empty state helper text."
+  },
+  "emptySiteDisabledTitle": {
+    "message": "$HOSTNAME$ devre dışı",
+    "description": "Empty state title with hostname.",
+    "placeholders": {
+      "hostname": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "emptyReEnableFromMenu": {
+    "message": "Bu menüden tekrar etkinleştirin.",
+    "description": "Empty state helper text."
+  },
+  "emptyNoVideoOnPageYet": {
+    "message": "Bu sayfada henüz video yok",
+    "description": "Empty state title."
+  },
+  "emptyOpenVideoTryAgain": {
+    "message": "Bir video açıp tekrar deneyin.",
+    "description": "Empty state helper text."
+  },
+  "emptyOnHostname": {
+    "message": "$HOSTNAME$ üzerinde",
+    "description": "Empty state helper with hostname.",
+    "placeholders": {
+      "hostname": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "emptySiteNotEnabled": {
+    "message": "Site etkin değil",
+    "description": "Empty state title."
+  },
+  "emptyEnableSiteInstruction": {
+    "message": "$HOSTNAME$ için \"Enable on this site\" seçeneğine tıklayın.",
+    "description": "Empty state helper with hostname.",
+    "placeholders": {
+      "hostname": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "emptyHostnameNoVideoFound": {
+    "message": "$HOSTNAME$ · video bulunamadı",
+    "description": "Empty state helper with hostname.",
+    "placeholders": {
+      "hostname": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "emptyNoVideoFoundLower": {
+    "message": "video bulunamadı",
+    "description": "Lowercase empty state text."
+  },
+  "statusNotActive": {
+    "message": "Etkin değil",
+    "description": "Current playback status."
+  },
+  "untitledTab": {
+    "message": "Başlıksız sekme",
+    "description": "Fallback tab title."
+  },
+  "ariaTimeOfDuration": {
+    "message": "$TIME$ / $DURATION$",
+    "description": "Seek bar aria value with current time and duration.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "0:42"
+      },
+      "duration": {
+        "content": "$2",
+        "example": "3:15"
+      }
+    }
+  },
+  "liveLabel": {
+    "message": "CANLI",
+    "description": "Live stream label."
+  },
+  "ariaTimeLive": {
+    "message": "$TIME$ (canlı)",
+    "description": "Seek bar aria value for live stream.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "0:42"
+      }
+    }
+  },
+  "statusPausedUpper": {
+    "message": "DURAKLATILDI",
+    "description": "Uppercase playback status."
+  },
+  "statusPlayingUpper": {
+    "message": "OYNATILIYOR",
+    "description": "Uppercase playback status."
+  },
+  "toggleEnabledOnHost": {
+    "message": "$HOSTNAME$ üzerinde etkin",
+    "description": "Site toggle enabled label with hostname.",
+    "placeholders": {
+      "hostname": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "toggleDisabledOnHost": {
+    "message": "$HOSTNAME$ üzerinde devre dışı",
+    "description": "Site toggle disabled label with hostname.",
+    "placeholders": {
+      "hostname": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "toggleEnableOnHost": {
+    "message": "$HOSTNAME$ üzerinde etkinleştir",
+    "description": "Site toggle action label with hostname.",
+    "placeholders": {
+      "hostname": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "clickToResetTo1x": {
+    "message": "1×’e sıfırlamak için tıklayın",
+    "description": "Speed badge title."
+  },
+  "resetLower": {
+    "message": "sıfırla",
+    "description": "Lowercase reset action label."
+  },
+  "toastPlay": {
+    "message": "Oynat",
+    "description": "Toast action label."
+  },
+  "toastPlaying": {
+    "message": "Oynatılıyor",
+    "description": "Toast status label."
+  },
+  "toastPaused": {
+    "message": "Duraklatıldı",
+    "description": "Toast status label."
+  },
+  "toastResetTo1x": {
+    "message": "1×’e sıfırla",
+    "description": "Toast action label."
+  },
+  "onboardingPageTitle": {
+    "message": "PlaybackKeys’e hoş geldiniz",
+    "description": "Onboarding page title."
+  },
+  "installed": {
+    "message": "Yüklendi",
+    "description": "Onboarding status label."
+  },
+  "onboardingHeroTitle": {
+    "message": "Hazırsınız. Bir kısayola basın.",
+    "description": "Onboarding hero title."
+  },
+  "onboardingHeroSubtitle": {
+    "message": "Tarayıcı videosu için global kısayollar. Editörünüzden ayrılmadan duraklatın, atlayın ve hızı değiştirin.",
+    "description": "Onboarding hero subtitle."
+  },
+  "yourDefaultChords": {
+    "message": "Varsayılan kısayollarınız",
+    "description": "Onboarding section heading."
+  },
+  "onboardingDefaultChordsHint": {
+    "message": "Alttaki üç kısayol için önerilen kombinasyonlar varsayılan olarak boştur. Bunları <a href=\"#\" id=\"ob-go-shortcuts-inline\">Chrome kısayol ayarlarında</a> atayın veya atlama aralığı ile hız adımını <a href=\"#\" id=\"ob-go-settings-inline\">Ayarlar</a> bölümünde değiştirin.",
+    "description": "Onboarding helper text. Contains trusted extension HTML."
+  },
+  "tryItOnThisPage": {
+    "message": "Bu sayfada deneyin",
+    "description": "Onboarding section heading."
+  },
+  "demoVideoLabel": {
+    "message": "DEMO · video.mp4",
+    "description": "Demo video label."
+  },
+  "onboardingMacCallout": {
+    "message": "Atlama için <b>8</b> ve <b>9</b> kullanılır; çünkü macOS <code>⌘⇧3</code> ile <code>⌘⇧6</code> arasını ekran görüntüleri için kullanır. Her şeyi <code>chrome://extensions/shortcuts</code> içinde yeniden atayabilirsiniz.",
+    "description": "Onboarding macOS note. Contains trusted extension HTML."
+  },
+  "onboardingNonMacCallout": {
+    "message": "Atlama varsayılan olarak <b>3</b> ve <b>4</b> kullanır. Her şeyi <code>chrome://extensions/shortcuts</code> içinde yeniden atayabilirsiniz.",
+    "description": "Onboarding non-macOS note. Contains trusted extension HTML."
+  },
+  "chromeOsGlobalCommandsNote": {
+    "message": "Not: ChromeOS global komutları desteklemez. Orada kısayollar yalnızca Chrome odaktayken çalışır.",
+    "description": "Onboarding ChromeOS note."
+  },
+  "useItOnAnyVideoSite": {
+    "message": "Her video sitesinde kullanın",
+    "description": "Onboarding section heading."
+  },
+  "useItOnAnyVideoSiteDesc": {
+    "message": "YouTube, Vimeo, Udemy ve Coursera için hazırsınız. Diğer sitelerde: sayfayı açın, araç çubuğu simgesine tıklayın ve <b>Bu sitede etkinleştir</b> seçeneğine basın.",
+    "description": "Onboarding helper text. Contains trusted extension HTML."
+  },
+  "settingsCardDesc": {
+    "message": "atlama · hız adımı · siteye özel anahtarlar",
+    "description": "Onboarding settings card description."
+  },
+  "shortcutsCardDesc": {
+    "message": "chrome://extensions/shortcuts içinde yeniden ata",
+    "description": "Onboarding shortcuts card description."
+  },
+  "githubCardDesc": {
+    "message": "sorunlar · özellik istekleri · MIT kaynak kodu",
+    "description": "Onboarding GitHub card description."
+  },
+  "privacyMetaShort": {
+    "message": "Telemetri yok · ağ yok · MIT lisanslı",
+    "description": "Short privacy footer text."
+  },
+  "suggested": {
+    "message": "önerilen",
+    "description": "Suggested shortcut tag."
+  },
+  "yourChoice": {
+    "message": "seçiminiz",
+    "description": "Unbound shortcut tag."
+  }
+}

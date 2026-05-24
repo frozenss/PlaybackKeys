@@ -1,0 +1,568 @@
+{
+  "appName": {
+    "message": "PlaybackKeys",
+    "description": "Extension name. Do not translate the product name."
+  },
+  "appDescription": {
+    "message": "YouTube, Udemy, Vimeo, Coursera 및 브라우저 동영상을 위한 전역 키보드 단축키.",
+    "description": "Short extension description used by the manifest."
+  },
+  "commandPlayPause": {
+    "message": "재생 / 일시정지",
+    "description": "Keyboard command label."
+  },
+  "commandSpeedUp": {
+    "message": "속도 높이기",
+    "description": "Keyboard command label."
+  },
+  "commandSkipBack": {
+    "message": "되감기",
+    "description": "Keyboard command label."
+  },
+  "commandSkipForward": {
+    "message": "앞으로 이동",
+    "description": "Keyboard command label."
+  },
+  "commandSpeedDown": {
+    "message": "속도 낮추기",
+    "description": "Keyboard command label."
+  },
+  "commandResetSpeed": {
+    "message": "속도를 1x로 재설정",
+    "description": "Keyboard command label."
+  },
+  "commandSwitchTarget": {
+    "message": "대상 동영상 탭 전환",
+    "description": "Keyboard command label."
+  },
+  "commandSpeedUpStep": {
+    "message": "속도 +0.25×",
+    "description": "Keyboard command label with speed step."
+  },
+  "commandSpeedDownStep": {
+    "message": "속도 −0.25×",
+    "description": "Keyboard command label with speed step."
+  },
+  "commandResetSpeed1x": {
+    "message": "속도를 1×로 재설정",
+    "description": "Keyboard command label with target speed."
+  },
+  "commandSwitchTargetShort": {
+    "message": "대상 탭 전환",
+    "description": "Short keyboard command label."
+  },
+  "commandSkipBack5s": {
+    "message": "5초 되감기",
+    "description": "Keyboard command label with skip amount."
+  },
+  "commandSkipForward5s": {
+    "message": "5초 앞으로",
+    "description": "Keyboard command label with skip amount."
+  },
+  "settingsPageTitle": {
+    "message": "PlaybackKeys 설정",
+    "description": "Options page title."
+  },
+  "navSettings": {
+    "message": "설정",
+    "description": "Navigation label."
+  },
+  "navShortcuts": {
+    "message": "단축키",
+    "description": "Navigation label."
+  },
+  "sectionPlayback": {
+    "message": "재생",
+    "description": "Section heading."
+  },
+  "sectionSpeed": {
+    "message": "속도",
+    "description": "Section heading."
+  },
+  "sectionSites": {
+    "message": "사이트",
+    "description": "Section heading."
+  },
+  "sectionDisplay": {
+    "message": "표시",
+    "description": "Section heading."
+  },
+  "sectionAbout": {
+    "message": "정보",
+    "description": "Section heading."
+  },
+  "sectionPrivacy": {
+    "message": "개인정보",
+    "description": "Section heading."
+  },
+  "labelVersion": {
+    "message": "버전",
+    "description": "Version label."
+  },
+  "footerMitOpenSource": {
+    "message": "MIT · 오픈 소스",
+    "description": "Footer license text."
+  },
+  "savedAutomatically": {
+    "message": "자동 저장됨",
+    "description": "Settings saved status."
+  },
+  "settingsSubtitle": {
+    "message": "변경 사항은 자동으로 저장됩니다. 사이트별 토글은 전역 기본값보다 우선합니다.",
+    "description": "Settings page helper text."
+  },
+  "playbackSteps": {
+    "message": "재생 단계",
+    "description": "Settings group heading."
+  },
+  "playbackStepsDesc": {
+    "message": "각 단축키가 플레이어를 바꾸는 방식",
+    "description": "Settings group description."
+  },
+  "skipInterval": {
+    "message": "건너뛰기 간격",
+    "description": "Setting label."
+  },
+  "skipIntervalDesc": {
+    "message": "되감기 / 앞으로 이동 시 이동할 초",
+    "description": "Setting description."
+  },
+  "unitSeconds": {
+    "message": "초",
+    "description": "Unit label."
+  },
+  "speedStep": {
+    "message": "속도 단계",
+    "description": "Setting label."
+  },
+  "speedStepDesc": {
+    "message": "한 번 누를 때의 속도 변화",
+    "description": "Setting description."
+  },
+  "unitPerPress": {
+    "message": "× / 회",
+    "description": "Unit label."
+  },
+  "speedRange": {
+    "message": "속도 범위",
+    "description": "Setting label."
+  },
+  "speedRangeDesc": {
+    "message": "최소 및 최대 속도",
+    "description": "Setting description."
+  },
+  "wrapOnMinMax": {
+    "message": "최소/최대에서 순환",
+    "description": "Setting label."
+  },
+  "wrapOnMinMaxDesc": {
+    "message": "최대에서 멈추지 않고 최소로 돌아갑니다",
+    "description": "Setting description."
+  },
+  "sitesDesc": {
+    "message": "단축키가 활성화되는 위치",
+    "description": "Settings group description."
+  },
+  "runOnAllSites": {
+    "message": "모든 사이트에서 실행",
+    "description": "Setting label."
+  },
+  "runOnAllSitesDesc": {
+    "message": "기본값은 꺼짐입니다. 고급 옵션으로, Chrome이 방문하는 모든 사이트에 대한 접근 권한을 요청합니다. 대부분의 사용자는 기본 제공 사이트만 필요합니다.",
+    "description": "Setting description."
+  },
+  "activeOnHosts": {
+    "message": "이 호스트에서 활성",
+    "description": "Setting label."
+  },
+  "activeOnHostsDesc": {
+    "message": "기본 제공 사이트는 항상 지원됩니다. 다른 사이트를 활성화하려면 해당 사이트를 열고 툴바 아이콘을 클릭한 다음 “이 사이트에서 활성화”를 선택하세요.",
+    "description": "Setting description."
+  },
+  "displayDesc": {
+    "message": "페이지 내 UI",
+    "description": "Settings group description."
+  },
+  "showToastOnAction": {
+    "message": "동작 시 알림 표시",
+    "description": "Setting label."
+  },
+  "showToastOnActionDesc": {
+    "message": "각 동작 후 오른쪽 아래에 카드 표시",
+    "description": "Setting description."
+  },
+  "showSpeedBadge": {
+    "message": "속도 배지 표시",
+    "description": "Setting label."
+  },
+  "showSpeedBadgeDesc": {
+    "message": "속도가 1×이면 숨김",
+    "description": "Setting description."
+  },
+  "toastDuration": {
+    "message": "알림 지속 시간",
+    "description": "Setting label."
+  },
+  "toastDurationDesc": {
+    "message": "알림이 표시되는 시간",
+    "description": "Setting description."
+  },
+  "shortcutsDesc": {
+    "message": "읽기 전용, chrome://extensions/shortcuts에서 설정",
+    "description": "Settings group description."
+  },
+  "openChromeShortcutSettings": {
+    "message": "Chrome 단축키 설정 열기 ↗",
+    "description": "Button label."
+  },
+  "privacyProse": {
+    "message": "PlaybackKeys는 아무것도 수집하지 않습니다. 텔레메트리, 네트워크 요청, 분석이 없습니다. 설정은 기기의 <code>chrome.storage</code>에 저장됩니다. 소스 코드는 <a href=\"https://github.com/mehmetdemircs/PlaybackKeys\" target=\"_blank\" rel=\"noopener\">github.com/mehmetdemircs/PlaybackKeys</a>에서 확인할 수 있습니다.",
+    "description": "Privacy section text. Contains trusted extension HTML."
+  },
+  "privacyMeta": {
+    "message": "텔레메트리 없음 · 네트워크 요청 없음 · 설정은 로컬에 저장",
+    "description": "Privacy footer text."
+  },
+  "resetAllDefaults": {
+    "message": "모두 기본값으로 재설정",
+    "description": "Button label."
+  },
+  "off": {
+    "message": "꺼짐",
+    "description": "Disabled preset label."
+  },
+  "custom": {
+    "message": "사용자 지정",
+    "description": "Custom preset label."
+  },
+  "builtInTag": {
+    "message": "기본 제공",
+    "description": "Built-in site tag."
+  },
+  "customTag": {
+    "message": "사용자 지정",
+    "description": "Custom site tag."
+  },
+  "remove": {
+    "message": "제거",
+    "description": "Button label."
+  },
+  "add": {
+    "message": "추가",
+    "description": "Unbound shortcut label."
+  },
+  "unbound": {
+    "message": "미지정",
+    "description": "Unbound shortcut status."
+  },
+  "confirmRunOnAllSites": {
+    "message": "모든 사이트에서 실행하면 Chrome이 방문하는 모든 웹사이트에 대한 접근 권한을 요청합니다. 보통은 사이트별 활성화 버튼으로 충분합니다. 계속할까요?",
+    "description": "Permission confirmation message."
+  },
+  "confirmResetDefaults": {
+    "message": "PlaybackKeys 설정을 모두 기본값으로 재설정할까요? 이미 허용한 사이트 권한은 제거되지 않습니다.",
+    "description": "Reset confirmation message."
+  },
+  "statusControlling": {
+    "message": "제어 중",
+    "description": "Current playback status."
+  },
+  "popupNoActiveVideoTab": {
+    "message": "활성 동영상 탭 없음",
+    "description": "Popup empty-state title."
+  },
+  "ariaSeek": {
+    "message": "탐색",
+    "description": "Seek bar aria label."
+  },
+  "buttonSkipBack": {
+    "message": "되감기",
+    "description": "Button label."
+  },
+  "buttonPlay": {
+    "message": "재생",
+    "description": "Button label."
+  },
+  "buttonPause": {
+    "message": "일시정지",
+    "description": "Button label."
+  },
+  "buttonSkipForwardShort": {
+    "message": "앞으로",
+    "description": "Short button label."
+  },
+  "buttonSkipForwardShortTitle": {
+    "message": "앞으로",
+    "description": "Short button label with title case."
+  },
+  "buttonSlower": {
+    "message": "느리게",
+    "description": "Button label."
+  },
+  "buttonSlowerUpper": {
+    "message": "느리게",
+    "description": "Uppercase button label."
+  },
+  "buttonResetSpeed": {
+    "message": "속도 재설정",
+    "description": "Button aria label."
+  },
+  "buttonResetUpper": {
+    "message": "재설정",
+    "description": "Uppercase button label."
+  },
+  "buttonFaster": {
+    "message": "빠르게",
+    "description": "Button label."
+  },
+  "buttonFasterUpper": {
+    "message": "빠르게",
+    "description": "Uppercase button label."
+  },
+  "popupEnabledOnEllipsis": {
+    "message": "활성화됨: …",
+    "description": "Popup toggle placeholder text."
+  },
+  "emptyNoVideoFound": {
+    "message": "동영상을 찾을 수 없음",
+    "description": "Empty state title."
+  },
+  "emptyOpenVideoTab": {
+    "message": "제어할 동영상 탭을 여세요.",
+    "description": "Empty state helper text."
+  },
+  "emptySiteDisabledTitle": {
+    "message": "$HOSTNAME$이(가) 비활성화됨",
+    "description": "Empty state title with hostname.",
+    "placeholders": {
+      "hostname": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "emptyReEnableFromMenu": {
+    "message": "이 메뉴에서 다시 활성화하세요.",
+    "description": "Empty state helper text."
+  },
+  "emptyNoVideoOnPageYet": {
+    "message": "이 페이지에 아직 동영상이 없습니다",
+    "description": "Empty state title."
+  },
+  "emptyOpenVideoTryAgain": {
+    "message": "동영상을 열고 다시 시도하세요.",
+    "description": "Empty state helper text."
+  },
+  "emptyOnHostname": {
+    "message": "$HOSTNAME$에서",
+    "description": "Empty state helper with hostname.",
+    "placeholders": {
+      "hostname": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "emptySiteNotEnabled": {
+    "message": "사이트가 활성화되지 않음",
+    "description": "Empty state title."
+  },
+  "emptyEnableSiteInstruction": {
+    "message": "$HOSTNAME$에서 사용하려면 \"Enable on this site\"를 클릭하세요.",
+    "description": "Empty state helper with hostname.",
+    "placeholders": {
+      "hostname": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "emptyHostnameNoVideoFound": {
+    "message": "$HOSTNAME$ · 동영상을 찾을 수 없음",
+    "description": "Empty state helper with hostname.",
+    "placeholders": {
+      "hostname": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "emptyNoVideoFoundLower": {
+    "message": "동영상을 찾을 수 없음",
+    "description": "Lowercase empty state text."
+  },
+  "statusNotActive": {
+    "message": "비활성",
+    "description": "Current playback status."
+  },
+  "untitledTab": {
+    "message": "제목 없는 탭",
+    "description": "Fallback tab title."
+  },
+  "ariaTimeOfDuration": {
+    "message": "$TIME$ / $DURATION$",
+    "description": "Seek bar aria value with current time and duration.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "0:42"
+      },
+      "duration": {
+        "content": "$2",
+        "example": "3:15"
+      }
+    }
+  },
+  "liveLabel": {
+    "message": "라이브",
+    "description": "Live stream label."
+  },
+  "ariaTimeLive": {
+    "message": "$TIME$ (라이브)",
+    "description": "Seek bar aria value for live stream.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "0:42"
+      }
+    }
+  },
+  "statusPausedUpper": {
+    "message": "일시정지됨",
+    "description": "Uppercase playback status."
+  },
+  "statusPlayingUpper": {
+    "message": "재생 중",
+    "description": "Uppercase playback status."
+  },
+  "toggleEnabledOnHost": {
+    "message": "$HOSTNAME$에서 활성화됨",
+    "description": "Site toggle enabled label with hostname.",
+    "placeholders": {
+      "hostname": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "toggleDisabledOnHost": {
+    "message": "$HOSTNAME$에서 비활성화됨",
+    "description": "Site toggle disabled label with hostname.",
+    "placeholders": {
+      "hostname": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "toggleEnableOnHost": {
+    "message": "$HOSTNAME$에서 활성화",
+    "description": "Site toggle action label with hostname.",
+    "placeholders": {
+      "hostname": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "clickToResetTo1x": {
+    "message": "클릭하여 1×로 재설정",
+    "description": "Speed badge title."
+  },
+  "resetLower": {
+    "message": "재설정",
+    "description": "Lowercase reset action label."
+  },
+  "toastPlay": {
+    "message": "재생",
+    "description": "Toast action label."
+  },
+  "toastPlaying": {
+    "message": "재생 중",
+    "description": "Toast status label."
+  },
+  "toastPaused": {
+    "message": "일시정지됨",
+    "description": "Toast status label."
+  },
+  "toastResetTo1x": {
+    "message": "1×로 재설정",
+    "description": "Toast action label."
+  },
+  "onboardingPageTitle": {
+    "message": "PlaybackKeys 시작하기",
+    "description": "Onboarding page title."
+  },
+  "installed": {
+    "message": "설치됨",
+    "description": "Onboarding status label."
+  },
+  "onboardingHeroTitle": {
+    "message": "준비됐습니다. 단축키를 눌러보세요.",
+    "description": "Onboarding hero title."
+  },
+  "onboardingHeroSubtitle": {
+    "message": "브라우저 동영상을 위한 전역 단축키입니다. 편집기를 떠나지 않고 일시정지, 건너뛰기, 속도 변경을 할 수 있습니다.",
+    "description": "Onboarding hero subtitle."
+  },
+  "yourDefaultChords": {
+    "message": "기본 단축키",
+    "description": "Onboarding section heading."
+  },
+  "onboardingDefaultChordsHint": {
+    "message": "아래 세 개의 추천 단축키는 기본적으로 비어 있습니다. <a href=\"#\" id=\"ob-go-shortcuts-inline\">Chrome 단축키 설정</a>에서 지정하거나 <a href=\"#\" id=\"ob-go-settings-inline\">설정</a>에서 건너뛰기 간격과 속도 단계를 조정하세요.",
+    "description": "Onboarding helper text. Contains trusted extension HTML."
+  },
+  "tryItOnThisPage": {
+    "message": "이 페이지에서 사용해 보기",
+    "description": "Onboarding section heading."
+  },
+  "demoVideoLabel": {
+    "message": "데모 · video.mp4",
+    "description": "Demo video label."
+  },
+  "onboardingMacCallout": {
+    "message": "건너뛰기는 <b>8</b>과 <b>9</b>를 사용합니다. macOS가 <code>⌘⇧3</code>부터 <code>⌘⇧6</code>까지를 스크린샷에 사용하기 때문입니다. <code>chrome://extensions/shortcuts</code>에서 모두 다시 지정할 수 있습니다.",
+    "description": "Onboarding macOS note. Contains trusted extension HTML."
+  },
+  "onboardingNonMacCallout": {
+    "message": "건너뛰기는 기본적으로 <b>3</b>과 <b>4</b>를 사용합니다. <code>chrome://extensions/shortcuts</code>에서 모두 다시 지정할 수 있습니다.",
+    "description": "Onboarding non-macOS note. Contains trusted extension HTML."
+  },
+  "chromeOsGlobalCommandsNote": {
+    "message": "참고: ChromeOS는 전역 명령을 지원하지 않습니다. Chrome 창에 포커스가 있을 때만 단축키가 작동합니다.",
+    "description": "Onboarding ChromeOS note."
+  },
+  "useItOnAnyVideoSite": {
+    "message": "모든 동영상 사이트에서 사용",
+    "description": "Onboarding section heading."
+  },
+  "useItOnAnyVideoSiteDesc": {
+    "message": "YouTube, Vimeo, Udemy, Coursera에서는 바로 사용할 수 있습니다. 그 외에는 페이지를 열고 툴바 아이콘을 클릭한 뒤 <b>이 사이트에서 활성화</b>를 선택하세요.",
+    "description": "Onboarding helper text. Contains trusted extension HTML."
+  },
+  "settingsCardDesc": {
+    "message": "건너뛰기 · 속도 단계 · 사이트별 토글",
+    "description": "Onboarding settings card description."
+  },
+  "shortcutsCardDesc": {
+    "message": "chrome://extensions/shortcuts에서 다시 지정",
+    "description": "Onboarding shortcuts card description."
+  },
+  "githubCardDesc": {
+    "message": "이슈 · 기능 요청 · MIT 소스",
+    "description": "Onboarding GitHub card description."
+  },
+  "privacyMetaShort": {
+    "message": "텔레메트리 없음 · 네트워크 없음 · MIT 라이선스",
+    "description": "Short privacy footer text."
+  },
+  "suggested": {
+    "message": "추천",
+    "description": "Suggested shortcut tag."
+  },
+  "yourChoice": {
+    "message": "직접 선택",
+    "description": "Unbound shortcut tag."
+  }
+}

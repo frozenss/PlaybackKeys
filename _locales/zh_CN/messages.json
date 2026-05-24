@@ -1,0 +1,568 @@
+{
+  "appName": {
+    "message": "PlaybackKeys",
+    "description": "Extension name. Do not translate the product name."
+  },
+  "appDescription": {
+    "message": "适用于 YouTube、Udemy、Vimeo、Coursera 和浏览器视频的全局键盘快捷键。",
+    "description": "Short extension description used by the manifest."
+  },
+  "commandPlayPause": {
+    "message": "播放 / 暂停",
+    "description": "Keyboard command label."
+  },
+  "commandSpeedUp": {
+    "message": "加速",
+    "description": "Keyboard command label."
+  },
+  "commandSkipBack": {
+    "message": "后退",
+    "description": "Keyboard command label."
+  },
+  "commandSkipForward": {
+    "message": "前进",
+    "description": "Keyboard command label."
+  },
+  "commandSpeedDown": {
+    "message": "减速",
+    "description": "Keyboard command label."
+  },
+  "commandResetSpeed": {
+    "message": "将速度重置为 1x",
+    "description": "Keyboard command label."
+  },
+  "commandSwitchTarget": {
+    "message": "切换目标视频标签页",
+    "description": "Keyboard command label."
+  },
+  "commandSpeedUpStep": {
+    "message": "速度 +0.25×",
+    "description": "Keyboard command label with speed step."
+  },
+  "commandSpeedDownStep": {
+    "message": "速度 −0.25×",
+    "description": "Keyboard command label with speed step."
+  },
+  "commandResetSpeed1x": {
+    "message": "将速度重置为 1×",
+    "description": "Keyboard command label with target speed."
+  },
+  "commandSwitchTargetShort": {
+    "message": "切换目标标签页",
+    "description": "Short keyboard command label."
+  },
+  "commandSkipBack5s": {
+    "message": "后退 5 秒",
+    "description": "Keyboard command label with skip amount."
+  },
+  "commandSkipForward5s": {
+    "message": "前进 5 秒",
+    "description": "Keyboard command label with skip amount."
+  },
+  "settingsPageTitle": {
+    "message": "PlaybackKeys 设置",
+    "description": "Options page title."
+  },
+  "navSettings": {
+    "message": "设置",
+    "description": "Navigation label."
+  },
+  "navShortcuts": {
+    "message": "快捷键",
+    "description": "Navigation label."
+  },
+  "sectionPlayback": {
+    "message": "播放",
+    "description": "Section heading."
+  },
+  "sectionSpeed": {
+    "message": "速度",
+    "description": "Section heading."
+  },
+  "sectionSites": {
+    "message": "网站",
+    "description": "Section heading."
+  },
+  "sectionDisplay": {
+    "message": "显示",
+    "description": "Section heading."
+  },
+  "sectionAbout": {
+    "message": "关于",
+    "description": "Section heading."
+  },
+  "sectionPrivacy": {
+    "message": "隐私",
+    "description": "Section heading."
+  },
+  "labelVersion": {
+    "message": "版本",
+    "description": "Version label."
+  },
+  "footerMitOpenSource": {
+    "message": "MIT · 开源",
+    "description": "Footer license text."
+  },
+  "savedAutomatically": {
+    "message": "已自动保存",
+    "description": "Settings saved status."
+  },
+  "settingsSubtitle": {
+    "message": "更改会自动保存。按网站设置的开关会覆盖全局默认值。",
+    "description": "Settings page helper text."
+  },
+  "playbackSteps": {
+    "message": "播放步进",
+    "description": "Settings group heading."
+  },
+  "playbackStepsDesc": {
+    "message": "每个快捷键如何改变播放器",
+    "description": "Settings group description."
+  },
+  "skipInterval": {
+    "message": "跳转间隔",
+    "description": "Setting label."
+  },
+  "skipIntervalDesc": {
+    "message": "后退 / 前进跳转的秒数",
+    "description": "Setting description."
+  },
+  "unitSeconds": {
+    "message": "秒",
+    "description": "Unit label."
+  },
+  "speedStep": {
+    "message": "速度步进",
+    "description": "Setting label."
+  },
+  "speedStepDesc": {
+    "message": "每次按键改变的速度",
+    "description": "Setting description."
+  },
+  "unitPerPress": {
+    "message": "× / 次",
+    "description": "Unit label."
+  },
+  "speedRange": {
+    "message": "速度范围",
+    "description": "Setting label."
+  },
+  "speedRangeDesc": {
+    "message": "最小和最大速度",
+    "description": "Setting description."
+  },
+  "wrapOnMinMax": {
+    "message": "到达最小/最大值后循环",
+    "description": "Setting label."
+  },
+  "wrapOnMinMaxDesc": {
+    "message": "到达最大值后回到最小值，而不是停止",
+    "description": "Setting description."
+  },
+  "sitesDesc": {
+    "message": "快捷键生效的位置",
+    "description": "Settings group description."
+  },
+  "runOnAllSites": {
+    "message": "在所有网站上运行",
+    "description": "Setting label."
+  },
+  "runOnAllSitesDesc": {
+    "message": "默认关闭。高级选项：Chrome 会请求访问你访问的每个网站。大多数用户只需要内置网站。",
+    "description": "Setting description."
+  },
+  "activeOnHosts": {
+    "message": "在这些主机上启用",
+    "description": "Setting label."
+  },
+  "activeOnHostsDesc": {
+    "message": "内置网站始终受支持。要启用其他网站，请打开该网站，点击工具栏图标，然后选择“在此网站启用”。",
+    "description": "Setting description."
+  },
+  "displayDesc": {
+    "message": "页面内界面",
+    "description": "Settings group description."
+  },
+  "showToastOnAction": {
+    "message": "操作时显示提示",
+    "description": "Setting label."
+  },
+  "showToastOnActionDesc": {
+    "message": "每次操作后在右下角显示卡片",
+    "description": "Setting description."
+  },
+  "showSpeedBadge": {
+    "message": "显示速度徽章",
+    "description": "Setting label."
+  },
+  "showSpeedBadgeDesc": {
+    "message": "速度为 1× 时隐藏",
+    "description": "Setting description."
+  },
+  "toastDuration": {
+    "message": "提示持续时间",
+    "description": "Setting label."
+  },
+  "toastDurationDesc": {
+    "message": "提示保持可见的时长",
+    "description": "Setting description."
+  },
+  "shortcutsDesc": {
+    "message": "只读，在 chrome://extensions/shortcuts 中绑定",
+    "description": "Settings group description."
+  },
+  "openChromeShortcutSettings": {
+    "message": "打开 Chrome 快捷键设置 ↗",
+    "description": "Button label."
+  },
+  "privacyProse": {
+    "message": "PlaybackKeys 不收集任何数据。没有遥测、没有网络请求、没有分析。设置保存在你设备上的 <code>chrome.storage</code> 中。源代码位于 <a href=\"https://github.com/mehmetdemircs/PlaybackKeys\" target=\"_blank\" rel=\"noopener\">github.com/mehmetdemircs/PlaybackKeys</a>。",
+    "description": "Privacy section text. Contains trusted extension HTML."
+  },
+  "privacyMeta": {
+    "message": "无遥测 · 无网络请求 · 设置本地存储",
+    "description": "Privacy footer text."
+  },
+  "resetAllDefaults": {
+    "message": "全部重置为默认值",
+    "description": "Button label."
+  },
+  "off": {
+    "message": "关闭",
+    "description": "Disabled preset label."
+  },
+  "custom": {
+    "message": "自定义",
+    "description": "Custom preset label."
+  },
+  "builtInTag": {
+    "message": "内置",
+    "description": "Built-in site tag."
+  },
+  "customTag": {
+    "message": "自定义",
+    "description": "Custom site tag."
+  },
+  "remove": {
+    "message": "移除",
+    "description": "Button label."
+  },
+  "add": {
+    "message": "添加",
+    "description": "Unbound shortcut label."
+  },
+  "unbound": {
+    "message": "未绑定",
+    "description": "Unbound shortcut status."
+  },
+  "confirmRunOnAllSites": {
+    "message": "“在所有网站上运行”会让 Chrome 请求访问你访问的每个网站。通常你可以改用按网站启用按钮。继续吗？",
+    "description": "Permission confirmation message."
+  },
+  "confirmResetDefaults": {
+    "message": "要将所有 PlaybackKeys 设置重置为默认值吗？这不会移除已授予的网站权限。",
+    "description": "Reset confirmation message."
+  },
+  "statusControlling": {
+    "message": "正在控制",
+    "description": "Current playback status."
+  },
+  "popupNoActiveVideoTab": {
+    "message": "没有活动的视频标签页",
+    "description": "Popup empty-state title."
+  },
+  "ariaSeek": {
+    "message": "跳转",
+    "description": "Seek bar aria label."
+  },
+  "buttonSkipBack": {
+    "message": "后退",
+    "description": "Button label."
+  },
+  "buttonPlay": {
+    "message": "播放",
+    "description": "Button label."
+  },
+  "buttonPause": {
+    "message": "暂停",
+    "description": "Button label."
+  },
+  "buttonSkipForwardShort": {
+    "message": "前进",
+    "description": "Short button label."
+  },
+  "buttonSkipForwardShortTitle": {
+    "message": "前进",
+    "description": "Short button label with title case."
+  },
+  "buttonSlower": {
+    "message": "减速",
+    "description": "Button label."
+  },
+  "buttonSlowerUpper": {
+    "message": "减速",
+    "description": "Uppercase button label."
+  },
+  "buttonResetSpeed": {
+    "message": "重置速度",
+    "description": "Button aria label."
+  },
+  "buttonResetUpper": {
+    "message": "重置",
+    "description": "Uppercase button label."
+  },
+  "buttonFaster": {
+    "message": "加速",
+    "description": "Button label."
+  },
+  "buttonFasterUpper": {
+    "message": "加速",
+    "description": "Uppercase button label."
+  },
+  "popupEnabledOnEllipsis": {
+    "message": "已在…启用",
+    "description": "Popup toggle placeholder text."
+  },
+  "emptyNoVideoFound": {
+    "message": "未找到视频",
+    "description": "Empty state title."
+  },
+  "emptyOpenVideoTab": {
+    "message": "打开一个视频标签页来控制它。",
+    "description": "Empty state helper text."
+  },
+  "emptySiteDisabledTitle": {
+    "message": "$HOSTNAME$ 已禁用",
+    "description": "Empty state title with hostname.",
+    "placeholders": {
+      "hostname": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "emptyReEnableFromMenu": {
+    "message": "可在此菜单中重新启用。",
+    "description": "Empty state helper text."
+  },
+  "emptyNoVideoOnPageYet": {
+    "message": "此页面上还没有视频",
+    "description": "Empty state title."
+  },
+  "emptyOpenVideoTryAgain": {
+    "message": "打开视频后重试。",
+    "description": "Empty state helper text."
+  },
+  "emptyOnHostname": {
+    "message": "在 $HOSTNAME$ 上",
+    "description": "Empty state helper with hostname.",
+    "placeholders": {
+      "hostname": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "emptySiteNotEnabled": {
+    "message": "网站未启用",
+    "description": "Empty state title."
+  },
+  "emptyEnableSiteInstruction": {
+    "message": "点击“在此网站启用”即可在 $HOSTNAME$ 上使用。",
+    "description": "Empty state helper with hostname.",
+    "placeholders": {
+      "hostname": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "emptyHostnameNoVideoFound": {
+    "message": "$HOSTNAME$ · 未找到视频",
+    "description": "Empty state helper with hostname.",
+    "placeholders": {
+      "hostname": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "emptyNoVideoFoundLower": {
+    "message": "未找到视频",
+    "description": "Lowercase empty state text."
+  },
+  "statusNotActive": {
+    "message": "未激活",
+    "description": "Current playback status."
+  },
+  "untitledTab": {
+    "message": "无标题标签页",
+    "description": "Fallback tab title."
+  },
+  "ariaTimeOfDuration": {
+    "message": "$TIME$ / $DURATION$",
+    "description": "Seek bar aria value with current time and duration.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "0:42"
+      },
+      "duration": {
+        "content": "$2",
+        "example": "3:15"
+      }
+    }
+  },
+  "liveLabel": {
+    "message": "直播",
+    "description": "Live stream label."
+  },
+  "ariaTimeLive": {
+    "message": "$TIME$（直播）",
+    "description": "Seek bar aria value for live stream.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "0:42"
+      }
+    }
+  },
+  "statusPausedUpper": {
+    "message": "已暂停",
+    "description": "Uppercase playback status."
+  },
+  "statusPlayingUpper": {
+    "message": "正在播放",
+    "description": "Uppercase playback status."
+  },
+  "toggleEnabledOnHost": {
+    "message": "已在 $HOSTNAME$ 上启用",
+    "description": "Site toggle enabled label with hostname.",
+    "placeholders": {
+      "hostname": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "toggleDisabledOnHost": {
+    "message": "已在 $HOSTNAME$ 上禁用",
+    "description": "Site toggle disabled label with hostname.",
+    "placeholders": {
+      "hostname": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "toggleEnableOnHost": {
+    "message": "在 $HOSTNAME$ 上启用",
+    "description": "Site toggle action label with hostname.",
+    "placeholders": {
+      "hostname": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "clickToResetTo1x": {
+    "message": "点击重置为 1×",
+    "description": "Speed badge title."
+  },
+  "resetLower": {
+    "message": "重置",
+    "description": "Lowercase reset action label."
+  },
+  "toastPlay": {
+    "message": "播放",
+    "description": "Toast action label."
+  },
+  "toastPlaying": {
+    "message": "正在播放",
+    "description": "Toast status label."
+  },
+  "toastPaused": {
+    "message": "已暂停",
+    "description": "Toast status label."
+  },
+  "toastResetTo1x": {
+    "message": "重置为 1×",
+    "description": "Toast action label."
+  },
+  "onboardingPageTitle": {
+    "message": "欢迎使用 PlaybackKeys",
+    "description": "Onboarding page title."
+  },
+  "installed": {
+    "message": "已安装",
+    "description": "Onboarding status label."
+  },
+  "onboardingHeroTitle": {
+    "message": "已准备好。按下一个快捷键。",
+    "description": "Onboarding hero title."
+  },
+  "onboardingHeroSubtitle": {
+    "message": "用于浏览器视频的全局快捷键。不离开编辑器即可暂停、跳转和调整速度。",
+    "description": "Onboarding hero subtitle."
+  },
+  "yourDefaultChords": {
+    "message": "默认快捷键",
+    "description": "Onboarding section heading."
+  },
+  "onboardingDefaultChordsHint": {
+    "message": "底部三个推荐快捷键默认留空。你可以在 <a href=\"#\" id=\"ob-go-shortcuts-inline\">Chrome 快捷键设置</a>中分配它们，或在<a href=\"#\" id=\"ob-go-settings-inline\">设置</a>中调整跳转间隔和速度步进。",
+    "description": "Onboarding helper text. Contains trusted extension HTML."
+  },
+  "tryItOnThisPage": {
+    "message": "在此页面试用",
+    "description": "Onboarding section heading."
+  },
+  "demoVideoLabel": {
+    "message": "演示 · video.mp4",
+    "description": "Demo video label."
+  },
+  "onboardingMacCallout": {
+    "message": "跳转使用 <b>8</b> 和 <b>9</b>，因为 macOS 将 <code>⌘⇧3</code> 到 <code>⌘⇧6</code> 用于截图。你可以在 <code>chrome://extensions/shortcuts</code> 中重新绑定任何快捷键。",
+    "description": "Onboarding macOS note. Contains trusted extension HTML."
+  },
+  "onboardingNonMacCallout": {
+    "message": "跳转默认使用 <b>3</b> 和 <b>4</b>。你可以在 <code>chrome://extensions/shortcuts</code> 中重新绑定任何快捷键。",
+    "description": "Onboarding non-macOS note. Contains trusted extension HTML."
+  },
+  "chromeOsGlobalCommandsNote": {
+    "message": "提示：ChromeOS 不支持全局命令。在那里，只有 Chrome 窗口获得焦点时快捷键才会生效。",
+    "description": "Onboarding ChromeOS note."
+  },
+  "useItOnAnyVideoSite": {
+    "message": "在任何视频网站上使用",
+    "description": "Onboarding section heading."
+  },
+  "useItOnAnyVideoSiteDesc": {
+    "message": "对于 YouTube、Vimeo、Udemy 和 Coursera，已经可以直接使用。其他网站：打开页面，点击工具栏图标，然后选择<b>在此网站启用</b>。",
+    "description": "Onboarding helper text. Contains trusted extension HTML."
+  },
+  "settingsCardDesc": {
+    "message": "跳转 · 速度步进 · 按网站开关",
+    "description": "Onboarding settings card description."
+  },
+  "shortcutsCardDesc": {
+    "message": "在 chrome://extensions/shortcuts 中重新绑定",
+    "description": "Onboarding shortcuts card description."
+  },
+  "githubCardDesc": {
+    "message": "问题反馈 · 功能请求 · MIT 源码",
+    "description": "Onboarding GitHub card description."
+  },
+  "privacyMetaShort": {
+    "message": "无遥测 · 无网络 · MIT 许可",
+    "description": "Short privacy footer text."
+  },
+  "suggested": {
+    "message": "推荐",
+    "description": "Suggested shortcut tag."
+  },
+  "yourChoice": {
+    "message": "自定义",
+    "description": "Unbound shortcut tag."
+  }
+}

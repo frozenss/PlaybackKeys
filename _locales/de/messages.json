@@ -1,0 +1,568 @@
+{
+  "appName": {
+    "message": "PlaybackKeys",
+    "description": "Extension name. Do not translate the product name."
+  },
+  "appDescription": {
+    "message": "Globale Tastenkürzel für YouTube, Udemy, Vimeo, Coursera und Browser-Videos.",
+    "description": "Short extension description used by the manifest."
+  },
+  "commandPlayPause": {
+    "message": "Wiedergabe / Pause",
+    "description": "Keyboard command label."
+  },
+  "commandSpeedUp": {
+    "message": "Schneller",
+    "description": "Keyboard command label."
+  },
+  "commandSkipBack": {
+    "message": "Zurückspulen",
+    "description": "Keyboard command label."
+  },
+  "commandSkipForward": {
+    "message": "Vorspulen",
+    "description": "Keyboard command label."
+  },
+  "commandSpeedDown": {
+    "message": "Langsamer",
+    "description": "Keyboard command label."
+  },
+  "commandResetSpeed": {
+    "message": "Geschwindigkeit auf 1x zurücksetzen",
+    "description": "Keyboard command label."
+  },
+  "commandSwitchTarget": {
+    "message": "Ziel-Videotab wechseln",
+    "description": "Keyboard command label."
+  },
+  "commandSpeedUpStep": {
+    "message": "Geschwindigkeit +0,25×",
+    "description": "Keyboard command label with speed step."
+  },
+  "commandSpeedDownStep": {
+    "message": "Geschwindigkeit −0,25×",
+    "description": "Keyboard command label with speed step."
+  },
+  "commandResetSpeed1x": {
+    "message": "Geschwindigkeit auf 1× zurücksetzen",
+    "description": "Keyboard command label with target speed."
+  },
+  "commandSwitchTargetShort": {
+    "message": "Zieltab wechseln",
+    "description": "Short keyboard command label."
+  },
+  "commandSkipBack5s": {
+    "message": "5 s zurück",
+    "description": "Keyboard command label with skip amount."
+  },
+  "commandSkipForward5s": {
+    "message": "5 s vor",
+    "description": "Keyboard command label with skip amount."
+  },
+  "settingsPageTitle": {
+    "message": "PlaybackKeys-Einstellungen",
+    "description": "Options page title."
+  },
+  "navSettings": {
+    "message": "Einstellungen",
+    "description": "Navigation label."
+  },
+  "navShortcuts": {
+    "message": "Tastenkürzel",
+    "description": "Navigation label."
+  },
+  "sectionPlayback": {
+    "message": "Wiedergabe",
+    "description": "Section heading."
+  },
+  "sectionSpeed": {
+    "message": "Geschwindigkeit",
+    "description": "Section heading."
+  },
+  "sectionSites": {
+    "message": "Websites",
+    "description": "Section heading."
+  },
+  "sectionDisplay": {
+    "message": "Anzeige",
+    "description": "Section heading."
+  },
+  "sectionAbout": {
+    "message": "Info",
+    "description": "Section heading."
+  },
+  "sectionPrivacy": {
+    "message": "Datenschutz",
+    "description": "Section heading."
+  },
+  "labelVersion": {
+    "message": "Version",
+    "description": "Version label."
+  },
+  "footerMitOpenSource": {
+    "message": "MIT · Open Source",
+    "description": "Footer license text."
+  },
+  "savedAutomatically": {
+    "message": "Automatisch gespeichert",
+    "description": "Settings saved status."
+  },
+  "settingsSubtitle": {
+    "message": "Änderungen werden automatisch gespeichert. Website-Schalter überschreiben die globalen Standardwerte.",
+    "description": "Settings page helper text."
+  },
+  "playbackSteps": {
+    "message": "Wiedergabeschritte",
+    "description": "Settings group heading."
+  },
+  "playbackStepsDesc": {
+    "message": "wie jedes Kürzel den Player verändert",
+    "description": "Settings group description."
+  },
+  "skipInterval": {
+    "message": "Sprungintervall",
+    "description": "Setting label."
+  },
+  "skipIntervalDesc": {
+    "message": "Sekunden für Zurück / Vor",
+    "description": "Setting description."
+  },
+  "unitSeconds": {
+    "message": "Sekunden",
+    "description": "Unit label."
+  },
+  "speedStep": {
+    "message": "Geschwindigkeitsschritt",
+    "description": "Setting label."
+  },
+  "speedStepDesc": {
+    "message": "Geschwindigkeitsänderung pro Tastendruck",
+    "description": "Setting description."
+  },
+  "unitPerPress": {
+    "message": "× pro Tastendruck",
+    "description": "Unit label."
+  },
+  "speedRange": {
+    "message": "Geschwindigkeitsbereich",
+    "description": "Setting label."
+  },
+  "speedRangeDesc": {
+    "message": "Minimale und maximale Geschwindigkeit",
+    "description": "Setting description."
+  },
+  "wrapOnMinMax": {
+    "message": "Bei Min./Max. umlaufen",
+    "description": "Setting label."
+  },
+  "wrapOnMinMaxDesc": {
+    "message": "Zum Minimum zurückspringen, statt beim Maximum anzuhalten",
+    "description": "Setting description."
+  },
+  "sitesDesc": {
+    "message": "wo Tastenkürzel aktiv sind",
+    "description": "Settings group description."
+  },
+  "runOnAllSites": {
+    "message": "Auf allen Websites ausführen",
+    "description": "Setting label."
+  },
+  "runOnAllSitesDesc": {
+    "message": "Standardmäßig aus. Profi-Option: Chrome fragt nach Zugriff auf jede Website, die du besuchst. Die meisten Nutzer brauchen nur die integrierten Websites.",
+    "description": "Setting description."
+  },
+  "activeOnHosts": {
+    "message": "Aktiv auf diesen Hosts",
+    "description": "Setting label."
+  },
+  "activeOnHostsDesc": {
+    "message": "Die integrierten Websites werden immer unterstützt. Um eine andere Website zu aktivieren, öffne sie, klicke auf das Symbol in der Symbolleiste und wähle „Auf dieser Website aktivieren“.",
+    "description": "Setting description."
+  },
+  "displayDesc": {
+    "message": "Oberfläche auf der Seite",
+    "description": "Settings group description."
+  },
+  "showToastOnAction": {
+    "message": "Hinweis bei Aktion anzeigen",
+    "description": "Setting label."
+  },
+  "showToastOnActionDesc": {
+    "message": "Karte unten rechts nach jeder Aktion",
+    "description": "Setting description."
+  },
+  "showSpeedBadge": {
+    "message": "Geschwindigkeitsanzeige anzeigen",
+    "description": "Setting label."
+  },
+  "showSpeedBadgeDesc": {
+    "message": "Ausgeblendet, wenn die Geschwindigkeit 1× ist",
+    "description": "Setting description."
+  },
+  "toastDuration": {
+    "message": "Hinweisdauer",
+    "description": "Setting label."
+  },
+  "toastDurationDesc": {
+    "message": "Wie lange der Hinweis sichtbar bleibt",
+    "description": "Setting description."
+  },
+  "shortcutsDesc": {
+    "message": "schreibgeschützt, in chrome://extensions/shortcuts festgelegt",
+    "description": "Settings group description."
+  },
+  "openChromeShortcutSettings": {
+    "message": "Chrome-Tastenkürzel öffnen ↗",
+    "description": "Button label."
+  },
+  "privacyProse": {
+    "message": "PlaybackKeys sammelt nichts. Keine Telemetrie, keine Netzwerkanfragen, keine Analysen. Einstellungen liegen in <code>chrome.storage</code> auf deinem Gerät. Quellcode unter <a href=\"https://github.com/mehmetdemircs/PlaybackKeys\" target=\"_blank\" rel=\"noopener\">github.com/mehmetdemircs/PlaybackKeys</a>.",
+    "description": "Privacy section text. Contains trusted extension HTML."
+  },
+  "privacyMeta": {
+    "message": "Keine Telemetrie · Keine Netzwerkanfragen · Einstellungen lokal gespeichert",
+    "description": "Privacy footer text."
+  },
+  "resetAllDefaults": {
+    "message": "Alles auf Standardwerte zurücksetzen",
+    "description": "Button label."
+  },
+  "off": {
+    "message": "aus",
+    "description": "Disabled preset label."
+  },
+  "custom": {
+    "message": "Benutzerdefiniert",
+    "description": "Custom preset label."
+  },
+  "builtInTag": {
+    "message": "INTEGRIERT",
+    "description": "Built-in site tag."
+  },
+  "customTag": {
+    "message": "BENUTZERDEFINIERT",
+    "description": "Custom site tag."
+  },
+  "remove": {
+    "message": "Entfernen",
+    "description": "Button label."
+  },
+  "add": {
+    "message": "hinzufügen",
+    "description": "Unbound shortcut label."
+  },
+  "unbound": {
+    "message": "nicht belegt",
+    "description": "Unbound shortcut status."
+  },
+  "confirmRunOnAllSites": {
+    "message": "Auf allen Websites ausführen bittet Chrome um Zugriff auf jede Website, die du besuchst. Meist reicht der Aktivieren-Schalter pro Website. Fortfahren?",
+    "description": "Permission confirmation message."
+  },
+  "confirmResetDefaults": {
+    "message": "Alle PlaybackKeys-Einstellungen auf Standardwerte zurücksetzen? Erteilte Website-Berechtigungen werden nicht entfernt.",
+    "description": "Reset confirmation message."
+  },
+  "statusControlling": {
+    "message": "Steuert",
+    "description": "Current playback status."
+  },
+  "popupNoActiveVideoTab": {
+    "message": "Kein aktiver Videotab",
+    "description": "Popup empty-state title."
+  },
+  "ariaSeek": {
+    "message": "Suchen",
+    "description": "Seek bar aria label."
+  },
+  "buttonSkipBack": {
+    "message": "ZURÜCK",
+    "description": "Button label."
+  },
+  "buttonPlay": {
+    "message": "ABSPIELEN",
+    "description": "Button label."
+  },
+  "buttonPause": {
+    "message": "PAUSE",
+    "description": "Button label."
+  },
+  "buttonSkipForwardShort": {
+    "message": "VOR",
+    "description": "Short button label."
+  },
+  "buttonSkipForwardShortTitle": {
+    "message": "Vor",
+    "description": "Short button label with title case."
+  },
+  "buttonSlower": {
+    "message": "Langsamer",
+    "description": "Button label."
+  },
+  "buttonSlowerUpper": {
+    "message": "LANGSAMER",
+    "description": "Uppercase button label."
+  },
+  "buttonResetSpeed": {
+    "message": "Geschwindigkeit zurücksetzen",
+    "description": "Button aria label."
+  },
+  "buttonResetUpper": {
+    "message": "ZURÜCKSETZEN",
+    "description": "Uppercase button label."
+  },
+  "buttonFaster": {
+    "message": "Schneller",
+    "description": "Button label."
+  },
+  "buttonFasterUpper": {
+    "message": "SCHNELLER",
+    "description": "Uppercase button label."
+  },
+  "popupEnabledOnEllipsis": {
+    "message": "Aktiviert auf …",
+    "description": "Popup toggle placeholder text."
+  },
+  "emptyNoVideoFound": {
+    "message": "Kein Video gefunden",
+    "description": "Empty state title."
+  },
+  "emptyOpenVideoTab": {
+    "message": "Öffne einen Videotab, um ihn zu steuern.",
+    "description": "Empty state helper text."
+  },
+  "emptySiteDisabledTitle": {
+    "message": "$HOSTNAME$ ist deaktiviert",
+    "description": "Empty state title with hostname.",
+    "placeholders": {
+      "hostname": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "emptyReEnableFromMenu": {
+    "message": "Aktiviere es wieder über dieses Menü.",
+    "description": "Empty state helper text."
+  },
+  "emptyNoVideoOnPageYet": {
+    "message": "Auf dieser Seite ist noch kein Video",
+    "description": "Empty state title."
+  },
+  "emptyOpenVideoTryAgain": {
+    "message": "Öffne ein Video und versuche es erneut.",
+    "description": "Empty state helper text."
+  },
+  "emptyOnHostname": {
+    "message": "Auf $HOSTNAME$",
+    "description": "Empty state helper with hostname.",
+    "placeholders": {
+      "hostname": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "emptySiteNotEnabled": {
+    "message": "Website nicht aktiviert",
+    "description": "Empty state title."
+  },
+  "emptyEnableSiteInstruction": {
+    "message": "Klicke auf „Enable on this site“, um $HOSTNAME$ zu verwenden.",
+    "description": "Empty state helper with hostname.",
+    "placeholders": {
+      "hostname": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "emptyHostnameNoVideoFound": {
+    "message": "$HOSTNAME$ · kein Video gefunden",
+    "description": "Empty state helper with hostname.",
+    "placeholders": {
+      "hostname": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "emptyNoVideoFoundLower": {
+    "message": "kein Video gefunden",
+    "description": "Lowercase empty state text."
+  },
+  "statusNotActive": {
+    "message": "Nicht aktiv",
+    "description": "Current playback status."
+  },
+  "untitledTab": {
+    "message": "Unbenannter Tab",
+    "description": "Fallback tab title."
+  },
+  "ariaTimeOfDuration": {
+    "message": "$TIME$ von $DURATION$",
+    "description": "Seek bar aria value with current time and duration.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "0:42"
+      },
+      "duration": {
+        "content": "$2",
+        "example": "3:15"
+      }
+    }
+  },
+  "liveLabel": {
+    "message": "LIVE",
+    "description": "Live stream label."
+  },
+  "ariaTimeLive": {
+    "message": "$TIME$ (live)",
+    "description": "Seek bar aria value for live stream.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "0:42"
+      }
+    }
+  },
+  "statusPausedUpper": {
+    "message": "PAUSIERT",
+    "description": "Uppercase playback status."
+  },
+  "statusPlayingUpper": {
+    "message": "WIEDERGABE",
+    "description": "Uppercase playback status."
+  },
+  "toggleEnabledOnHost": {
+    "message": "Aktiviert auf $HOSTNAME$",
+    "description": "Site toggle enabled label with hostname.",
+    "placeholders": {
+      "hostname": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "toggleDisabledOnHost": {
+    "message": "Deaktiviert auf $HOSTNAME$",
+    "description": "Site toggle disabled label with hostname.",
+    "placeholders": {
+      "hostname": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "toggleEnableOnHost": {
+    "message": "Auf $HOSTNAME$ aktivieren",
+    "description": "Site toggle action label with hostname.",
+    "placeholders": {
+      "hostname": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "clickToResetTo1x": {
+    "message": "Klicken, um auf 1× zurückzusetzen",
+    "description": "Speed badge title."
+  },
+  "resetLower": {
+    "message": "zurücksetzen",
+    "description": "Lowercase reset action label."
+  },
+  "toastPlay": {
+    "message": "Abspielen",
+    "description": "Toast action label."
+  },
+  "toastPlaying": {
+    "message": "Wiedergabe",
+    "description": "Toast status label."
+  },
+  "toastPaused": {
+    "message": "Pausiert",
+    "description": "Toast status label."
+  },
+  "toastResetTo1x": {
+    "message": "Auf 1× zurücksetzen",
+    "description": "Toast action label."
+  },
+  "onboardingPageTitle": {
+    "message": "Willkommen bei PlaybackKeys",
+    "description": "Onboarding page title."
+  },
+  "installed": {
+    "message": "Installiert",
+    "description": "Onboarding status label."
+  },
+  "onboardingHeroTitle": {
+    "message": "Bereit. Drücke ein Tastenkürzel.",
+    "description": "Onboarding hero title."
+  },
+  "onboardingHeroSubtitle": {
+    "message": "Globale Tastenkürzel für Browser-Videos. Pausieren, springen und die Geschwindigkeit ändern, ohne den Editor zu verlassen.",
+    "description": "Onboarding hero subtitle."
+  },
+  "yourDefaultChords": {
+    "message": "Deine Standardkürzel",
+    "description": "Onboarding section heading."
+  },
+  "onboardingDefaultChordsHint": {
+    "message": "Die vorgeschlagenen Kürzel für die unteren drei sind standardmäßig leer. Weise sie in den <a href=\"#\" id=\"ob-go-shortcuts-inline\">Chrome-Tastenkürzeln</a> zu, oder passe Sprungintervall und Geschwindigkeitsschritt in den <a href=\"#\" id=\"ob-go-settings-inline\">Einstellungen</a> an.",
+    "description": "Onboarding helper text. Contains trusted extension HTML."
+  },
+  "tryItOnThisPage": {
+    "message": "Auf dieser Seite ausprobieren",
+    "description": "Onboarding section heading."
+  },
+  "demoVideoLabel": {
+    "message": "DEMO · video.mp4",
+    "description": "Demo video label."
+  },
+  "onboardingMacCallout": {
+    "message": "Springen verwendet <b>8</b> und <b>9</b>, weil macOS <code>⌘⇧3</code> bis <code>⌘⇧6</code> für Screenshots belegt. Du kannst alles unter <code>chrome://extensions/shortcuts</code> neu belegen.",
+    "description": "Onboarding macOS note. Contains trusted extension HTML."
+  },
+  "onboardingNonMacCallout": {
+    "message": "Springen verwendet standardmäßig <b>3</b> und <b>4</b>. Du kannst alles unter <code>chrome://extensions/shortcuts</code> neu belegen.",
+    "description": "Onboarding non-macOS note. Contains trusted extension HTML."
+  },
+  "chromeOsGlobalCommandsNote": {
+    "message": "Hinweis: ChromeOS unterstützt keine globalen Befehle. Tastenkürzel funktionieren dort nur, wenn Chrome das fokussierte Fenster ist.",
+    "description": "Onboarding ChromeOS note."
+  },
+  "useItOnAnyVideoSite": {
+    "message": "Auf jeder Videowebsite verwenden",
+    "description": "Onboarding section heading."
+  },
+  "useItOnAnyVideoSiteDesc": {
+    "message": "Für YouTube, Vimeo, Udemy und Coursera bist du fertig. Für alles andere: Seite öffnen, Symbol in der Symbolleiste anklicken und <b>Auf dieser Website aktivieren</b> wählen.",
+    "description": "Onboarding helper text. Contains trusted extension HTML."
+  },
+  "settingsCardDesc": {
+    "message": "Sprung · Geschwindigkeitsschritt · Website-Schalter",
+    "description": "Onboarding settings card description."
+  },
+  "shortcutsCardDesc": {
+    "message": "neu belegen in chrome://extensions/shortcuts",
+    "description": "Onboarding shortcuts card description."
+  },
+  "githubCardDesc": {
+    "message": "Issues · Funktionswünsche · MIT-Quellcode",
+    "description": "Onboarding GitHub card description."
+  },
+  "privacyMetaShort": {
+    "message": "Keine Telemetrie · kein Netzwerk · MIT-Lizenz",
+    "description": "Short privacy footer text."
+  },
+  "suggested": {
+    "message": "vorgeschlagen",
+    "description": "Suggested shortcut tag."
+  },
+  "yourChoice": {
+    "message": "deine Wahl",
+    "description": "Unbound shortcut tag."
+  }
+}

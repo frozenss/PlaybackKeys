@@ -7,6 +7,7 @@
   const REQ = `${TAG}:req`;
   const RES = `${TAG}:res`;
   const PRESENCE = `${TAG}:presence`;
+  const I18N = `${TAG}:i18n`;
 
   if (window.__playbackkeysInstalled) return;
   window.__playbackkeysInstalled = true;
@@ -155,6 +156,33 @@
   let badgePrefShown = true;
   let toastPrefShown = true;
   let toastDurationMs = 1500;
+  let toastHasShown = false;
+  let messages = {
+    clickToResetTo1x: "Click to reset to 1×",
+    reset: "reset",
+    toastPlay: "Play",
+    toastPlaying: "Playing",
+    toastPaused: "Paused",
+    toastResetTo1x: "Reset to 1×",
+    statusControlling: "Controlling",
+  };
+
+  function msg(key) {
+    return messages[key] || key;
+  }
+
+  function applyI18nMessages(nextMessages) {
+    if (!nextMessages || typeof nextMessages !== "object") return;
+    messages = { ...messages, ...nextMessages };
+    if (badgeEl) {
+      badgeEl.title = msg("clickToResetTo1x");
+      const resetEl = badgeEl.querySelector(".reset");
+      if (resetEl) resetEl.textContent = `↺ ${msg("reset")}`;
+    }
+    if (toastNameEl && !toastHasShown) {
+      toastNameEl.textContent = msg("toastPlay");
+    }
+  }
 
   const SHADOW_CSS = `
     :host { all: initial; }
@@ -268,7 +296,7 @@
 
     // Toast: <div class="pk-toast"><span class="ic">▶</span><div class="body"><span class="name">…</span><span class="det">…</span></div></div>
     toastIcEl   = el("span", { class: "ic",   text: "▶" });
-    toastNameEl = el("span", { class: "name", text: "Play" });
+    toastNameEl = el("span", { class: "name", text: msg("toastPlay") });
     toastDetEl  = el("span", { class: "det" });
     toastEl = el("div", { class: "pk-toast" },
       toastIcEl,
@@ -278,17 +306,17 @@
 
     // Badge: <div class="pk-badge"><span class="dot"></span><span class="v">1.00×</span><span class="reset">↺ reset</span></div>
     badgeValEl = el("span", { class: "v", text: "1.00×" });
-    badgeEl = el("div", { class: "pk-badge", title: "Click to reset to 1×" },
+    badgeEl = el("div", { class: "pk-badge", title: msg("clickToResetTo1x") },
       el("span", { class: "dot" }),
       badgeValEl,
-      el("span", { class: "reset", text: "↺ reset" })
+      el("span", { class: "reset", text: `↺ ${msg("reset")}` })
     );
     badgeEl.addEventListener("click", (e) => {
       e.stopPropagation();
       const v = pickBestVideo();
       if (v) {
         resetRate(v);
-        showToast({ ic: "↺", name: "Reset to 1×", det: "" });
+        showToast({ ic: "↺", name: msg("toastResetTo1x"), det: "" });
       }
     });
     pkRoot.appendChild(badgeEl);
@@ -307,6 +335,7 @@
     if (!payload) return;
     attachShadowHost();
     if (toastDurationMs === 0) return; // user disabled toast via "off" duration
+    toastHasShown = true;
     toastIcEl.textContent   = payload.ic   || "•";
     toastNameEl.textContent = payload.name || "";
     toastDetEl.textContent  = payload.det  || "";
@@ -338,10 +367,10 @@
       case "toggle": {
         if (video.paused) {
           userPlay(video);
-          return { handled: true, toast: { ic: "▶", name: "Playing", det: "" } };
+          return { handled: true, toast: { ic: "▶", name: msg("toastPlaying"), det: "" } };
         } else {
           userPauseWithDefense(video);
-          return { handled: true, toast: { ic: "❚❚", name: "Paused", det: "" } };
+          return { handled: true, toast: { ic: "❚❚", name: msg("toastPaused"), det: "" } };
         }
       }
       case "seek": {
@@ -382,7 +411,7 @@
       case "speed": {
         if (payload.reset) {
           resetRate(video);
-          return { handled: true, toast: { ic: "↺", name: "Reset to 1×", det: "" } };
+          return { handled: true, toast: { ic: "↺", name: msg("toastResetTo1x"), det: "" } };
         }
         const min = Number.isFinite(payload.min) ? payload.min : 0.05;
         const max = Number.isFinite(payload.max) ? payload.max : 16;
@@ -400,7 +429,7 @@
         return { handled: true, toast: { ic: sign, name: fmtSpeed(next), det: `${sign}${Math.abs(payload.delta).toFixed(2)}×` } };
       }
       case "noop":
-        return { handled: true, toast: { ic: "•", name: "Controlling", det: document.title || location.hostname } };
+        return { handled: true, toast: { ic: "•", name: msg("statusControlling"), det: document.title || location.hostname } };
       case "status":
         return {
           handled: true,
@@ -425,11 +454,19 @@
       if (typeof data.prefs.showBadge === "boolean") badgePrefShown = data.prefs.showBadge;
       if (typeof data.prefs.showToast === "boolean") toastPrefShown = data.prefs.showToast;
       if (Number.isFinite(data.prefs.toastDurationMs)) toastDurationMs = data.prefs.toastDurationMs;
+      applyI18nMessages(data.prefs.i18n);
     }
     const result = handle(data.payload);
     if (result?.handled && data.showToast && result.toast) showToast(result.toast);
     if (result?.handled) updateBadge();
     window.postMessage({ source: RES, id: data.id, result }, "*");
+  });
+
+  window.addEventListener("message", (ev) => {
+    if (ev.source !== window) return;
+    const data = ev.data;
+    if (!data || data.source !== I18N || !data.messages) return;
+    applyI18nMessages(data.messages);
   });
 
   // ---------- Presence reporting ----------

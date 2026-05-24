@@ -14,6 +14,7 @@ function detectIsMac() {
   return false;
 }
 const isMac = detectIsMac();
+const t = globalThis.PlaybackKeysI18n?.t || ((key, _subs, fallback) => fallback || key);
 
 function isBuiltIn(url) {
   try {
@@ -75,23 +76,38 @@ async function fetchSettings() {
 
 async function describeEmptyState(activeTab, settings) {
   if (!activeTab?.url || !/^https?:/.test(activeTab.url)) {
-    return { title: "No video found", host: "Open a video tab to control it." };
+    return {
+      title: t("emptyNoVideoFound", undefined, "No video found"),
+      host: t("emptyOpenVideoTab", undefined, "Open a video tab to control it."),
+    };
   }
   let url;
   try { url = new URL(activeTab.url); } catch {
-    return { title: "No video found", host: "" };
+    return { title: t("emptyNoVideoFound", undefined, "No video found"), host: "" };
   }
   const builtIn = isBuiltIn(activeTab.url);
   if (builtIn) {
     if (settings.perSiteDisabled[url.origin]) {
-      return { title: `${url.hostname} is disabled`, host: "Re-enable it from this menu." };
+      return {
+        title: t("emptySiteDisabledTitle", [url.hostname], `${url.hostname} is disabled`),
+        host: t("emptyReEnableFromMenu", undefined, "Re-enable it from this menu."),
+      };
     }
-    return { title: "No video on this page yet", host: "Open a video and try again." };
+    return {
+      title: t("emptyNoVideoOnPageYet", undefined, "No video on this page yet"),
+      host: t("emptyOpenVideoTryAgain", undefined, "Open a video and try again."),
+    };
   }
   if (settings.enabledOrigins[url.origin] || settings.runOnAllSites) {
-    return { title: "No video found", host: `On ${url.hostname}` };
+    return {
+      title: t("emptyNoVideoFound", undefined, "No video found"),
+      host: t("emptyOnHostname", [url.hostname], `On ${url.hostname}`),
+    };
   }
-  return { title: "Site not enabled", host: `Click "Enable on this site" to use ${url.hostname}.` };
+  return {
+    title: t("emptySiteNotEnabled", undefined, "Site not enabled"),
+    host: t("emptyEnableSiteInstruction", [url.hostname], `Click "Enable on this site" to use ${url.hostname}.`),
+  };
 }
 async function fetchChords() {
   const cmds = await chrome.commands.getAll();
@@ -143,19 +159,24 @@ function applyStatus(status, settings) {
       hostEl.textContent  = state.emptyState.host;
     } else if (status?.title) {
       titleEl.textContent = status.title;
-      try { hostEl.textContent = `${new URL(status.url).hostname} · no video found`; }
-      catch { hostEl.textContent = "no video found"; }
+      try {
+        hostEl.textContent = t(
+          "emptyHostnameNoVideoFound",
+          [new URL(status.url).hostname],
+          `${new URL(status.url).hostname} · no video found`,
+        );
+      } catch { hostEl.textContent = t("emptyNoVideoFoundLower", undefined, "no video found"); }
     } else {
-      titleEl.textContent = "No active video tab";
+      titleEl.textContent = t("popupNoActiveVideoTab", undefined, "No active video tab");
       hostEl.textContent  = "";
     }
     stateEl.textContent = "—";
     speedEl.textContent = "—";
     meterEl.style.width = "0";
     playGlyph.textContent = "▶";
-    playLbl.textContent   = "PLAY";
+    playLbl.textContent   = t("buttonPlay", undefined, "PLAY");
     pulse.classList.add("off");
-    stateLbl.textContent  = "Not active";
+    stateLbl.textContent  = t("statusNotActive", undefined, "Not active");
     buttons.forEach((b) => (b.disabled = true));
     progressEl.hidden = true;
     return;
@@ -163,10 +184,10 @@ function applyStatus(status, settings) {
 
   buttons.forEach((b) => (b.disabled = false));
   pulse.classList.remove("off");
-  stateLbl.textContent = "Controlling";
+  stateLbl.textContent = t("statusControlling", undefined, "Controlling");
   state.tabId = status.tabId;
 
-  titleEl.textContent = status.title || "Untitled tab";
+  titleEl.textContent = status.title || t("untitledTab", undefined, "Untitled tab");
   let hostStr = "";
   try { hostStr = new URL(status.url).hostname; } catch {}
   hostEl.textContent = hostStr;
@@ -190,16 +211,16 @@ function applyStatus(status, settings) {
     barEl.setAttribute("aria-valuemin", "0");
     barEl.setAttribute("aria-valuemax", String(Math.round(dur)));
     barEl.setAttribute("aria-valuenow", String(Math.round(time)));
-    barEl.setAttribute("aria-valuetext", `${fmtTime(time)} of ${fmtTime(dur)}`);
+    barEl.setAttribute("aria-valuetext", t("ariaTimeOfDuration", [fmtTime(time), fmtTime(dur)], `${fmtTime(time)} of ${fmtTime(dur)}`));
   } else if (hasTime) {
     progressEl.hidden = false;
     fillEl.style.width = "0";
     handleEl.style.left = "0";
-    timeEl.innerHTML = `<span>${fmtTime(time)}</span><span class="live">LIVE</span>`;
+    timeEl.innerHTML = `<span>${fmtTime(time)}</span><span class="live">${t("liveLabel", undefined, "LIVE")}</span>`;
     barEl.setAttribute("aria-valuemin", "0");
     barEl.setAttribute("aria-valuemax", "0");
     barEl.setAttribute("aria-valuenow", String(Math.round(time)));
-    barEl.setAttribute("aria-valuetext", `${fmtTime(time)} (live)`);
+    barEl.setAttribute("aria-valuetext", t("ariaTimeLive", [fmtTime(time)], `${fmtTime(time)} (live)`));
   } else {
     progressEl.hidden = true;
     barEl.removeAttribute("aria-valuemin");
@@ -211,13 +232,13 @@ function applyStatus(status, settings) {
   // Play state
   const paused = status.status?.paused;
   if (typeof paused === "boolean") {
-    stateEl.textContent = paused ? "PAUSED" : "PLAYING";
+    stateEl.textContent = paused ? t("statusPausedUpper", undefined, "PAUSED") : t("statusPlayingUpper", undefined, "PLAYING");
     playGlyph.textContent = paused ? "▶" : "❚❚";
-    playLbl.textContent   = paused ? "PLAY" : "PAUSE";
+    playLbl.textContent   = paused ? t("buttonPlay", undefined, "PLAY") : t("buttonPause", undefined, "PAUSE");
   } else {
     stateEl.textContent   = "—";
     playGlyph.textContent = "⏯";
-    playLbl.textContent   = "PLAY";
+    playLbl.textContent   = t("buttonPlay", undefined, "PLAY");
   }
 
   // Speed
@@ -374,7 +395,9 @@ async function wireSiteToggle() {
       const on = !perSiteDisabled[origin];
       toggleBtn.classList.toggle("on", on);
       toggleBtn.setAttribute("aria-checked", String(on));
-      lblEl.textContent = `${on ? "Enabled" : "Disabled"} on ${hostname}`;
+      lblEl.textContent = on
+        ? t("toggleEnabledOnHost", [hostname], `Enabled on ${hostname}`)
+        : t("toggleDisabledOnHost", [hostname], `Disabled on ${hostname}`);
       toggleBtn.onclick = async () => {
         const cur = (await chrome.storage.local.get({ perSiteDisabled: {} })).perSiteDisabled;
         if (on) cur[origin] = true; else delete cur[origin];
@@ -385,7 +408,7 @@ async function wireSiteToggle() {
       const on = !!enabledOrigins[origin];
       toggleBtn.classList.toggle("on", on);
       toggleBtn.setAttribute("aria-checked", String(on));
-      lblEl.textContent = `Enabled on ${hostname}`;
+      lblEl.textContent = t("toggleEnabledOnHost", [hostname], `Enabled on ${hostname}`);
       toggleBtn.onclick = async () => {
         await chrome.permissions.remove({ origins: [pattern] }).catch(() => {});
         const { enabledOrigins = {} } = await chrome.storage.local.get({ enabledOrigins: {} });
@@ -396,7 +419,7 @@ async function wireSiteToggle() {
     } else {
       toggleBtn.classList.remove("on");
       toggleBtn.setAttribute("aria-checked", "false");
-      lblEl.textContent = `Enable on ${hostname}`;
+      lblEl.textContent = t("toggleEnableOnHost", [hostname], `Enable on ${hostname}`);
       toggleBtn.onclick = async () => {
         const ok = await chrome.permissions.request({ origins: [pattern] });
         if (!ok) return;

@@ -25,6 +25,27 @@ const DEFAULTS = {
   runOnAllSites: false,
 };
 
+function t(key, substitutions, fallback) {
+  try {
+    const value = chrome.i18n.getMessage(key, substitutions);
+    return value || fallback || key;
+  } catch {
+    return fallback || key;
+  }
+}
+
+function getContentMessages() {
+  return {
+    clickToResetTo1x: t("clickToResetTo1x", undefined, "Click to reset to 1×"),
+    reset: t("resetLower", undefined, "reset"),
+    toastPlay: t("toastPlay", undefined, "Play"),
+    toastPlaying: t("toastPlaying", undefined, "Playing"),
+    toastPaused: t("toastPaused", undefined, "Paused"),
+    toastResetTo1x: t("toastResetTo1x", undefined, "Reset to 1×"),
+    statusControlling: t("statusControlling", undefined, "Controlling"),
+  };
+}
+
 function isSupportedUrl(url, settings) {
   if (!url) return false;
   let u;
@@ -270,6 +291,7 @@ async function dispatchToTab(tab, payload, opts = {}) {
       showToast: settings.showToast !== false,
       showBadge: settings.showBadge !== false,
       toastDurationMs: Number.isFinite(settings.toastDurationMs) ? settings.toastDurationMs : 1500,
+      i18n: getContentMessages(),
     },
   };
   try {
@@ -429,7 +451,7 @@ function ensureContextMenu() {
   chrome.contextMenus.removeAll(() => {
     chrome.contextMenus.create({
       id: "playbackkeys-reset-speed",
-      title: "Reset speed to 1x",
+      title: t("commandResetSpeed1x", undefined, "Reset speed to 1×"),
       contexts: ["action"],
     });
   });

@@ -6,15 +6,16 @@ function detectIsMac() {
   return false;
 }
 const isMac = detectIsMac();
+const t = globalThis.PlaybackKeysI18n?.t || ((key, _subs, fallback) => fallback || key);
 
 const COMMAND_LABELS = {
-  "1-play-pause":    { name: "Play / Pause" },
-  "2-speed-up":      { name: "Speed +0.25×" },
-  "3-skip-back":     { name: "Skip back 5s" },
-  "4-skip-forward":  { name: "Skip forward 5s" },
-  "5-speed-down":    { name: "Speed −0.25×" },
-  "6-speed-reset":   { name: "Reset speed to 1×" },
-  "7-switch-target": { name: "Switch target tab" },
+  "1-play-pause":    { key: "commandPlayPause", fallback: "Play / Pause" },
+  "2-speed-up":      { key: "commandSpeedUpStep", fallback: "Speed +0.25×" },
+  "3-skip-back":     { key: "commandSkipBack5s", fallback: "Skip back 5s" },
+  "4-skip-forward":  { key: "commandSkipForward5s", fallback: "Skip forward 5s" },
+  "5-speed-down":    { key: "commandSpeedDownStep", fallback: "Speed −0.25×" },
+  "6-speed-reset":   { key: "commandResetSpeed1x", fallback: "Reset speed to 1×" },
+  "7-switch-target": { key: "commandSwitchTargetShort", fallback: "Switch target tab" },
 };
 const ORDER = [
   "1-play-pause", "2-speed-up", "3-skip-back", "4-skip-forward",
@@ -64,7 +65,7 @@ function chordParts(shortcut) {
   return parts.length > 0 ? parts : [shortcut];
 }
 function chordHTML(parts) {
-  if (!parts) return `<span class="kbd-chord"><span class="key">add</span></span>`;
+  if (!parts) return `<span class="kbd-chord"><span class="key">${t("add", undefined, "add")}</span></span>`;
   return `<span class="kbd-chord">` +
     parts.map((p, i) => (i > 0 ? `<span class="plus">+</span>` : "") + `<span class="key">${p}</span>`).join("") +
     `</span>`;
@@ -95,15 +96,15 @@ async function renderShortcutList() {
         SUGGESTED[name].map((p, i) => (i > 0 ? `<span class="plus">+</span>` : "") + `<span class="key">${p}</span>`).join("") +
         `</span>`;
       extraClass = "is-suggested";
-      suffix = `<span class="ob-sc-tag">suggested</span>`;
+      suffix = `<span class="ob-sc-tag">${t("suggested", undefined, "suggested")}</span>`;
     } else {
-      chordEl = `<span class="kbd-chord unbound"><span class="key">add</span></span>`;
+      chordEl = `<span class="kbd-chord unbound"><span class="key">${t("add", undefined, "add")}</span></span>`;
       extraClass = "is-unbound";
-      suffix = `<span class="ob-sc-tag">your choice</span>`;
+      suffix = `<span class="ob-sc-tag">${t("yourChoice", undefined, "your choice")}</span>`;
     }
     const row = document.createElement("div");
     row.className = "ob-sc-row " + extraClass;
-    row.innerHTML = `${chordEl}<span class="name">${meta.name}</span>${suffix}`;
+    row.innerHTML = `${chordEl}<span class="name">${t(meta.key, undefined, meta.fallback)}</span>${suffix}`;
     list.appendChild(row);
   }
 
@@ -117,7 +118,7 @@ async function renderShortcutList() {
   // Update callout copy: only show macOS screenshot note if Mac.
   if (!isMac) {
     document.getElementById("ob-callout-text").innerHTML =
-      `Skip uses <b>3</b> and <b>4</b> by default. Rebind anything in <code>chrome://extensions/shortcuts</code>.`;
+      t("onboardingNonMacCallout", undefined, `Skip uses <b>3</b> and <b>4</b> by default. Rebind anything in <code>chrome://extensions/shortcuts</code>.`);
   }
 }
 
@@ -167,19 +168,19 @@ async function renderShortcutList() {
       state.playing = !state.playing;
       setIcon();
       bump();
-      flash(state.playing ? "Playing" : "Paused", "⌘⇧1", state.playing ? "▶" : "❚❚");
+      flash(state.playing ? t("toastPlaying", undefined, "Playing") : t("toastPaused", undefined, "Paused"), "⌘⇧1", state.playing ? "▶" : "❚❚");
     },
     "skip-back": () => {
       state.progress = Math.max(0, state.progress - 8);
       applyProgress();
       bump();
-      flash("Skip back", "−5s", "«");
+      flash(t("commandSkipBack", undefined, "Skip back"), "−5s", "«");
     },
     "skip-forward": () => {
       state.progress = Math.min(100, state.progress + 8);
       applyProgress();
       bump();
-      flash("Skip forward", "+5s", "»");
+      flash(t("commandSkipForward", undefined, "Skip forward"), "+5s", "»");
     },
     "speed-up": () => {
       state.speed = Math.min(4, Math.round((state.speed + 0.25) * 100) / 100);
