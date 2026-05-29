@@ -1,7 +1,7 @@
 {
   "appName": {
-    "message": "PlaybackKeys",
-    "description": "Extension name. Do not translate the product name."
+    "message": "PlaybackKeys: Global Video Kısayolları",
+    "description": "Extension name. Keep PlaybackKeys as the product name; localize the subtitle."
   },
   "appDescription": {
     "message": "YouTube, Udemy, Vimeo, Coursera ve tarayıcı videoları için global klavye kısayolları.",
@@ -182,6 +182,26 @@
   "displayDesc": {
     "message": "sayfa içi arayüz",
     "description": "Settings group description."
+  },
+  "themeMode": {
+    "message": "Tema",
+    "description": "Theme setting label."
+  },
+  "themeModeDesc": {
+    "message": "Sistemi izleyin ya da açık/koyu seçin.",
+    "description": "Theme setting description."
+  },
+  "themeSystem": {
+    "message": "Sistem",
+    "description": "Theme option label."
+  },
+  "themeLight": {
+    "message": "Açık",
+    "description": "Theme option label."
+  },
+  "themeDark": {
+    "message": "Koyu",
+    "description": "Theme option label."
   },
   "showToastOnAction": {
     "message": "Eylemde bildirim göster",

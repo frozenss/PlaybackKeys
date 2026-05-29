@@ -1,7 +1,7 @@
 {
   "appName": {
-    "message": "PlaybackKeys",
-    "description": "Extension name. Do not translate the product name."
+    "message": "PlaybackKeys: 全局视频快捷键",
+    "description": "Extension name. Keep PlaybackKeys as the product name; localize the subtitle."
   },
   "appDescription": {
     "message": "适用于 YouTube、Udemy、Vimeo、Coursera 和浏览器视频的全局键盘快捷键。",
@@ -182,6 +182,26 @@
   "displayDesc": {
     "message": "页面内界面",
     "description": "Settings group description."
+  },
+  "themeMode": {
+    "message": "主题",
+    "description": "Theme setting label."
+  },
+  "themeModeDesc": {
+    "message": "跟随系统，或选择浅色/深色。",
+    "description": "Theme setting description."
+  },
+  "themeSystem": {
+    "message": "系统",
+    "description": "Theme option label."
+  },
+  "themeLight": {
+    "message": "浅色",
+    "description": "Theme option label."
+  },
+  "themeDark": {
+    "message": "深色",
+    "description": "Theme option label."
   },
   "showToastOnAction": {
     "message": "操作时显示提示",

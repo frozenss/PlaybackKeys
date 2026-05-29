@@ -1,7 +1,7 @@
 {
   "appName": {
-    "message": "PlaybackKeys",
-    "description": "Extension name. Do not translate the product name."
+    "message": "PlaybackKeys: Global Video Shortcuts",
+    "description": "Extension name. Keep PlaybackKeys as the product name; localize the subtitle."
   },
   "appDescription": {
     "message": "Global keyboard shortcuts for YouTube, Udemy, Vimeo, Coursera, and browser videos.",
@@ -182,6 +182,26 @@
   "displayDesc": {
     "message": "in-page UI",
     "description": "Settings group description."
+  },
+  "themeMode": {
+    "message": "Theme",
+    "description": "Theme setting label."
+  },
+  "themeModeDesc": {
+    "message": "Follow your system, or choose light or dark.",
+    "description": "Theme setting description."
+  },
+  "themeSystem": {
+    "message": "System",
+    "description": "Theme option label."
+  },
+  "themeLight": {
+    "message": "Light",
+    "description": "Theme option label."
+  },
+  "themeDark": {
+    "message": "Dark",
+    "description": "Theme option label."
   },
   "showToastOnAction": {
     "message": "Show toast on action",

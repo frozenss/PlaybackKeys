@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <title data-i18n="appName">PlaybackKeys</title>
+  <script src="../shared/theme.js"></script>
   <link rel="stylesheet" href="../shared/tokens.css" />
   <link rel="stylesheet" href="popup.css" />
 </head>
@@ -19,7 +20,10 @@
     </div>
 
     <div class="pp-now">
-      <div class="label"><span class="pulse" id="pp-pulse"></span><span id="pp-state-label" data-i18n="statusControlling">Controlling</span></div>
+      <div class="now-top">
+        <div class="label"><span class="pulse" id="pp-pulse"></span><span id="pp-state-label" data-i18n="statusControlling">Controlling</span></div>
+        <div class="state-badge" id="pp-state">—</div>
+      </div>
       <div class="title" id="pp-title" data-i18n="popupNoActiveVideoTab">No active video tab</div>
       <div class="host" id="pp-host"></div>
       <div class="pp-progress" id="pp-progress" hidden>
@@ -34,7 +38,6 @@
     <div class="pp-section">
       <div class="head">
         <div class="lbl" data-i18n="sectionPlayback">Playback</div>
-        <div class="val" id="pp-state">—</div>
       </div>
       <div class="pp-row">
         <button class="pp-btn" data-cmd="3-skip-back" aria-label="Skip back" data-i18n-attr="aria-label:commandSkipBack">

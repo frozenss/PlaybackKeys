@@ -1,5 +1,6 @@
 import { createServer } from "node:https";
-import { existsSync, mkdirSync, readFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { execFileSync } from "node:child_process";
@@ -14,7 +15,8 @@ try {
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const FIXTURE = readFileSync(join(ROOT, "tests/fixtures/video-page.html"), "utf8");
-const TMP = join(ROOT, ".tmp-smoke");
+const SMOKE_ROOT = mkdtempSync(join(tmpdir(), "playbackkeys-smoke-"));
+const TMP = join(SMOKE_ROOT, "cert");
 const KEY = join(TMP, "localhost-key.pem");
 const CERT = join(TMP, "localhost-cert.pem");
 
@@ -57,7 +59,7 @@ const server = createServer({
 });
 
 const port = await listen(server);
-const userDataDir = join(ROOT, ".tmp-smoke-profile");
+const userDataDir = join(SMOKE_ROOT, "profile");
 const context = await chromium.launchPersistentContext(userDataDir, {
   headless: false,
   args: [
@@ -113,4 +115,5 @@ try {
 } finally {
   await context.close();
   server.close();
+  rmSync(SMOKE_ROOT, { recursive: true, force: true });
 }

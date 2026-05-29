@@ -29,6 +29,7 @@ const COMMAND_LABELS = {
 const SEEK_PRESETS  = [2, 5, 10, 15, 30];
 const STEP_PRESETS  = [0.10, 0.25, 0.50, 1.00];
 const TOAST_PRESETS = [800, 1500, 3000, 0];
+const THEME_MODES = ["system", "light", "dark"];
 
 const DEFAULTS = {
   seekSeconds: 5,
@@ -39,6 +40,7 @@ const DEFAULTS = {
   showToast: true,
   showBadge: true,
   toastDurationMs: 1500,
+  themeMode: "system",
   enabledOrigins: {},
   perSiteDisabled: {},
   runOnAllSites: false,
@@ -47,6 +49,14 @@ const DEFAULTS = {
 function fmtToastDur(ms) { return ms === 0 ? t("off", undefined, "off") : `${(ms / 1000).toFixed(1)}s`; }
 function fmtSpeed(s)     { return `${s.toFixed(2)}×`; }
 function fmtSeek(s)      { return `${s}s`; }
+function fmtTheme(mode) {
+  const labels = {
+    system: t("themeSystem", undefined, "System"),
+    light: t("themeLight", undefined, "Light"),
+    dark: t("themeDark", undefined, "Dark"),
+  };
+  return labels[mode] || labels.system;
+}
 
 function flashSaved() {
   const el = document.querySelector(".save");
@@ -127,10 +137,12 @@ async function renderSites(settings) {
     const row = document.createElement("div");
     row.className = "site-row";
     const isOn = !settings.perSiteDisabled[site.origin];
-    row.innerHTML = `
-      <span class="host">${site.hostname}</span>
-      <span class="tag">${t("builtInTag", undefined, "BUILT-IN")}</span>
-    `;
+    const host = document.createElement("span");
+    host.className = "host";
+    host.textContent = site.hostname;
+    const tag = document.createElement("span");
+    tag.className = "tag";
+    tag.textContent = t("builtInTag", undefined, "BUILT-IN");
     const sw = document.createElement("div");
     sw.className = "switch-lg";
     sw.setAttribute("aria-label", t("toggleEnableOnHost", [site.hostname], `Enable on ${site.hostname}`));
@@ -142,9 +154,9 @@ async function renderSites(settings) {
       else cur[site.origin] = true;
       sw.classList.toggle("on", nextOn);
       applyAria(sw, nextOn);
-      await setSetting({ perSiteDisabled: cur });
-    });
-    row.appendChild(sw);
+        await setSetting({ perSiteDisabled: cur });
+      });
+    row.append(host, tag, sw);
     list.appendChild(row);
   }
 
@@ -154,10 +166,12 @@ async function renderSites(settings) {
     const hostname = (() => { try { return new URL(origin).hostname; } catch { return origin; } })();
     const row = document.createElement("div");
     row.className = "site-row custom";
-    row.innerHTML = `
-      <span class="host">${hostname}</span>
-      <span class="tag">${t("customTag", undefined, "CUSTOM")}</span>
-    `;
+    const host = document.createElement("span");
+    host.className = "host";
+    host.textContent = hostname;
+    const tag = document.createElement("span");
+    tag.className = "tag";
+    tag.textContent = t("customTag", undefined, "CUSTOM");
     const removeBtn = document.createElement("button");
     removeBtn.className = "btn-ghost";
     removeBtn.textContent = t("remove", undefined, "Remove");
@@ -168,26 +182,68 @@ async function renderSites(settings) {
       await setSetting({ enabledOrigins });
       render();
     });
-    row.appendChild(removeBtn);
+    row.append(host, tag, removeBtn);
     list.appendChild(row);
   }
 }
 
-function chordHTML(shortcut) {
-  if (!shortcut) {
-    return `<span class="kbd-chord unbound"><span class="key">+</span><span class="key">${t("add", undefined, "add")}</span></span>`;
+function translateShortcutPart(part) {
+  if (!isMac) return part;
+  if (part === "Ctrl" || part === "Command") return "⌘";
+  if (part === "Shift") return "⇧";
+  if (part === "Alt") return "⌥";
+  if (part === "MacCtrl") return "⌃";
+  return part;
+}
+
+function shortcutParts(shortcut) {
+  if (!shortcut) return null;
+  if (shortcut.includes("+")) {
+    return shortcut.split("+").map((part) => translateShortcutPart(part.trim())).filter(Boolean);
   }
-  const parts = shortcut.split("+").map((p) => {
-    if (!isMac) return p;
-    if (p === "Ctrl" || p === "Command") return "⌘";
-    if (p === "Shift") return "⇧";
-    if (p === "Alt") return "⌥";
-    if (p === "MacCtrl") return "⌃";
-    return p;
+  const parts = [];
+  let rest = shortcut;
+  for (const symbol of ["⌃", "⌥", "⇧", "⌘"]) {
+    if (rest.includes(symbol)) {
+      parts.push(symbol);
+      rest = rest.replace(symbol, "");
+    }
+  }
+  if (rest) parts.push(rest);
+  return parts.length > 0 ? parts : [shortcut];
+}
+
+function chordElement(shortcut) {
+  const parts = shortcutParts(shortcut);
+  const chord = document.createElement("span");
+  chord.className = "kbd-chord";
+  if (!parts) {
+    chord.classList.add("unbound");
+    const key = document.createElement("span");
+    key.className = "key add-key";
+    key.textContent = t("add", undefined, "add");
+    chord.appendChild(key);
+    return chord;
+  }
+  parts.forEach((part, index) => {
+    if (index > 0) {
+      const plus = document.createElement("span");
+      plus.className = "plus";
+      plus.textContent = "+";
+      chord.appendChild(plus);
+    }
+    const key = document.createElement("span");
+    key.className = "key";
+    key.textContent = part;
+    chord.appendChild(key);
   });
-  return `<span class="kbd-chord">` +
-    parts.map((p, i) => (i > 0 ? `<span class="plus">+</span>` : "") + `<span class="key">${p}</span>`).join("") +
-    `</span>`;
+  return chord;
+}
+
+function chordPlainText(shortcut) {
+  const parts = shortcutParts(shortcut);
+  if (!parts) return t("unbound", undefined, "unbound");
+  return parts.join(isMac ? "" : "+");
 }
 
 async function renderShortcuts() {
@@ -203,10 +259,21 @@ async function renderShortcuts() {
     row.className = "shortcut-row" + (cmd.shortcut ? "" : " is-unbound");
     const label = t(meta.key, undefined, meta.fallback);
     const unbound = t("unbound", undefined, "unbound");
-    row.innerHTML = `
-      <span class="name">${label}${cmd.shortcut ? "" : `<small>${unbound}</small>`}</span>
-      ${chordHTML(cmd.shortcut)}
-    `;
+    const name = document.createElement("span");
+    name.className = "name";
+    name.textContent = label;
+    if (!cmd.shortcut) {
+      const small = document.createElement("small");
+      small.textContent = unbound;
+      name.appendChild(small);
+    }
+
+    const keys = document.createElement("span");
+    keys.className = "shortcut-keys";
+    keys.setAttribute("aria-label", `${label}: ${chordPlainText(cmd.shortcut)}`);
+    keys.appendChild(chordElement(cmd.shortcut));
+
+    row.append(name, keys);
     list.appendChild(row);
   }
 }
@@ -215,6 +282,9 @@ let cachedSettings = null;
 
 async function render() {
   const settings = await chrome.storage.local.get(DEFAULTS);
+  settings.themeMode = globalThis.PlaybackKeysTheme?.normalizeThemeMode
+    ? globalThis.PlaybackKeysTheme.normalizeThemeMode(settings.themeMode)
+    : (THEME_MODES.includes(settings.themeMode) ? settings.themeMode : "system");
   cachedSettings = settings;
 
   // Skip
@@ -254,6 +324,17 @@ async function render() {
   // Toast duration
   buildSeg("seg-toastdur", TOAST_PRESETS, settings.toastDurationMs, fmtToastDur, async (v) => {
     await setSetting({ toastDurationMs: v });
+    render();
+  }, false);
+
+  // Theme
+  buildSeg("seg-theme", THEME_MODES, settings.themeMode, fmtTheme, async (v) => {
+    if (globalThis.PlaybackKeysTheme?.setThemeMode) {
+      await globalThis.PlaybackKeysTheme.setThemeMode(v);
+      flashSaved();
+    } else {
+      await setSetting({ themeMode: v });
+    }
     render();
   }, false);
 
@@ -384,6 +465,7 @@ function wireOnce() {
       "Reset all PlaybackKeys settings to defaults? This won't remove granted site permissions.",
     ))) return;
     await chrome.storage.local.set(DEFAULTS);
+    await globalThis.PlaybackKeysTheme?.setThemeMode?.(DEFAULTS.themeMode);
     flashSaved();
     render();
   });

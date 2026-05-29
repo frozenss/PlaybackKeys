@@ -1,6 +1,6 @@
 # Chrome Web Store localized listing
 
-Use this copy when manually updating the Chrome Web Store listing. Keep the product name as `PlaybackKeys` in every locale.
+Use this copy when manually updating the Chrome Web Store listing. Keep `PlaybackKeys` as the product name and localize the subtitle in every locale.
 
 Note:
 For each locale, paste only the Extension name, Short description, and Full description into the Chrome Web Store listing.
@@ -8,7 +8,7 @@ Do not paste the “Internal search keywords” lines into the public listing. T
 
 ## English
 
-Extension name: PlaybackKeys
+Extension name: PlaybackKeys: Global Video Shortcuts
 
 Short description: Global keyboard shortcuts for YouTube, Udemy, Vimeo, Coursera, and browser videos.
 
@@ -90,7 +90,7 @@ Internal search keywords, do not paste into public long description: YouTube sho
 
 ## Spanish
 
-Extension name: PlaybackKeys
+Extension name: PlaybackKeys: Atajos globales de video
 
 Short description: Atajos de teclado globales para YouTube, Udemy, Vimeo, Coursera y videos del navegador.
 
@@ -172,7 +172,7 @@ Internal search keywords, do not paste into public long description: atajos de Y
 
 ## Portuguese Brazil
 
-Extension name: PlaybackKeys
+Extension name: PlaybackKeys: Atalhos globais de vídeo
 
 Short description: Atalhos globais de teclado para YouTube, Udemy, Vimeo, Coursera e vídeos no navegador.
 
@@ -254,7 +254,7 @@ Internal search keywords, do not paste into public long description: atalhos do 
 
 ## German
 
-Extension name: PlaybackKeys
+Extension name: PlaybackKeys: Globale Video-Tastenkürzel
 
 Short description: Globale Tastenkürzel für YouTube, Udemy, Vimeo, Coursera und Browser-Videos.
 
@@ -336,7 +336,7 @@ Internal search keywords, do not paste into public long description: YouTube Tas
 
 ## French
 
-Extension name: PlaybackKeys
+Extension name: PlaybackKeys: Raccourcis vidéo globaux
 
 Short description: Raccourcis clavier globaux pour YouTube, Udemy, Vimeo, Coursera et les vidéos du navigateur.
 
@@ -418,7 +418,7 @@ Internal search keywords, do not paste into public long description: raccourcis 
 
 ## Turkish
 
-Extension name: PlaybackKeys
+Extension name: PlaybackKeys: Global Video Kısayolları
 
 Short description: YouTube, Udemy, Vimeo, Coursera ve tarayıcı videoları için global klavye kısayolları.
 
@@ -500,7 +500,7 @@ Internal search keywords, do not paste into public long description: YouTube kı
 
 ## Japanese
 
-Extension name: PlaybackKeys
+Extension name: PlaybackKeys: グローバル動画ショートカット
 
 Short description: YouTube、Udemy、Vimeo、Coursera、ブラウザ動画向けのグローバルキーボードショートカット。
 
@@ -582,7 +582,7 @@ Internal search keywords, do not paste into public long description: YouTube シ
 
 ## Korean
 
-Extension name: PlaybackKeys
+Extension name: PlaybackKeys: 전역 동영상 단축키
 
 Short description: YouTube, Udemy, Vimeo, Coursera 및 브라우저 동영상을 위한 전역 키보드 단축키.
 
@@ -664,7 +664,7 @@ Internal search keywords, do not paste into public long description: YouTube 단
 
 ## Chinese Simplified
 
-Extension name: PlaybackKeys
+Extension name: PlaybackKeys: 全局视频快捷键
 
 Short description: 适用于 YouTube、Udemy、Vimeo、Coursera 和浏览器视频的全局键盘快捷键。
 

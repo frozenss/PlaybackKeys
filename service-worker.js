@@ -20,6 +20,7 @@ const DEFAULTS = {
   showToast: true,
   showBadge: true,
   toastDurationMs: 1500,
+  themeMode: "system",
   enabledOrigins: {}, // origin -> true (user-enabled per-origin via popup)
   perSiteDisabled: {}, // origin -> true
   runOnAllSites: false,
@@ -291,6 +292,7 @@ async function dispatchToTab(tab, payload, opts = {}) {
       showToast: settings.showToast !== false,
       showBadge: settings.showBadge !== false,
       toastDurationMs: Number.isFinite(settings.toastDurationMs) ? settings.toastDurationMs : 1500,
+      themeMode: settings.themeMode || "system",
       i18n: getContentMessages(),
     },
   };

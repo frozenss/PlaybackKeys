@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <title data-i18n="settingsPageTitle">PlaybackKeys Settings</title>
+  <script src="../shared/theme.js"></script>
   <link rel="stylesheet" href="../shared/tokens.css" />
   <link rel="stylesheet" href="options.css" />
 </head>
@@ -95,6 +96,10 @@
       <section class="opt-group" id="display">
         <div class="opt-group-h"><span class="name" data-i18n="sectionDisplay">Display</span><span class="desc" data-i18n="displayDesc">in-page UI</span></div>
 
+        <div class="opt-row">
+          <div class="lbl"><span data-i18n="themeMode">Theme</span><small data-i18n="themeModeDesc">Follow your system, or choose light or dark.</small></div>
+          <div class="seg theme-seg" id="seg-theme" aria-label="Theme" data-i18n-attr="aria-label:themeMode"></div>
+        </div>
         <div class="opt-row toggle-row">
           <div class="lbl"><span data-i18n="showToastOnAction">Show toast on action</span><small data-i18n="showToastOnActionDesc">Bottom-right card after each action</small></div>
           <div class="switch-lg" id="toast-toggle" role="switch" tabindex="0"></div>

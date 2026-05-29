@@ -1,7 +1,7 @@
 {
   "appName": {
-    "message": "PlaybackKeys",
-    "description": "Extension name. Do not translate the product name."
+    "message": "PlaybackKeys: グローバル動画ショートカット",
+    "description": "Extension name. Keep PlaybackKeys as the product name; localize the subtitle."
   },
   "appDescription": {
     "message": "YouTube、Udemy、Vimeo、Coursera、ブラウザ動画向けのグローバルキーボードショートカット。",
@@ -182,6 +182,26 @@
   "displayDesc": {
     "message": "ページ内 UI",
     "description": "Settings group description."
+  },
+  "themeMode": {
+    "message": "テーマ",
+    "description": "Theme setting label."
+  },
+  "themeModeDesc": {
+    "message": "システム設定に合わせるか、ライト/ダークを選びます。",
+    "description": "Theme setting description."
+  },
+  "themeSystem": {
+    "message": "システム",
+    "description": "Theme option label."
+  },
+  "themeLight": {
+    "message": "ライト",
+    "description": "Theme option label."
+  },
+  "themeDark": {
+    "message": "ダーク",
+    "description": "Theme option label."
   },
   "showToastOnAction": {
     "message": "操作時に通知を表示",

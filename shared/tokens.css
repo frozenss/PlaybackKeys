@@ -3,7 +3,7 @@
    Accent color is amber: oklch(0.78 0.16 70) / #F4B23E. */
 
 :root {
-  color-scheme: light dark;
+  color-scheme: dark;
 
   /* Surfaces (dark, default) */
   --pk-bg:        #0b0b0c;
@@ -12,6 +12,15 @@
   --pk-panel-2:   #17171b;
   --pk-line:      #232327;
   --pk-line-2:    #2c2c31;
+  --pk-sidebar:   #0a0a0b;
+  --pk-control:   #161618;
+  --pk-control-2: #1c1c1f;
+  --pk-control-on:#22222a;
+  --pk-inset:     #101012;
+  --pk-key-bg:    #1a1a1d;
+  --pk-key-edge:  #0a0a0b;
+  --pk-switch-off:#2a2a2f;
+  --pk-switch-dot:#8a8a92;
 
   /* Text */
   --pk-fg:        #ececee;
@@ -39,16 +48,53 @@
 }
 
 @media (prefers-color-scheme: light) {
-  :root {
+  :root:not([data-theme]) {
+    color-scheme: light;
     --pk-bg:      #fafafa;
     --pk-bg-2:    #f4f4f6;
     --pk-panel:   #ffffff;
     --pk-panel-2: #f4f4f6;
     --pk-line:    #e6e6e8;
     --pk-line-2:  #d8d8dc;
+    --pk-sidebar: #f0f0f2;
+    --pk-control: #f4f4f6;
+    --pk-control-2: #ececef;
+    --pk-control-on: #ffffff;
+    --pk-inset:   #ffffff;
+    --pk-key-bg:  #f7f7f8;
+    --pk-key-edge:#c8c8ce;
+    --pk-switch-off:#d8d8dc;
+    --pk-switch-dot:#7a7a82;
     --pk-fg:      #1a1a1d;
     --pk-fg-2:    #5a5a62;
     --pk-fg-3:    #8a8a92;
     --pk-fg-4:    #b0b0b8;
   }
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+  --pk-bg:      #fafafa;
+  --pk-bg-2:    #f4f4f6;
+  --pk-panel:   #ffffff;
+  --pk-panel-2: #f4f4f6;
+  --pk-line:    #e6e6e8;
+  --pk-line-2:  #d8d8dc;
+  --pk-sidebar: #f0f0f2;
+  --pk-control: #f4f4f6;
+  --pk-control-2: #ececef;
+  --pk-control-on: #ffffff;
+  --pk-inset:   #ffffff;
+  --pk-key-bg:  #f7f7f8;
+  --pk-key-edge:#c8c8ce;
+  --pk-switch-off:#d8d8dc;
+  --pk-switch-dot:#7a7a82;
+  --pk-fg:      #1a1a1d;
+  --pk-fg-2:    #5a5a62;
+  --pk-fg-3:    #8a8a92;
+  --pk-fg-4:    #b0b0b8;
+}
+
+[hidden] {
+  display: none !important;
 }

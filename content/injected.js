@@ -156,7 +156,11 @@
   let badgePrefShown = true;
   let toastPrefShown = true;
   let toastDurationMs = 1500;
+  let themeMode = "system";
   let toastHasShown = false;
+  const themeMedia = typeof matchMedia === "function"
+    ? matchMedia("(prefers-color-scheme: dark)")
+    : null;
   let messages = {
     clickToResetTo1x: "Click to reset to 1×",
     reset: "reset",
@@ -184,29 +188,74 @@
     }
   }
 
+  function normalizeThemeMode(mode) {
+    return mode === "light" || mode === "dark" || mode === "system" ? mode : "system";
+  }
+
+  function effectiveTheme() {
+    if (themeMode === "light" || themeMode === "dark") return themeMode;
+    return themeMedia && themeMedia.matches ? "dark" : "light";
+  }
+
+  function applyThemeMode(nextMode) {
+    themeMode = normalizeThemeMode(nextMode);
+    if (pkHostEl) pkHostEl.setAttribute("data-theme", effectiveTheme());
+  }
+
+  if (themeMedia) {
+    const onThemeChange = () => {
+      if (themeMode === "system") applyThemeMode(themeMode);
+    };
+    if (typeof themeMedia.addEventListener === "function") {
+      themeMedia.addEventListener("change", onThemeChange);
+    } else if (typeof themeMedia.addListener === "function") {
+      themeMedia.addListener(onThemeChange);
+    }
+  }
+
   const SHADOW_CSS = `
-    :host { all: initial; }
+    :host {
+      all: initial;
+      --pk-ui-fg: #ececee;
+      --pk-ui-muted: #8a8a92;
+      --pk-ui-bg: rgba(14, 14, 16, 0.86);
+      --pk-ui-badge-bg: rgba(14, 14, 16, 0.78);
+      --pk-ui-border: rgba(255, 255, 255, 0.08);
+      --pk-ui-border-hover: rgba(255, 255, 255, 0.18);
+      --pk-ui-reset-border: rgba(255, 255, 255, 0.08);
+      --pk-ui-shadow: rgba(0, 0, 0, 0.55);
+    }
+    :host([data-theme="light"]) {
+      --pk-ui-fg: #1a1a1d;
+      --pk-ui-muted: #6c6c74;
+      --pk-ui-bg: rgba(255, 255, 255, 0.92);
+      --pk-ui-badge-bg: rgba(255, 255, 255, 0.88);
+      --pk-ui-border: rgba(20, 20, 24, 0.12);
+      --pk-ui-border-hover: rgba(20, 20, 24, 0.24);
+      --pk-ui-reset-border: rgba(20, 20, 24, 0.12);
+      --pk-ui-shadow: rgba(20, 20, 24, 0.22);
+    }
     .pk-toast, .pk-badge {
       position: fixed;
       z-index: 2147483647;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
-      color: #ececee;
+      color: var(--pk-ui-fg);
       box-sizing: border-box;
       pointer-events: none;
     }
     .pk-toast {
       right: 18px; bottom: 62px;
-      background: rgba(14, 14, 16, 0.86);
+      background: var(--pk-ui-bg);
       backdrop-filter: blur(12px) saturate(140%);
       -webkit-backdrop-filter: blur(12px) saturate(140%);
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--pk-ui-border);
       border-radius: 10px;
       padding: 10px 14px 10px 12px;
       display: flex;
       align-items: center;
       gap: 10px;
       font-size: 12.5px;
-      box-shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.55);
+      box-shadow: 0 12px 32px -8px var(--pk-ui-shadow);
       min-width: 160px;
       opacity: 0;
       transform: translateY(8px);
@@ -228,16 +277,16 @@
     .pk-toast .body .det {
       font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
       font-size: 10.5px;
-      color: #8a8a92;
+      color: var(--pk-ui-muted);
       margin-top: 1px;
     }
 
     .pk-badge {
       left: 18px; bottom: 62px;
-      background: rgba(14, 14, 16, 0.78);
+      background: var(--pk-ui-badge-bg);
       backdrop-filter: blur(12px) saturate(140%);
       -webkit-backdrop-filter: blur(12px) saturate(140%);
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--pk-ui-border);
       border-radius: 8px;
       padding: 6px 10px 6px 8px;
       display: none;
@@ -245,13 +294,13 @@
       gap: 8px;
       font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
       font-size: 12px;
-      box-shadow: 0 8px 24px -8px rgba(0, 0, 0, 0.5);
+      box-shadow: 0 8px 24px -8px var(--pk-ui-shadow);
       pointer-events: auto;
       cursor: pointer;
       user-select: none;
       transition: transform .15s, border-color .15s;
     }
-    .pk-badge:hover { border-color: rgba(255, 255, 255, 0.18); transform: translateY(-1px); }
+    .pk-badge:hover { border-color: var(--pk-ui-border-hover); transform: translateY(-1px); }
     .pk-badge.show { display: inline-flex; }
     .pk-badge .dot { width: 6px; height: 6px; border-radius: 50%; background: #F4B23E; }
     .pk-badge .v {
@@ -261,10 +310,10 @@
       letter-spacing: -0.01em;
     }
     .pk-badge .reset {
-      color: #6c6c74;
+      color: var(--pk-ui-muted);
       font-size: 10px;
       margin-left: 2px;
-      border-left: 1px solid rgba(255, 255, 255, 0.08);
+      border-left: 1px solid var(--pk-ui-reset-border);
       padding-left: 8px;
     }
   `;
@@ -288,6 +337,7 @@
     if (pkRoot) return;
     pkHostEl = document.createElement("div");
     pkHostEl.setAttribute("data-playbackkeys", "");
+    pkHostEl.setAttribute("data-theme", effectiveTheme());
     pkHostEl.style.cssText = "all:initial;";
     pkRoot = pkHostEl.attachShadow({ mode: "open" });
     const style = document.createElement("style");
@@ -454,6 +504,7 @@
       if (typeof data.prefs.showBadge === "boolean") badgePrefShown = data.prefs.showBadge;
       if (typeof data.prefs.showToast === "boolean") toastPrefShown = data.prefs.showToast;
       if (Number.isFinite(data.prefs.toastDurationMs)) toastDurationMs = data.prefs.toastDurationMs;
+      if (typeof data.prefs.themeMode === "string") applyThemeMode(data.prefs.themeMode);
       applyI18nMessages(data.prefs.i18n);
     }
     const result = handle(data.payload);

@@ -33,9 +33,38 @@ function fmtTime(sec) {
   const s = Math.floor(sec % 60);
   return `${m}:${s.toString().padStart(2, "0")}`;
 }
+function cleanHostname(hostname) {
+  return (hostname || "").replace(/^www\./i, "");
+}
+function friendlySiteLabel(url) {
+  try {
+    const host = cleanHostname(new URL(url).hostname);
+    if (/(^|\.)youtube\.com$/i.test(host) || /(^|\.)youtube-nocookie\.com$/i.test(host)) return "YouTube";
+    if (/(^|\.)vimeo\.com$/i.test(host)) return "Vimeo";
+    if (/(^|\.)udemy\.com$/i.test(host)) return "Udemy";
+    if (/(^|\.)coursera\.org$/i.test(host)) return "Coursera";
+    return host;
+  } catch {
+    return "";
+  }
+}
 function chordToShort(shortcut) {
   if (!shortcut) return "";
-  return shortcut.split("+").map((p) => {
+  const parts = shortcut.includes("+")
+    ? shortcut.split("+").map((p) => p.trim()).filter(Boolean)
+    : (() => {
+        const out = [];
+        let rest = shortcut;
+        for (const symbol of ["⌃", "⌥", "⇧", "⌘"]) {
+          if (rest.includes(symbol)) {
+            out.push(symbol);
+            rest = rest.replace(symbol, "");
+          }
+        }
+        if (rest) out.push(rest);
+        return out.length > 0 ? out : [shortcut];
+      })();
+  return parts.map((p) => {
     if (isMac) {
       if (p === "Ctrl" || p === "Command") return "⌘";
       if (p === "Shift") return "⇧";
@@ -47,7 +76,7 @@ function chordToShort(shortcut) {
       if (p === "Alt") return "⌥";
     }
     return p;
-  }).join("");
+  }).join(isMac ? " " : "+");
 }
 
 let state = {
@@ -71,6 +100,7 @@ async function fetchSettings() {
     perSiteDisabled: {},
     enabledOrigins: {},
     runOnAllSites: false,
+    themeMode: "system",
   });
 }
 
@@ -86,10 +116,11 @@ async function describeEmptyState(activeTab, settings) {
     return { title: t("emptyNoVideoFound", undefined, "No video found"), host: "" };
   }
   const builtIn = isBuiltIn(activeTab.url);
+  const hostname = cleanHostname(url.hostname);
   if (builtIn) {
     if (settings.perSiteDisabled[url.origin]) {
       return {
-        title: t("emptySiteDisabledTitle", [url.hostname], `${url.hostname} is disabled`),
+        title: t("emptySiteDisabledTitle", [hostname], `${hostname} is disabled`),
         host: t("emptyReEnableFromMenu", undefined, "Re-enable it from this menu."),
       };
     }
@@ -101,12 +132,12 @@ async function describeEmptyState(activeTab, settings) {
   if (settings.enabledOrigins[url.origin] || settings.runOnAllSites) {
     return {
       title: t("emptyNoVideoFound", undefined, "No video found"),
-      host: t("emptyOnHostname", [url.hostname], `On ${url.hostname}`),
+      host: t("emptyOnHostname", [hostname], `On ${hostname}`),
     };
   }
   return {
     title: t("emptySiteNotEnabled", undefined, "Site not enabled"),
-    host: t("emptyEnableSiteInstruction", [url.hostname], `Click "Enable on this site" to use ${url.hostname}.`),
+    host: t("emptyEnableSiteInstruction", [hostname], `Click "Enable on this site" to use ${hostname}.`),
   };
 }
 async function fetchChords() {
@@ -160,17 +191,19 @@ function applyStatus(status, settings) {
     } else if (status?.title) {
       titleEl.textContent = status.title;
       try {
+        const hostname = cleanHostname(new URL(status.url).hostname);
         hostEl.textContent = t(
           "emptyHostnameNoVideoFound",
-          [new URL(status.url).hostname],
-          `${new URL(status.url).hostname} · no video found`,
+          [hostname],
+          `${hostname} · no video found`,
         );
       } catch { hostEl.textContent = t("emptyNoVideoFoundLower", undefined, "no video found"); }
     } else {
       titleEl.textContent = t("popupNoActiveVideoTab", undefined, "No active video tab");
       hostEl.textContent  = "";
     }
-    stateEl.textContent = "—";
+    stateEl.textContent = t("statusNotActive", undefined, "NOT ACTIVE");
+    stateEl.classList.remove("active");
     speedEl.textContent = "—";
     meterEl.style.width = "0";
     playGlyph.textContent = "▶";
@@ -184,13 +217,11 @@ function applyStatus(status, settings) {
 
   buttons.forEach((b) => (b.disabled = false));
   pulse.classList.remove("off");
-  stateLbl.textContent = t("statusControlling", undefined, "Controlling");
+  stateLbl.textContent = friendlySiteLabel(status.url) || t("statusControlling", undefined, "Controlling");
   state.tabId = status.tabId;
 
   titleEl.textContent = status.title || t("untitledTab", undefined, "Untitled tab");
-  let hostStr = "";
-  try { hostStr = new URL(status.url).hostname; } catch {}
-  hostEl.textContent = hostStr;
+  hostEl.textContent = "";
 
   // Progress bar
   const time = status.status?.currentTime;
@@ -233,10 +264,12 @@ function applyStatus(status, settings) {
   const paused = status.status?.paused;
   if (typeof paused === "boolean") {
     stateEl.textContent = paused ? t("statusPausedUpper", undefined, "PAUSED") : t("statusPlayingUpper", undefined, "PLAYING");
+    stateEl.classList.add("active");
     playGlyph.textContent = paused ? "▶" : "❚❚";
     playLbl.textContent   = paused ? t("buttonPlay", undefined, "PLAY") : t("buttonPause", undefined, "PAUSE");
   } else {
     stateEl.textContent   = "—";
+    stateEl.classList.remove("active");
     playGlyph.textContent = "⏯";
     playLbl.textContent   = t("buttonPlay", undefined, "PLAY");
   }
@@ -383,7 +416,7 @@ async function wireSiteToggle() {
   const url = activeTab.url;
   const builtIn = isBuiltIn(url);
   const origin = new URL(url).origin;
-  const hostname = new URL(url).hostname;
+  const hostname = cleanHostname(new URL(url).hostname);
   const pattern = originPattern(url);
   const granted = await chrome.permissions.contains({ origins: [pattern] }).catch(() => false);
 

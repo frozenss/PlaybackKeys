@@ -1,4 +1,4 @@
-# PlaybackKeys
+# PlaybackKeys: Global Video Shortcuts
 
 > **Pause less. Refocus never.** Control tutorials, lectures, and course videos with global keyboard shortcuts while you code, study, or take notes.
 

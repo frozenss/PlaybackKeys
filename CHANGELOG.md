@@ -2,6 +2,20 @@
 
 All notable changes to PlaybackKeys will be documented in this file.
 
+## [0.7.0] - 2026-05-29
+
+### Added
+- Added a System / Light / Dark theme setting that follows OS color-scheme preferences by default.
+- Added localized theme labels for every supported locale.
+
+### Changed
+- Renamed the extension display name to `PlaybackKeys: Global Video Shortcuts` with localized subtitles.
+- Updated extension pages and in-page controls to use theme-aware surfaces across light and dark mode.
+- Refined onboarding, settings shortcut rows, and the popup for clearer light-mode contrast, more readable shortcut hints, and a more compact control layout.
+
+### Fixed
+- Ensured hidden settings controls remain hidden when component classes define their own display styles.
+
 ## [0.6.0] - 2026-05-24
 
 ### Added

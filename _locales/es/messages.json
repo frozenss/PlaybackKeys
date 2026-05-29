@@ -1,7 +1,7 @@
 {
   "appName": {
-    "message": "PlaybackKeys",
-    "description": "Extension name. Do not translate the product name."
+    "message": "PlaybackKeys: Atajos globales de video",
+    "description": "Extension name. Keep PlaybackKeys as the product name; localize the subtitle."
   },
   "appDescription": {
     "message": "Atajos de teclado globales para YouTube, Udemy, Vimeo, Coursera y videos del navegador.",
@@ -182,6 +182,26 @@
   "displayDesc": {
     "message": "interfaz en la página",
     "description": "Settings group description."
+  },
+  "themeMode": {
+    "message": "Tema",
+    "description": "Theme setting label."
+  },
+  "themeModeDesc": {
+    "message": "Sigue el sistema o elige claro u oscuro.",
+    "description": "Theme setting description."
+  },
+  "themeSystem": {
+    "message": "Sistema",
+    "description": "Theme option label."
+  },
+  "themeLight": {
+    "message": "Claro",
+    "description": "Theme option label."
+  },
+  "themeDark": {
+    "message": "Oscuro",
+    "description": "Theme option label."
   },
   "showToastOnAction": {
     "message": "Mostrar aviso al actuar",

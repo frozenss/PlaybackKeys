@@ -1,7 +1,7 @@
 {
   "appName": {
-    "message": "PlaybackKeys",
-    "description": "Extension name. Do not translate the product name."
+    "message": "PlaybackKeys: 전역 동영상 단축키",
+    "description": "Extension name. Keep PlaybackKeys as the product name; localize the subtitle."
   },
   "appDescription": {
     "message": "YouTube, Udemy, Vimeo, Coursera 및 브라우저 동영상을 위한 전역 키보드 단축키.",
@@ -182,6 +182,26 @@
   "displayDesc": {
     "message": "페이지 내 UI",
     "description": "Settings group description."
+  },
+  "themeMode": {
+    "message": "테마",
+    "description": "Theme setting label."
+  },
+  "themeModeDesc": {
+    "message": "시스템 설정을 따르거나 밝게/어둡게를 선택합니다.",
+    "description": "Theme setting description."
+  },
+  "themeSystem": {
+    "message": "시스템",
+    "description": "Theme option label."
+  },
+  "themeLight": {
+    "message": "밝게",
+    "description": "Theme option label."
+  },
+  "themeDark": {
+    "message": "어둡게",
+    "description": "Theme option label."
   },
   "showToastOnAction": {
     "message": "동작 시 알림 표시",

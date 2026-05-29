@@ -1,10 +1,11 @@
-import { mkdirSync } from "node:fs";
+import { mkdirSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const OUT = join(ROOT, "assets", "chrome-web-store");
+const VERSION = JSON.parse(readFileSync(join(ROOT, "manifest.json"), "utf8")).version;
 
 const shots = [
   {
@@ -272,7 +273,7 @@ const scenes = {
   popup: () => `
     <div class="canvas">
       <div class="popup-card">
-        <div class="popup-head"><b>PlaybackKeys</b><span>v0.4.0</span></div>
+        <div class="popup-head"><b>PlaybackKeys</b><span>v${VERSION}</span></div>
         <div class="now"><div class="label">CONTROLLING</div><h3>SwiftUI Course - Lesson 12</h3><p>www.youtube.com</p><div class="progress"><span></span></div></div>
         <div class="btns"><div class="btn"><b>«5s</b>Back</div><div class="btn"><b>❚❚</b>Pause</div><div class="btn"><b>5s»</b>Forward</div><div class="btn"><b>−0.25</b>Slower</div><div class="btn"><b>1.00×</b>Reset</div><div class="btn"><b>+0.25</b>Faster</div></div>
         <div class="toggle">Enabled on youtube.com</div>

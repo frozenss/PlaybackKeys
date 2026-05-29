@@ -112,7 +112,7 @@ async function renderShortcutList() {
   document.querySelectorAll("[data-chord]").forEach((el) => {
     const cmdName = el.dataset.chord;
     const parts = map[cmdName];
-    el.textContent = parts ? parts.map((p) => p).join(isMac ? " + " : " + ") : "—";
+    el.innerHTML = parts ? chordHTML(parts) : chordHTML(null);
   });
 
   // Update callout copy: only show macOS screenshot note if Mac.
