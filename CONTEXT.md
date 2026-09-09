@@ -13,8 +13,16 @@ A non-built-in origin the user enabled from the popup.
 _Avoid_: custom site, extra site, supported site
 
 **Command**:
-One of PlaybackKeys' seven global chords: play/pause, speed up, speed down, reset speed, skip back, skip forward, switch target tab.
+A global chord PlaybackKeys registers with the browser. The set is: play/pause, speed up, speed down, reset speed, switch target tab, and one skip-back plus one skip-forward per Skip interval.
 _Avoid_: shortcut (the site's own keys), hotkey
+
+**Skip interval**:
+A configured jump length in seconds, shared symmetrically by one skip-back Command and its matching skip-forward Command. PlaybackKeys has three Skip intervals.
+_Avoid_: seek step, jump size, skip amount, seekSeconds (storage name)
+
+**Skip burst**:
+A contiguous run of same-direction skips on one Skip interval that share one cumulative toast readout.
+_Avoid_: merge session, seek streak, combo
 
 **Controllable video**:
 The in-page media PlaybackKeys actually drives. On a generic site this is the prominent HTML `<video>`; a Built-in site may substitute a site-specific stand-in.
