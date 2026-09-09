@@ -1,7 +1,7 @@
 import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync } from "node:fs";
 import { dirname, join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
-import { execFileSync } from "node:child_process";
+import { execFileSync, spawnSync } from "node:child_process";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const RUNTIME_PATHS = [
@@ -77,6 +77,55 @@ function copyPath(srcRel, destRoot) {
   }
   mkdirSync(dirname(dest), { recursive: true });
   copyFileSync(src, dest);
+}
+
+function commandExists(cmd) {
+  const probe = process.platform === "win32" ? "where" : "which";
+  return spawnSync(probe, [cmd], { encoding: "utf8" }).status === 0;
+}
+
+function normalizeZipEntry(entry) {
+  return entry.replace(/\\/g, "/").replace(/^\.\//, "").replace(/\/$/, "");
+}
+
+function createZip(zipPath, cwd) {
+  if (commandExists("zip")) {
+    execFileSync("zip", ["-qr", zipPath, "."], { cwd, stdio: "inherit" });
+    return;
+  }
+  if (commandExists("7z")) {
+    execFileSync("7z", ["a", "-tzip", "-bd", zipPath, "."], { cwd, stdio: "inherit" });
+    return;
+  }
+  if (commandExists("tar")) {
+    execFileSync("tar", ["-a", "-c", "-f", zipPath, "."], { cwd, stdio: "inherit" });
+    return;
+  }
+  throw new Error("No zip tool found. Install zip, 7z, or tar to create the store package.");
+}
+
+function listZipEntries(zipPath) {
+  if (commandExists("unzip")) {
+    return execFileSync("unzip", ["-Z1", zipPath], { encoding: "utf8" })
+      .split(/\r?\n/)
+      .filter(Boolean)
+      .map(normalizeZipEntry);
+  }
+  if (commandExists("tar")) {
+    return execFileSync("tar", ["-tf", zipPath], { encoding: "utf8" })
+      .split(/\r?\n/)
+      .filter(Boolean)
+      .map(normalizeZipEntry)
+      .filter((entry) => entry && entry !== ".");
+  }
+  if (commandExists("7z")) {
+    return execFileSync("7z", ["l", "-ba", "-slt", zipPath], { encoding: "utf8" })
+      .split(/\r?\n/)
+      .filter((line) => line.startsWith("Path = "))
+      .map((line) => normalizeZipEntry(line.slice("Path = ".length)))
+      .filter((entry) => entry && entry !== ".");
+  }
+  throw new Error("No zip listing tool found. Install unzip, tar, or 7z.");
 }
 
 function validateManifest() {
@@ -189,7 +238,8 @@ function validateStoreListing() {
     const localeMessages = readJson(`_locales/${locale}/messages.json`);
     const nameMatch = section.match(/^Extension name: (.+)$/m);
     const shortMatch = section.match(/^Short description: (.+)$/m);
-    const fullMatch = section.match(/^Full description:\n\n([\s\S]+?)\n\nInternal search keywords,/m);
+    // Accept LF and CRLF so Windows checkouts still parse store copy.
+    const fullMatch = section.match(/^Full description:\r?\n\r?\n([\s\S]+?)\r?\n\r?\nInternal search keywords,/m);
 
     assert(nameMatch?.[1] === localeMessages.appName.message, `${heading} store listing name must match _locales/${locale}/messages.json appName.`);
     assert(shortMatch?.[1] === localeMessages.appDescription.message, `${heading} store listing short description must match _locales/${locale}/messages.json appDescription.`);
@@ -231,11 +281,9 @@ function makePackage() {
   if (process.exitCode) process.exit(process.exitCode);
 
   rmSync(zipPath, { force: true });
-  execFileSync("zip", ["-qr", zipPath, "."], { cwd: packageRoot, stdio: "inherit" });
+  createZip(zipPath, packageRoot);
 
-  const entries = execFileSync("unzip", ["-Z1", zipPath], { encoding: "utf8" })
-    .split("\n")
-    .filter(Boolean);
+  const entries = listZipEntries(zipPath);
   assert(
     entries.includes("manifest.json"),
     "ZIP must contain manifest.json at the root (Chrome Web Store requirement).",
