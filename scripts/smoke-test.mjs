@@ -175,7 +175,7 @@ async function sendCommandPayload(worker, pageUrl, payload, showToast = true) {
       });
       await chrome.scripting.executeScript({
         target: { tabId: tab.id, allFrames: true },
-        files: ["content/injected.js"],
+        files: ["content/bilibili-adapter.js", "content/injected.js"],
         world: "MAIN",
       });
       return await chrome.tabs.sendMessage(tab.id, message);

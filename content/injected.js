@@ -363,6 +363,17 @@
     );
     badgeEl.addEventListener("click", (e) => {
       e.stopPropagation();
+      const bilibili = bilibiliAdapter();
+      if (bilibili && bilibili.isBilibiliHost(location)) {
+        const result = bilibili.applyCommand({ action: "speed", reset: true }, { messages });
+        if (result?.handled) {
+          const v = bilibili.pickControllableVideo(document);
+          if (v) setRate(v, 1);
+          showToast(result.toast || { ic: "↺", name: msg("toastResetTo1x"), det: "" });
+          updateBadge();
+        }
+        return;
+      }
       const v = pickBestVideo();
       if (v) {
         resetRate(v);
@@ -395,7 +406,10 @@
   }
 
   function updateBadge() {
-    const v = pickBestVideo();
+    const bilibili = bilibiliAdapter();
+    const v = (bilibili && bilibili.isBilibiliHost(location))
+      ? (bilibili.isWatchPage(location) ? bilibili.pickControllableVideo(document) : null)
+      : pickBestVideo();
     const rate = v ? readRate(v) : 1;
     const off = !v || Math.abs(rate - 1) < 0.005 || !badgePrefShown;
     if (off) {
@@ -409,7 +423,39 @@
 
   // ---------- Command handler ----------
 
+  function bilibiliAdapter() {
+    try {
+      return globalThis.PlaybackKeysBilibili || null;
+    } catch {
+      return null;
+    }
+  }
+
   function handle(payload) {
+    // All www.bilibili.com traffic goes through the adapter (#8) so off-watch
+    // pages cannot fall through to the generic <video> scorer.
+    const bilibili = bilibiliAdapter();
+    if (bilibili && bilibili.isBilibiliHost(location)) {
+      // Only disarm before speed: the adapter writes via video.playbackRate, and
+      // an armed per-element patch would silently reject the new rate. Toggle /
+      // seek must leave an active short fight window alone.
+      if (payload?.action === "speed") {
+        if (activeRateInterval) {
+          clearInterval(activeRateInterval);
+          activeRateInterval = null;
+        }
+        desiredRate = null;
+        desiredRateUntil = 0;
+      }
+      const result = bilibili.applyCommand(payload, { messages });
+      // Keep the existing short rate-fight window until sticky desired-rate (#3).
+      if (result?.handled && payload?.action === "speed") {
+        const video = bilibili.pickControllableVideo(document);
+        if (video) setRate(video, payload.reset ? 1 : readRate(video));
+      }
+      return result;
+    }
+
     const video = pickBestVideo();
     if (!video) return { handled: false };
 

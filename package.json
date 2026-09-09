@@ -8,6 +8,7 @@
     "package": "node scripts/validate-release.mjs --package",
     "release-notes": "node scripts/extract-changelog.mjs",
     "smoke": "node scripts/smoke-test.mjs",
+    "test:bilibili-adapter": "node scripts/bilibili-adapter-test.mjs",
     "screenshots": "node scripts/generate-store-screenshots.mjs"
   },
   "devDependencies": {

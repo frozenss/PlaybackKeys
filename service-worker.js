@@ -109,7 +109,14 @@ async function forgetVideoTab(tabId) {
 // Single injected function that handles all per-frame video operations.
 // Defined once to avoid drift between probe/seek/status copies. Runs in MAIN
 // world via chrome.scripting.executeScript — must be self-contained.
+// On Bilibili watch pages, prefers PlaybackKeysBilibili (injected just before
+// this runs) so presence and Command drive cannot diverge (#8).
 function videoPageAction(action, payload) {
+  const bilibili = (typeof globalThis !== "undefined" && globalThis.PlaybackKeysBilibili)
+    ? globalThis.PlaybackKeysBilibili
+    : null;
+  const onBilibili = !!(bilibili && bilibili.isBilibiliHost(location));
+
   function videoScore(v) {
     const r = v.getBoundingClientRect();
     if (r.width < 80 || r.height < 60) return 0;
@@ -133,6 +140,22 @@ function videoPageAction(action, payload) {
       }
     }
     return best;
+  }
+
+  // www.bilibili.com: adapter is the only gate (not the generic <video> scorer).
+  if (onBilibili) {
+    if (action === "hasVideo") return bilibili.hasControllableVideo();
+    if (action === "seek") {
+      return !!bilibili.applyCommand({ action: "seek", absoluteTime: payload })?.handled;
+    }
+    if (action === "status") {
+      const result = bilibili.applyCommand({ action: "status" });
+      if (!result?.handled || !result.status) return null;
+      const v = bilibili.pickControllableVideo(document);
+      const r = v ? v.getBoundingClientRect() : { width: 0, height: 0 };
+      return { ...result.status, area: r.width * r.height };
+    }
+    return null;
   }
 
   if (action === "hasVideo") {
@@ -166,10 +189,35 @@ function videoPageAction(action, payload) {
   return null;
 }
 
+function isBilibiliTabUrl(url) {
+  if (!url) return false;
+  try {
+    return /^www\.bilibili\.com$/i.test(new URL(url).hostname);
+  } catch {
+    return false;
+  }
+}
+
+async function ensureBilibiliAdapter(tabId) {
+  await chrome.scripting.executeScript({
+    target: { tabId, allFrames: true },
+    world: "MAIN",
+    files: ["content/bilibili-adapter.js"],
+  });
+}
+
+async function withBilibiliAdapterIfNeeded(tabId) {
+  const tab = await chrome.tabs.get(tabId).catch(() => null);
+  if (tab && isBilibiliTabUrl(tab.url)) {
+    await ensureBilibiliAdapter(tabId);
+  }
+}
+
 // Probe: does this tab have a video that's worth targeting? Filters out
 // hidden / tiny / decorative / not-yet-loaded elements.
 async function tabHasVideo(tabId) {
   try {
+    await withBilibiliAdapterIfNeeded(tabId);
     const results = await chrome.scripting.executeScript({
       target: { tabId, allFrames: true },
       world: "MAIN",
@@ -322,7 +370,7 @@ async function dispatchToTab(tab, payload, opts = {}) {
       });
       await chrome.scripting.executeScript({
         target: { tabId: tab.id, allFrames: true },
-        files: ["content/injected.js"],
+        files: ["content/bilibili-adapter.js", "content/injected.js"],
         world: "MAIN",
       });
       await chrome.tabs.sendMessage(tab.id, message);
@@ -363,6 +411,7 @@ async function handleCommand(command) {
 // messaging race and reliably reach the right frame.
 async function seekVideoTo(tabId, absoluteTime) {
   try {
+    await withBilibiliAdapterIfNeeded(tabId);
     const results = await chrome.scripting.executeScript({
       target: { tabId, allFrames: true },
       world: "MAIN",
@@ -381,6 +430,7 @@ async function seekVideoTo(tabId, absoluteTime) {
 // race against empty iframes.
 async function readVideoStatus(tabId) {
   try {
+    await withBilibiliAdapterIfNeeded(tabId);
     const results = await chrome.scripting.executeScript({
       target: { tabId, allFrames: true },
       world: "MAIN",

@@ -68,7 +68,7 @@
         "*://*.coursera.org/*",
         "*://www.bilibili.com/*"
       ],
-      "js": ["content/injected.js"],
+      "js": ["content/bilibili-adapter.js", "content/injected.js"],
       "run_at": "document_start",
       "all_frames": true,
       "match_about_blank": true,
