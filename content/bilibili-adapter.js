@@ -1,9 +1,11 @@
-// Bilibili watch-page adapter (ADR-0001 / #8 + sticky rate #3).
+// Bilibili watch-page adapter (ADR-0001 / #8 + sticky rate #3 + custom media #4).
 // Single seam for path gating, Controllable-video presence, and Command apply.
 // Hybrid drive: window.player for play/pause/seek when present; rate always on
 // the Controllable video. Desired rate sticks on this watch until reset or the
-// watch identity (BV and/or cid) changes. MAIN-world handler and the worker
-// probe both use this.
+// watch identity (BV and/or cid) changes. When the site swaps in bwp-video and
+// no scorable HTML <video> remains, that custom element is the Controllable
+// video (Bilibili-only — not a generic custom-element probe). MAIN-world
+// handler and the worker probe both use this.
 
 (() => {
   // Probe/seek/status re-inject this file into MAIN world. Keep a single
@@ -108,8 +110,35 @@
     return (!el.paused && el.readyState > 1 ? area * 2 : area);
   }
 
+  function isHtmlMedia(el) {
+    return typeof HTMLMediaElement !== "undefined" && el instanceof HTMLMediaElement;
+  }
+
+  // Bilibili's WASM HEVC stand-in. Site-specific only (ADR-0001): do not probe
+  // arbitrary custom elements on Opt-in origins.
+  function isUsableCustomMedia(el) {
+    if (!el || String(el.tagName || "").toUpperCase() !== "BWP-VIDEO") return false;
+    if (typeof el.play !== "function" || typeof el.pause !== "function") return false;
+    if (typeof el.paused !== "boolean") return false;
+    if (!("currentTime" in el) || !("playbackRate" in el)) return false;
+    return true;
+  }
+
+  function pickCustomMediaElement(doc) {
+    const root = doc || document;
+    for (const el of root.querySelectorAll("bwp-video")) {
+      if (isUsableCustomMedia(el)) return el;
+    }
+    return null;
+  }
+
   function pickControllableVideo(doc) {
     const root = doc || document;
+    // Prefer the site custom media element when present (#1 / #4); otherwise
+    // the prominent scorable HTML <video>.
+    const custom = pickCustomMediaElement(root);
+    if (custom) return custom;
+
     let best = null;
     let bestScore = 0;
     for (const video of root.querySelectorAll("video")) {
@@ -173,14 +202,14 @@
   }
 
   function readRate(video) {
-    if (rateDesc && rateDesc.get) {
+    if (isHtmlMedia(video) && rateDesc && rateDesc.get) {
       try { return rateDesc.get.call(video); } catch { /* fall through */ }
     }
     return video.playbackRate;
   }
 
   function writeRate(video, rate) {
-    if (rateDesc && rateDesc.set) {
+    if (isHtmlMedia(video) && rateDesc && rateDesc.set) {
       try { rateDesc.set.call(video, rate); return; } catch { /* fall through */ }
     }
     try { video.playbackRate = rate; } catch { /* ignore */ }
@@ -188,6 +217,10 @@
 
   function ensureRatePatch(video) {
     if (!video || video.__pkBiliRatePatched) return;
+    // Custom media (bwp-video): no HTMLMediaElement proto to patch. Sticky
+    // desired rate still holds via writeRate + the interval reassert; do not
+    // shadow the element's own rate accessors.
+    if (!isHtmlMedia(video)) return;
     if (!rateDesc || !rateDesc.configurable) return;
     try {
       Object.defineProperty(video, "playbackRate", {

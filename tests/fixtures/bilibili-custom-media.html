@@ -1,0 +1,87 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>PlaybackKeys Bilibili custom media fixture</title>
+  <style>
+    body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: #181818; color: #eee; font: 14px/1.4 system-ui, sans-serif; }
+    /* Leftover HTML video is present but not scorable (tiny / opacity 0). */
+    video#pk-hidden-video {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      opacity: 0;
+      pointer-events: none;
+    }
+    bwp-video {
+      display: block;
+      width: 640px;
+      height: 360px;
+      background: #242424;
+    }
+  </style>
+</head>
+<body>
+  <!-- Unscorable leftover <video>: generic query+score alone must not pass. -->
+  <video id="pk-hidden-video" muted></video>
+
+  <bwp-video id="pk-bwp"></bwp-video>
+
+  <script>
+    // Minimal stand-in for Bilibili's WASM HEVC media element: media-like
+    // properties only — no real codec / stream (acceptance: no codec forcing).
+    class BwpVideoElement extends HTMLElement {
+      constructor() {
+        super();
+        this._paused = true;
+        this._currentTime = 0;
+        this._playbackRate = 1;
+        this._duration = 120;
+        this._readyState = 4;
+        this._src = "";
+      }
+
+      get paused() { return this._paused; }
+      get currentTime() { return this._currentTime; }
+      set currentTime(v) {
+        const n = Number(v);
+        if (!Number.isFinite(n)) return;
+        this._currentTime = Math.max(0, Math.min(this._duration, n));
+      }
+      get playbackRate() { return this._playbackRate; }
+      set playbackRate(v) {
+        const n = Number(v);
+        if (!Number.isFinite(n) || n <= 0) return;
+        this._playbackRate = n;
+      }
+      get duration() { return this._duration; }
+      get readyState() { return this._readyState; }
+      get currentSrc() { return this._src; }
+      get src() { return this._src; }
+      set src(v) { this._src = String(v || ""); }
+
+      get seekable() {
+        const end = this._duration;
+        return {
+          length: 1,
+          start() { return 0; },
+          end() { return end; },
+        };
+      }
+
+      play() {
+        this._paused = false;
+        return Promise.resolve();
+      }
+
+      pause() {
+        this._paused = true;
+      }
+    }
+
+    if (!customElements.get("bwp-video")) {
+      customElements.define("bwp-video", BwpVideoElement);
+    }
+  </script>
+</body>
+</html>

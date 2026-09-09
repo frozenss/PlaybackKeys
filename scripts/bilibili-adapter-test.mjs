@@ -18,6 +18,7 @@ try {
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const ADAPTER = readFileSync(join(ROOT, "content/bilibili-adapter.js"), "utf8");
 const WATCH_FIXTURE = readFileSync(join(ROOT, "tests/fixtures/video-page.html"), "utf8");
+const CUSTOM_MEDIA_FIXTURE = readFileSync(join(ROOT, "tests/fixtures/bilibili-custom-media.html"), "utf8");
 const MINI_FIXTURE = readFileSync(join(ROOT, "tests/fixtures/mini-player-page.html"), "utf8");
 const SAMPLE_MP4 = readFileSync(join(ROOT, "tests/fixtures/sample.mp4"));
 const SMOKE_ROOT = mkdtempSync(join(tmpdir(), "playbackkeys-bilibili-adapter-"));
@@ -28,6 +29,8 @@ function assert(condition, message) {
 
 function fixtureFor(urlString) {
   const path = new URL(urlString).pathname;
+  // Custom-media watch fixture: site element only, no scorable <video> (#4).
+  if (path.startsWith("/video/BVcustom")) return CUSTOM_MEDIA_FIXTURE;
   const isWatch =
     path.startsWith("/video/") ||
     path.startsWith("/list/") ||
@@ -115,6 +118,34 @@ async function openWatchWithPlayer(hostPath) {
       seek(seconds) {
         calls.seek.push(seconds);
         video.currentTime = seconds;
+      },
+    };
+    window.__pkPlayerCalls = calls;
+  });
+  return page;
+}
+
+async function openCustomMediaWithPlayer(hostPath) {
+  const page = await openPage(hostPath);
+  await page.waitForSelector("bwp-video");
+  await page.waitForFunction(() => customElements.get("bwp-video"));
+
+  // Hybrid stub: transport via window.player, rate on the custom media element.
+  await page.evaluate(() => {
+    const media = document.querySelector("bwp-video");
+    const calls = { play: 0, pause: 0, seek: [] };
+    window.player = {
+      play() {
+        calls.play += 1;
+        media.play();
+      },
+      pause() {
+        calls.pause += 1;
+        media.pause();
+      },
+      seek(seconds) {
+        calls.seek.push(seconds);
+        media.currentTime = seconds;
       },
     };
     window.__pkPlayerCalls = calls;
@@ -624,6 +655,142 @@ try {
 
     await page.close();
     console.log("✓ global speed min/max/wrap (max 4×)");
+  }
+
+  // --- Custom media element as Controllable video (#4) ---
+  // Fixture has only bwp-video + an unscorable leftover <video>. Generic
+  // querySelectorAll("video")+score alone must not be enough to pass.
+  {
+    const page = await openCustomMediaWithPlayer("www.bilibili.com/video/BVcustom/");
+
+    const probe = await page.evaluate(() => {
+      function videoScore(el) {
+        const r = el.getBoundingClientRect();
+        if (r.width < 80 || r.height < 60) return 0;
+        if (r.bottom < 0 || r.right < 0) return 0;
+        if (r.top > (window.innerHeight || 1e6)) return 0;
+        if (r.left > (window.innerWidth || 1e6)) return 0;
+        if (el.readyState < 1 && !el.currentSrc && !el.src) return 0;
+        const cs = getComputedStyle(el);
+        if (cs.visibility === "hidden" || cs.display === "none" || Number(cs.opacity) === 0) return 0;
+        const area = Math.max(0, r.width) * Math.max(0, r.height);
+        return (!el.paused && el.readyState > 1 ? area * 2 : area);
+      }
+      let best = null;
+      let bestScore = 0;
+      for (const video of document.querySelectorAll("video")) {
+        const score = videoScore(video);
+        if (score > bestScore) {
+          best = video;
+          bestScore = score;
+        }
+      }
+      return {
+        genericScorable: best != null,
+        hasControllable: PlaybackKeysBilibili.hasControllableVideo(),
+        tag: PlaybackKeysBilibili.pickControllableVideo()?.tagName || null,
+      };
+    });
+    assert(probe.genericScorable === false, "custom fixture must have no scorable HTML <video>");
+    assert(probe.hasControllable === true, "custom media element must count as Controllable video present");
+    assert(probe.tag === "BWP-VIDEO", `Controllable video should be bwp-video, got ${probe.tag}`);
+
+    await page.evaluate(() => {
+      document.querySelector("bwp-video").pause();
+    });
+
+    let result = await page.evaluate((messages) => {
+      return PlaybackKeysBilibili.applyCommand({ action: "toggle" }, { messages });
+    }, MESSAGES);
+    assert(result?.handled === true, "custom: toggle(play) handled");
+    assert(result?.toast?.name === "Playing", "custom: play toast");
+    assert(
+      (await page.$eval("bwp-video", (el) => el.paused)) === false,
+      "custom: toggle play must unpause bwp-video",
+    );
+    let calls = await page.evaluate(() => window.__pkPlayerCalls);
+    assert(calls.play >= 1, "custom: toggle(play) must invoke window.player.play");
+
+    result = await page.evaluate((messages) => {
+      return PlaybackKeysBilibili.applyCommand({ action: "toggle" }, { messages });
+    }, MESSAGES);
+    assert(result?.handled === true, "custom: toggle(pause) handled");
+    assert(
+      (await page.$eval("bwp-video", (el) => el.paused)) === true,
+      "custom: toggle pause must pause bwp-video",
+    );
+    calls = await page.evaluate(() => window.__pkPlayerCalls);
+    assert(calls.pause >= 1, "custom: toggle(pause) must invoke window.player.pause");
+
+    await page.evaluate(() => {
+      document.querySelector("bwp-video").currentTime = 0;
+      window.__pkPlayerCalls.seek = [];
+    });
+    result = await page.evaluate(() => {
+      return PlaybackKeysBilibili.applyCommand({ action: "seek", delta: 5 });
+    });
+    assert(result?.handled === true, "custom: seek handled");
+    assert(
+      (await page.$eval("bwp-video", (el) => el.currentTime)) >= 4.9,
+      "custom: seek must change bwp-video currentTime",
+    );
+    calls = await page.evaluate(() => window.__pkPlayerCalls);
+    assert(calls.seek.length >= 1, "custom: seek must invoke window.player.seek");
+
+    result = await page.evaluate(() => {
+      return PlaybackKeysBilibili.applyCommand({
+        action: "speed",
+        delta: 0.25,
+        min: 0.25,
+        max: 4,
+        wrap: false,
+      });
+    });
+    assert(result?.handled === true, "custom: speed handled");
+    assert(
+      (await page.$eval("bwp-video", (el) => el.playbackRate)) === 1.25,
+      "custom: speed must write rate on bwp-video",
+    );
+
+    result = await page.evaluate(() => PlaybackKeysBilibili.applyCommand({ action: "status" }));
+    assert(result?.handled === true && result.status, "custom: status handled");
+    assert(result.status.paused === true, "custom: status.paused after pause");
+    assert(result.status.currentSpeed === 1.25, "custom: status.currentSpeed");
+
+    await page.close();
+    console.log("✓ custom media element Controllable + hybrid Commands");
+  }
+
+  // Missing window.player: transport falls back onto the custom media element.
+  {
+    const page = await openPage("www.bilibili.com/video/BVcustom/");
+    await page.waitForSelector("bwp-video");
+    await page.evaluate(() => {
+      delete window.player;
+      document.querySelector("bwp-video").pause();
+    });
+
+    let result = await page.evaluate((messages) => {
+      return PlaybackKeysBilibili.applyCommand({ action: "toggle" }, { messages });
+    }, MESSAGES);
+    assert(result?.handled === true, "custom fallback: toggle handled");
+    assert(
+      (await page.$eval("bwp-video", (el) => el.paused)) === false,
+      "custom fallback: play on bwp-video",
+    );
+
+    await page.evaluate(() => { document.querySelector("bwp-video").currentTime = 10; });
+    result = await page.evaluate(() => {
+      return PlaybackKeysBilibili.applyCommand({ action: "seek", delta: -3 });
+    });
+    assert(result?.handled === true, "custom fallback: seek handled");
+    assert(
+      (await page.$eval("bwp-video", (el) => el.currentTime)) === 7,
+      "custom fallback: seek on bwp-video",
+    );
+
+    await page.close();
+    console.log("✓ custom media element fallback without window.player");
   }
 
   console.log("Bilibili adapter tests passed.");
