@@ -903,6 +903,350 @@ try {
   }
   console.log("✓ watch-page Site mini-player Controllable; off-watch excluded");
 
+  // --- In-page watch-identity rebind (#6) ---
+  // After pushState to a new BV/cid/episode with a new media node, the next
+  // Command must drive the new Controllable video (not the detached old one),
+  // and the previous watch's desired rate must not come along. No synthetic
+  // popstate: real SPA navigation updates location via pushState alone.
+  async function rebindToNewWatch(page, { nextPath, nextVideoId }) {
+    await page.evaluate(({ nextPath, nextVideoId }) => {
+      const old = document.querySelector("video");
+      old.id = "pk-video-old";
+      window.__pkOldVideo = old;
+
+      history.pushState({}, "", nextPath);
+
+      const next = document.createElement("video");
+      next.id = nextVideoId;
+      next.src = old.currentSrc || old.src || "/sample.mp4";
+      next.muted = true;
+      next.controls = true;
+      next.style.width = "640px";
+      next.style.height = "360px";
+      next.playbackRate = 1;
+      old.replaceWith(next);
+
+      const calls = window.__pkPlayerCalls || { play: 0, pause: 0, seek: [] };
+      calls.play = 0;
+      calls.pause = 0;
+      calls.seek = [];
+      window.__pkPlayerCalls = calls;
+      window.player = {
+        play() { calls.play += 1; next.play().catch(() => {}); },
+        pause() { calls.pause += 1; next.pause(); },
+        seek(seconds) { calls.seek.push(seconds); next.currentTime = seconds; },
+      };
+    }, { nextPath, nextVideoId });
+
+    await page.waitForSelector(`#${nextVideoId}`);
+    await page.waitForFunction((id) => {
+      const v = document.getElementById(id);
+      return v && v.readyState >= 1;
+    }, nextVideoId, { timeout: 10000 });
+  }
+
+  async function assertCommandsDriveNewNode(page, { label, newVideoId }) {
+    // Drop window.player so toggle/seek observations hit the Controllable
+    // video node itself (a player stub closed over `next` can mask a stale pick).
+    await page.evaluate((id) => {
+      delete window.player;
+      const v = document.getElementById(id);
+      v.pause();
+      v.currentTime = 0.25;
+      v.playbackRate = 1;
+      if (window.__pkOldVideo) {
+        window.__pkOldVideo.pause();
+        window.__pkOldVideo.currentTime = 0.25;
+        window.__pkOldVideo.playbackRate = 1;
+      }
+    }, newVideoId);
+
+    assert(
+      (await page.evaluate(() => PlaybackKeysBilibili.pickControllableVideo()?.id)) === newVideoId,
+      `${label}: Controllable video must be the new identity's node`,
+    );
+
+    let result = await page.evaluate((messages) => {
+      return PlaybackKeysBilibili.applyCommand({ action: "toggle" }, { messages });
+    }, MESSAGES);
+    assert(result?.handled === true, `${label}: toggle handled on new identity`);
+    assert(
+      (await page.$eval(`#${newVideoId}`, (v) => v.paused)) === false,
+      `${label}: toggle must play the new Controllable video`,
+    );
+    assert(
+      await page.evaluate(() => window.__pkOldVideo.paused === true),
+      `${label}: toggle must not play the detached old video`,
+    );
+
+    result = await page.evaluate(() => {
+      return PlaybackKeysBilibili.applyCommand({ action: "seek", delta: 1 });
+    });
+    assert(result?.handled === true, `${label}: seek handled on new identity`);
+    assert(
+      (await page.$eval(`#${newVideoId}`, (v) => v.currentTime)) >= 1.1,
+      `${label}: seek must move the new Controllable video`,
+    );
+    assert(
+      await page.evaluate(() => window.__pkOldVideo.currentTime < 0.5),
+      `${label}: seek must not move the detached old video`,
+    );
+
+    result = await page.evaluate(() => {
+      return PlaybackKeysBilibili.applyCommand({
+        action: "speed",
+        delta: 0.25,
+        min: 0.25,
+        max: 4,
+        wrap: false,
+      });
+    });
+    assert(result?.handled === true, `${label}: speed handled on new identity`);
+    assert(
+      (await page.$eval(`#${newVideoId}`, (v) => v.playbackRate)) === 1.25,
+      `${label}: speed must write rate on the new Controllable video`,
+    );
+    assert(
+      await page.evaluate(() => window.__pkOldVideo.playbackRate === 1),
+      `${label}: speed must not write rate on the detached old video`,
+    );
+  }
+
+  // Multi-P: same BV, cid change.
+  {
+    const page = await openWatchWithPlayer("www.bilibili.com/video/BVmultipart/?cid=1001");
+
+    await page.evaluate(() => {
+      return PlaybackKeysBilibili.applyCommand({
+        action: "speed",
+        delta: 1,
+        min: 0.25,
+        max: 4,
+        wrap: false,
+      });
+    });
+    assert((await page.$eval("video", (v) => v.playbackRate)) === 2, "multi-P rebind: armed at 2×");
+
+    await rebindToNewWatch(page, {
+      nextPath: "/video/BVmultipart/?cid=1002",
+      nextVideoId: "pk-video-p2",
+    });
+
+    await page.waitForTimeout(600);
+    assert(
+      (await page.$eval("#pk-video-p2", (v) => v.playbackRate)) === 1,
+      "multi-P rebind: previous desired rate must not land on the new part",
+    );
+
+    await assertCommandsDriveNewNode(page, {
+      label: "multi-P rebind",
+      newVideoId: "pk-video-p2",
+    });
+
+    await page.close();
+    console.log("✓ multi-P cid/part change rebinds Commands to new node");
+  }
+
+  // VOD season-style: BV change without full reload.
+  {
+    const page = await openWatchWithPlayer("www.bilibili.com/video/BVseasonOld/");
+
+    await page.evaluate(() => {
+      return PlaybackKeysBilibili.applyCommand({
+        action: "speed",
+        delta: 0.75,
+        min: 0.25,
+        max: 4,
+        wrap: false,
+      });
+    });
+    assert((await page.$eval("video", (v) => v.playbackRate)) === 1.75, "season rebind: armed at 1.75×");
+
+    await rebindToNewWatch(page, {
+      nextPath: "/video/BVseasonNew/",
+      nextVideoId: "pk-video-season-new",
+    });
+
+    await page.waitForTimeout(600);
+    assert(
+      (await page.$eval("#pk-video-season-new", (v) => v.playbackRate)) === 1,
+      "season rebind: previous desired rate must not land on the new BV",
+    );
+
+    await assertCommandsDriveNewNode(page, {
+      label: "season rebind",
+      newVideoId: "pk-video-season-new",
+    });
+
+    await page.close();
+    console.log("✓ VOD season BV change rebinds Commands to new node");
+  }
+
+  // Bangumi episode change.
+  {
+    const page = await openWatchWithPlayer("www.bilibili.com/bangumi/play/ep1001/");
+
+    await page.evaluate(() => {
+      return PlaybackKeysBilibili.applyCommand({
+        action: "speed",
+        delta: 0.5,
+        min: 0.25,
+        max: 4,
+        wrap: false,
+      });
+    });
+    assert((await page.$eval("video", (v) => v.playbackRate)) === 1.5, "bangumi rebind: armed at 1.5×");
+
+    await rebindToNewWatch(page, {
+      nextPath: "/bangumi/play/ep1002/",
+      nextVideoId: "pk-video-ep1002",
+    });
+
+    await page.waitForTimeout(600);
+    assert(
+      (await page.$eval("#pk-video-ep1002", (v) => v.playbackRate)) === 1,
+      "bangumi rebind: previous desired rate must not land on the new episode",
+    );
+
+    await assertCommandsDriveNewNode(page, {
+      label: "bangumi rebind",
+      newVideoId: "pk-video-ep1002",
+    });
+
+    await page.close();
+    console.log("✓ Bangumi episode change rebinds Commands to new node");
+  }
+
+  // SPA-style: old media node stays in the document and remains scorable while
+  // a new Controllable video is mounted after the identity change. Drive falls
+  // back to the media node (no window.player) so play/seek/speed observations
+  // cannot be masked by a stub that always targets the new element.
+  {
+    const page = await openWatchWithPlayer("www.bilibili.com/video/BVspaOld/?cid=1");
+
+    await page.evaluate(() => {
+      return PlaybackKeysBilibili.applyCommand({
+        action: "speed",
+        delta: 1,
+        min: 0.25,
+        max: 4,
+        wrap: false,
+      });
+    });
+    assert((await page.$eval("video", (v) => v.playbackRate)) === 2, "spa dual-node: armed at 2×");
+
+    await page.evaluate(() => {
+      const old = document.querySelector("video");
+      old.id = "pk-video-old";
+
+      history.pushState({}, "", "/video/BVspaNew/?cid=2");
+
+      const next = document.createElement("video");
+      next.id = "pk-video-new";
+      next.src = old.currentSrc || old.src || "/sample.mp4";
+      next.muted = true;
+      next.controls = true;
+      next.style.width = "640px";
+      next.style.height = "360px";
+      next.playbackRate = 1;
+      // Keep the previous watch's node in-document and scorable (same box size).
+      old.style.cssText = "width:640px;height:360px";
+      document.body.appendChild(next);
+      delete window.player;
+    });
+
+    await page.waitForSelector("#pk-video-new");
+    await page.waitForFunction(() => {
+      const v = document.getElementById("pk-video-new");
+      return v && v.readyState >= 1;
+    }, null, { timeout: 10000 });
+
+    await page.waitForTimeout(600);
+    assert(
+      (await page.$eval("#pk-video-new", (v) => v.playbackRate)) === 1,
+      "spa dual-node: previous desired rate must not stick on the new identity",
+    );
+    assert(
+      (await page.evaluate(() => PlaybackKeysBilibili.pickControllableVideo()?.id)) === "pk-video-new",
+      "spa dual-node: Controllable video must be the new identity's node",
+    );
+
+    await page.evaluate(() => {
+      const old = document.getElementById("pk-video-old");
+      const next = document.getElementById("pk-video-new");
+      old.pause();
+      old.currentTime = 0.2;
+      next.pause();
+      next.currentTime = 0.2;
+    });
+
+    let result = await page.evaluate((messages) => {
+      return PlaybackKeysBilibili.applyCommand({ action: "toggle" }, { messages });
+    }, MESSAGES);
+    assert(result?.handled === true, "spa dual-node: toggle handled");
+    assert(
+      (await page.$eval("#pk-video-new", (v) => v.paused)) === false,
+      "spa dual-node: toggle must play the new Controllable video",
+    );
+    assert(
+      (await page.$eval("#pk-video-old", (v) => v.paused)) === true,
+      "spa dual-node: toggle must not play the previous watch's video",
+    );
+
+    result = await page.evaluate(() => {
+      return PlaybackKeysBilibili.applyCommand({ action: "seek", delta: 1 });
+    });
+    assert(result?.handled === true, "spa dual-node: seek handled");
+    assert(
+      (await page.$eval("#pk-video-new", (v) => v.currentTime)) >= 1.0,
+      "spa dual-node: seek must move the new Controllable video",
+    );
+    assert(
+      (await page.$eval("#pk-video-old", (v) => v.currentTime)) < 0.5,
+      "spa dual-node: seek must not move the previous watch's video",
+    );
+
+    result = await page.evaluate(() => {
+      return PlaybackKeysBilibili.applyCommand({
+        action: "speed",
+        delta: 0.25,
+        min: 0.25,
+        max: 4,
+        wrap: false,
+      });
+    });
+    assert(result?.handled === true, "spa dual-node: speed handled");
+    assert(
+      (await page.$eval("#pk-video-new", (v) => v.playbackRate)) === 1.25,
+      "spa dual-node: speed must write rate on the new Controllable video",
+    );
+    assert(
+      (await page.$eval("#pk-video-old", (v) => v.playbackRate)) !== 1.25,
+      "spa dual-node: previous watch video must not receive the new speed Command",
+    );
+
+    await page.close();
+    console.log("✓ SPA dual-node identity change rebinds to the new Controllable video");
+  }
+
+  // Full page load of a new watch URL still works (no regression vs #8).
+  {
+    const page = await openWatchWithPlayer("www.bilibili.com/video/BVfreshload/");
+    await page.evaluate(() => {
+      document.querySelector("video").pause();
+    });
+    const result = await page.evaluate((messages) => {
+      return PlaybackKeysBilibili.applyCommand({ action: "toggle" }, { messages });
+    }, MESSAGES);
+    assert(result?.handled === true, "full load: toggle handled");
+    assert(
+      (await page.$eval("video", (v) => v.paused)) === false,
+      "full load: Controllable video still driven after ordinary navigation",
+    );
+    await page.close();
+    console.log("✓ full page load of watch URL still handles Commands");
+  }
+
   console.log("Bilibili adapter tests passed.");
 } finally {
   await context.close();

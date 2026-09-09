@@ -1,12 +1,14 @@
 // Bilibili watch-page adapter (ADR-0001 / #8 + sticky rate #3 + custom media #4
-// + Picture-in-Picture #5).
+// + Picture-in-Picture #5 + in-page identity rebind #6).
 // Single seam for path gating, Controllable-video presence, and Command apply.
 // Hybrid drive: window.player for play/pause/seek when present; rate always on
 // the Controllable video. Desired rate sticks on this watch until reset or the
-// watch identity (BV and/or cid) changes. Controllable-video preference:
-// browser Picture-in-Picture element (same node, even if the in-page box is
-// unscorable) → site custom media (bwp-video) → prominent HTML <video>.
-// Custom media is Bilibili-only — not a generic custom-element probe.
+// watch identity (BV and/or cid) changes. After an in-page identity change,
+// Commands rebind to the new Controllable video and do not keep driving the
+// previous watch's node. Controllable-video preference: browser
+// Picture-in-Picture element (same node, even if the in-page box is unscorable)
+// → site custom media (bwp-video) → prominent HTML <video>. Custom media is
+// Bilibili-only — not a generic custom-element probe.
 // MAIN-world handler and the worker probe both use this.
 
 (() => {
@@ -28,11 +30,17 @@
 
   // Sticky desired-rate state for the current watch identity.
   let desiredRate = null;
-  let stickyIdentity = null;
   let boundVideo = null;
   let rateInterval = null;
   let mediaObserver = null;
   let identityListenerAttached = false;
+
+  // In-page rebind (#6): media observed under the previous watch identity is
+  // superseded when BV/cid/episode changes, so Commands prefer a newly mounted
+  // Controllable video even if the old node is still in the document.
+  let lastWatchIdentity = null;
+  let mediaForCurrentIdentity = new Set();
+  let supersededMedia = new Set();
 
   function asLocation(locationLike) {
     if (!locationLike) return null;
@@ -146,12 +154,32 @@
     }
   }
 
+  function pruneMediaSets(root) {
+    for (const el of [...mediaForCurrentIdentity]) {
+      if (!mediaBelongsToRoot(el, root)) mediaForCurrentIdentity.delete(el);
+    }
+    for (const el of [...supersededMedia]) {
+      if (!mediaBelongsToRoot(el, root)) supersededMedia.delete(el);
+    }
+  }
+
+  function noteMediaForIdentity(el) {
+    if (!el) return;
+    mediaForCurrentIdentity.add(el);
+    supersededMedia.delete(el);
+  }
+
   function pickControllableVideo(doc) {
     const root = doc || document;
+    pruneMediaSets(root);
+
     // Preference (#1 / #5 / #4): browser Picture-in-Picture element if it is
     // this page's media (Commands must keep working when the in-page box is
     // hidden, zero-size, or off-screen); else site custom media; else the
-    // prominent scorable HTML <video>.
+    // prominent scorable HTML <video>. After an identity change (#6), skip
+    // media that belonged to the previous watch when a fresh node exists.
+    const candidates = [];
+
     let pip = null;
     try {
       pip = root.pictureInPictureElement || null;
@@ -159,27 +187,35 @@
       pip = null;
     }
     if (pip && mediaBelongsToRoot(pip, root) && (isHtmlMedia(pip) || isUsableCustomMedia(pip))) {
-      return pip;
+      candidates.push(pip);
     }
 
     const custom = pickCustomMediaElement(root);
-    if (custom) return custom;
+    if (custom && !candidates.includes(custom)) candidates.push(custom);
 
-    let best = null;
-    let bestScore = 0;
+    const scored = [];
     for (const video of root.querySelectorAll("video")) {
       const score = videoScore(video);
-      if (score > bestScore) {
-        best = video;
-        bestScore = score;
-      }
+      if (score > 0) scored.push({ el: video, score });
     }
-    return best;
+    scored.sort((a, b) => b.score - a.score);
+    for (const { el } of scored) {
+      if (!candidates.includes(el)) candidates.push(el);
+    }
+
+    const fresh = candidates.filter((el) => !supersededMedia.has(el));
+    const chosen = (fresh.length > 0 ? fresh[0] : candidates[0]) || null;
+    // Only record fresh nodes as belonging to this identity. A superseded
+    // fallback must stay superseded so a later-mounted node can win.
+    if (chosen && fresh.length > 0) noteMediaForIdentity(chosen);
+    return chosen;
   }
 
   function hasControllableVideo(doc, locationLike) {
     const loc = asLocation(locationLike || (typeof location !== "undefined" ? location : null));
     if (!isWatchPage(loc)) return false;
+    ensureNavigationHooks();
+    syncWatchIdentity(loc);
     return pickControllableVideo(doc || document) != null;
   }
 
@@ -267,16 +303,12 @@
 
   function stopSticky() {
     desiredRate = null;
-    stickyIdentity = null;
     boundVideo = null;
     if (rateInterval) {
       clearInterval(rateInterval);
       rateInterval = null;
     }
-    if (mediaObserver) {
-      try { mediaObserver.disconnect(); } catch { /* ignore */ }
-      mediaObserver = null;
-    }
+    // Keep mediaObserver: it also helps rebind after identity changes (#6).
   }
 
   function currentPageLocation() {
@@ -287,17 +319,43 @@
     }
   }
 
-  function syncStickyToIdentity(loc) {
-    if (desiredRate == null) return;
+  function seedMediaForIdentity(doc) {
+    const root = doc || document;
+    const loc = currentPageLocation();
+    if (!watchIdentity(loc)) return;
+    pruneMediaSets(root);
+    for (const video of root.querySelectorAll("video")) {
+      if (videoScore(video) > 0) noteMediaForIdentity(video);
+    }
+    for (const el of root.querySelectorAll("bwp-video")) {
+      if (isUsableCustomMedia(el)) noteMediaForIdentity(el);
+    }
+    try {
+      const pip = root.pictureInPictureElement;
+      if (pip && mediaBelongsToRoot(pip, root)) noteMediaForIdentity(pip);
+    } catch { /* ignore */ }
+  }
+
+  // Clear sticky rate and supersede prior-identity media when BV/cid/episode
+  // changes. Safe to call on every Command, tick, or history navigation.
+  function syncWatchIdentity(loc) {
     const id = watchIdentity(loc || currentPageLocation());
-    if (!id || (stickyIdentity != null && id !== stickyIdentity)) {
+    if (lastWatchIdentity != null && id !== lastWatchIdentity) {
+      for (const el of mediaForCurrentIdentity) {
+        supersededMedia.add(el);
+      }
+      mediaForCurrentIdentity = new Set();
       stopSticky();
+    }
+    if (id) {
+      lastWatchIdentity = id;
+    } else {
+      lastWatchIdentity = null;
     }
   }
 
   function reassertSticky(doc) {
-    if (desiredRate == null) return;
-    syncStickyToIdentity(currentPageLocation());
+    syncWatchIdentity(currentPageLocation());
     if (desiredRate == null) return;
 
     const video = pickControllableVideo(doc || document);
@@ -310,32 +368,62 @@
     if (readRate(video) !== desiredRate) writeRate(video, desiredRate);
   }
 
+  function ensureMediaObserver(doc) {
+    if (mediaObserver || typeof MutationObserver !== "function") return;
+    try {
+      mediaObserver = new MutationObserver(() => {
+        syncWatchIdentity(currentPageLocation());
+        if (desiredRate != null) reassertSticky(doc || document);
+      });
+      mediaObserver.observe(doc || document.documentElement || document, {
+        childList: true,
+        subtree: true,
+      });
+    } catch {
+      mediaObserver = null;
+    }
+  }
+
+  function ensureNavigationHooks() {
+    if (identityListenerAttached || typeof window === "undefined") return;
+    identityListenerAttached = true;
+    const onNav = () => syncWatchIdentity(currentPageLocation());
+    try {
+      window.addEventListener("popstate", onNav);
+      window.addEventListener("hashchange", onNav);
+    } catch { /* ignore */ }
+
+    // pushState/replaceState update location without firing popstate — the
+    // usual in-page season / multi-P / Bangumi path.
+    try {
+      const hist = window.history;
+      if (hist && !hist.__pkBiliWrapped) {
+        const wrap = (original) => function wrappedHistoryState(...args) {
+          const ret = original.apply(this, args);
+          try { syncWatchIdentity(currentPageLocation()); } catch { /* ignore */ }
+          return ret;
+        };
+        hist.pushState = wrap(hist.pushState.bind(hist));
+        hist.replaceState = wrap(hist.replaceState.bind(hist));
+        hist.__pkBiliWrapped = true;
+      }
+    } catch { /* ignore */ }
+
+    try {
+      lastWatchIdentity = watchIdentity(currentPageLocation());
+      seedMediaForIdentity(document);
+      ensureMediaObserver(document);
+    } catch { /* ignore */ }
+  }
+
   function ensureStickyWatchers(doc) {
+    ensureNavigationHooks();
+    ensureMediaObserver(doc || document);
+
     if (desiredRate == null) return;
 
     if (!rateInterval) {
       rateInterval = setInterval(() => reassertSticky(doc || document), RATE_TICK_MS);
-    }
-
-    if (!mediaObserver && typeof MutationObserver === "function") {
-      try {
-        mediaObserver = new MutationObserver(() => reassertSticky(doc || document));
-        mediaObserver.observe(doc || document.documentElement || document, {
-          childList: true,
-          subtree: true,
-        });
-      } catch {
-        mediaObserver = null;
-      }
-    }
-
-    if (!identityListenerAttached && typeof window !== "undefined") {
-      identityListenerAttached = true;
-      const onNav = () => syncStickyToIdentity(currentPageLocation());
-      try {
-        window.addEventListener("popstate", onNav);
-        window.addEventListener("hashchange", onNav);
-      } catch { /* ignore */ }
     }
   }
 
@@ -346,8 +434,8 @@
       return;
     }
     desiredRate = rate;
-    stickyIdentity = id;
     boundVideo = video;
+    noteMediaForIdentity(video);
     ensureRatePatch(video);
     writeRate(video, rate);
     ensureStickyWatchers(doc);
@@ -359,10 +447,12 @@
     const messages = opts.messages || {};
     const player = resolvePlayer(opts.player);
 
+    ensureNavigationHooks();
+
     if (!isWatchPage(loc)) return { handled: false };
 
-    // Drop sticky rate when the watch identity has already changed.
-    syncStickyToIdentity(loc);
+    // Drop sticky rate and supersede prior-identity media on BV/cid change.
+    syncWatchIdentity(loc);
 
     const video = pickControllableVideo(doc);
     if (!video) return { handled: false };
@@ -473,4 +563,8 @@
     applyCommand,
     pickControllableVideo,
   };
+
+  // Listen for in-page navigations even before the first Command, so a season /
+  // multi-P / Bangumi identity change can supersede the previous media node.
+  try { ensureNavigationHooks(); } catch { /* ignore */ }
 })();
