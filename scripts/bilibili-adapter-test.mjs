@@ -793,6 +793,116 @@ try {
     console.log("✓ custom media element fallback without window.player");
   }
 
+  // --- Picture-in-Picture: same Controllable video even when the in-page box
+  // is unscorable (hidden / zero-size / opacity 0). Prefer
+  // document.pictureInPictureElement over generic size/opacity scoring (#5). ---
+  {
+    const page = await openWatchWithPlayer("www.bilibili.com/video/BVpip/");
+    await page.evaluate(() => {
+      const v = document.querySelector("video");
+      Object.defineProperty(document, "pictureInPictureElement", {
+        configurable: true,
+        get() { return v; },
+      });
+      // Simulate the in-page box collapsing once Picture-in-Picture is open.
+      v.style.cssText = "position:fixed;left:-9999px;top:-9999px;width:0;height:0;opacity:0;visibility:hidden";
+    });
+
+    const probe = await page.evaluate(() => ({
+      hasControllable: PlaybackKeysBilibili.hasControllableVideo(),
+      picked: PlaybackKeysBilibili.pickControllableVideo()?.id || null,
+      pipTag: document.pictureInPictureElement?.tagName || null,
+    }));
+    assert(probe.pipTag === "VIDEO", `Picture-in-Picture fixture must expose VIDEO, got ${probe.pipTag}`);
+    assert(probe.hasControllable === true, "Picture-in-Picture: targeting must still report Controllable video");
+    assert(probe.picked === "pk-video", `Picture-in-Picture: Controllable video must be the PiP node, got ${probe.picked}`);
+
+    await page.evaluate(() => {
+      const v = document.querySelector("video");
+      v.pause();
+      v.currentTime = 0.5;
+      v.playbackRate = 1;
+    });
+
+    let result = await page.evaluate((messages) => {
+      return PlaybackKeysBilibili.applyCommand({ action: "toggle" }, { messages });
+    }, MESSAGES);
+    assert(result?.handled === true, "Picture-in-Picture: toggle must be handled");
+    assert(
+      (await page.$eval("video", (el) => el.paused)) === false,
+      "Picture-in-Picture: toggle must play the PiP video node",
+    );
+
+    result = await page.evaluate(() => {
+      return PlaybackKeysBilibili.applyCommand({ action: "seek", delta: 1 });
+    });
+    assert(result?.handled === true, "Picture-in-Picture: seek must be handled");
+    assert(
+      (await page.$eval("video", (el) => el.currentTime)) >= 1.4,
+      "Picture-in-Picture: seek must change the PiP video node",
+    );
+
+    result = await page.evaluate(() => {
+      return PlaybackKeysBilibili.applyCommand({
+        action: "speed",
+        delta: 0.25,
+        min: 0.25,
+        max: 4,
+        wrap: false,
+      });
+    });
+    assert(result?.handled === true, "Picture-in-Picture: speed must be handled");
+    assert(
+      (await page.$eval("video", (el) => el.playbackRate)) === 1.25,
+      "Picture-in-Picture: speed must write rate on the PiP video node",
+    );
+
+    await page.close();
+    console.log("✓ Picture-in-Picture Controllable + Commands with unscorable in-page box");
+  }
+
+  // --- Watch-page Site mini-player: small corner box on /video/ stays
+  // Controllable; off-watch Site mini-player remains out of scope (#5). ---
+  {
+    const page = await openWatchWithPlayer("www.bilibili.com/video/BVmini/");
+    await page.evaluate(() => {
+      const v = document.querySelector("video");
+      v.style.cssText = "position:fixed;right:16px;bottom:16px;width:240px;height:135px";
+    });
+
+    assert(
+      (await page.evaluate(() => PlaybackKeysBilibili.hasControllableVideo())) === true,
+      "watch-page Site mini-player: Controllable video present",
+    );
+
+    await page.evaluate(() => {
+      document.querySelector("video").pause();
+    });
+    const result = await page.evaluate((messages) => {
+      return PlaybackKeysBilibili.applyCommand({ action: "toggle" }, { messages });
+    }, MESSAGES);
+    assert(result?.handled === true, "watch-page Site mini-player: toggle handled");
+    assert(
+      (await page.$eval("video", (el) => el.paused)) === false,
+      "watch-page Site mini-player: Commands still drive the watch video",
+    );
+    await page.close();
+  }
+  {
+    // Non-watch paths already load the Site mini-player fixture via fixtureFor.
+    const page = await openPage("www.bilibili.com/");
+    assert(
+      (await page.evaluate(() => PlaybackKeysBilibili.hasControllableVideo())) === false,
+      "off-watch Site mini-player on / must stay out of scope",
+    );
+    assert(
+      (await page.evaluate(() => PlaybackKeysBilibili.applyCommand({ action: "toggle" }))).handled === false,
+      "off-watch Site mini-player on / must not handle Commands",
+    );
+    await page.close();
+  }
+  console.log("✓ watch-page Site mini-player Controllable; off-watch excluded");
+
   console.log("Bilibili adapter tests passed.");
 } finally {
   await context.close();

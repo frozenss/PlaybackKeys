@@ -1,11 +1,13 @@
-// Bilibili watch-page adapter (ADR-0001 / #8 + sticky rate #3 + custom media #4).
+// Bilibili watch-page adapter (ADR-0001 / #8 + sticky rate #3 + custom media #4
+// + Picture-in-Picture #5).
 // Single seam for path gating, Controllable-video presence, and Command apply.
 // Hybrid drive: window.player for play/pause/seek when present; rate always on
 // the Controllable video. Desired rate sticks on this watch until reset or the
-// watch identity (BV and/or cid) changes. When the site swaps in bwp-video and
-// no scorable HTML <video> remains, that custom element is the Controllable
-// video (Bilibili-only — not a generic custom-element probe). MAIN-world
-// handler and the worker probe both use this.
+// watch identity (BV and/or cid) changes. Controllable-video preference:
+// browser Picture-in-Picture element (same node, even if the in-page box is
+// unscorable) → site custom media (bwp-video) → prominent HTML <video>.
+// Custom media is Bilibili-only — not a generic custom-element probe.
+// MAIN-world handler and the worker probe both use this.
 
 (() => {
   // Probe/seek/status re-inject this file into MAIN world. Keep a single
@@ -132,10 +134,34 @@
     return null;
   }
 
+  function mediaBelongsToRoot(el, root) {
+    if (!el || !root) return false;
+    try {
+      if (typeof root.contains === "function" && root.contains(el)) return true;
+    } catch { /* ignore */ }
+    try {
+      return el.ownerDocument === root;
+    } catch {
+      return false;
+    }
+  }
+
   function pickControllableVideo(doc) {
     const root = doc || document;
-    // Prefer the site custom media element when present (#1 / #4); otherwise
-    // the prominent scorable HTML <video>.
+    // Preference (#1 / #5 / #4): browser Picture-in-Picture element if it is
+    // this page's media (Commands must keep working when the in-page box is
+    // hidden, zero-size, or off-screen); else site custom media; else the
+    // prominent scorable HTML <video>.
+    let pip = null;
+    try {
+      pip = root.pictureInPictureElement || null;
+    } catch {
+      pip = null;
+    }
+    if (pip && mediaBelongsToRoot(pip, root) && (isHtmlMedia(pip) || isUsableCustomMedia(pip))) {
+      return pip;
+    }
+
     const custom = pickCustomMediaElement(root);
     if (custom) return custom;
 
