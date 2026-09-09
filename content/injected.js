@@ -365,10 +365,10 @@
       e.stopPropagation();
       const bilibili = bilibiliAdapter();
       if (bilibili && bilibili.isBilibiliHost(location)) {
+        // Adapter owns sticky desired-rate (#3); reset clears it — do not arm
+        // the generic 5s fight window at 1×.
         const result = bilibili.applyCommand({ action: "speed", reset: true }, { messages });
         if (result?.handled) {
-          const v = bilibili.pickControllableVideo(document);
-          if (v) setRate(v, 1);
           showToast(result.toast || { ic: "↺", name: msg("toastResetTo1x"), det: "" });
           updateBadge();
         }
@@ -436,9 +436,8 @@
     // pages cannot fall through to the generic <video> scorer.
     const bilibili = bilibiliAdapter();
     if (bilibili && bilibili.isBilibiliHost(location)) {
-      // Only disarm before speed: the adapter writes via video.playbackRate, and
-      // an armed per-element patch would silently reject the new rate. Toggle /
-      // seek must leave an active short fight window alone.
+      // Clear any leftover generic 5s fight state. Sticky desired-rate on
+      // Bilibili lives entirely in the adapter (#3).
       if (payload?.action === "speed") {
         if (activeRateInterval) {
           clearInterval(activeRateInterval);
@@ -447,13 +446,7 @@
         desiredRate = null;
         desiredRateUntil = 0;
       }
-      const result = bilibili.applyCommand(payload, { messages });
-      // Keep the existing short rate-fight window until sticky desired-rate (#3).
-      if (result?.handled && payload?.action === "speed") {
-        const video = bilibili.pickControllableVideo(document);
-        if (video) setRate(video, payload.reset ? 1 : readRate(video));
-      }
-      return result;
+      return bilibili.applyCommand(payload, { messages });
     }
 
     const video = pickBestVideo();

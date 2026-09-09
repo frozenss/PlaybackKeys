@@ -292,6 +292,340 @@ try {
     console.log("✓ fallback transport without window.player");
   }
 
+  // --- Sticky desired rate (#3): survives Hostile 1× snap well past 5s ---
+  {
+    const page = await openWatchWithPlayer("www.bilibili.com/video/BVsticky/?cid=1");
+
+    const sped = await page.evaluate(() => {
+      return PlaybackKeysBilibili.applyCommand({
+        action: "speed",
+        delta: 0.25,
+        min: 0.25,
+        max: 4,
+        wrap: false,
+      });
+    });
+    assert(sped?.handled === true, "sticky: speed Command should be handled");
+    assert((await page.$eval("video", (v) => v.playbackRate)) === 1.25, "sticky: rate after Command");
+
+    // Hostile login-wall snap back to 1× (immediate).
+    await page.evaluate(() => {
+      document.querySelector("video").playbackRate = 1;
+    });
+    await page.waitForFunction(() => document.querySelector("video").playbackRate === 1.25, null, {
+      timeout: 2000,
+    });
+    assert(
+      (await page.$eval("video", (v) => v.playbackRate)) === 1.25,
+      "sticky: desired rate restored after immediate Hostile snap",
+    );
+
+    // Well past the generic ~5s window: snap again and still stick.
+    await page.waitForTimeout(5500);
+    await page.evaluate(() => {
+      document.querySelector("video").playbackRate = 1;
+    });
+    await page.waitForFunction(() => document.querySelector("video").playbackRate === 1.25, null, {
+      timeout: 2000,
+    });
+    assert(
+      (await page.$eval("video", (v) => v.playbackRate)) === 1.25,
+      "sticky: desired rate still restored well past 5s",
+    );
+
+    await page.close();
+    console.log("✓ sticky desired rate past Hostile snap (>5s)");
+  }
+
+  // --- Reset clears stickiness; later Hostile 1× is left alone ---
+  {
+    const page = await openWatchWithPlayer("www.bilibili.com/video/BVreset/?cid=1");
+
+    await page.evaluate(() => {
+      return PlaybackKeysBilibili.applyCommand({
+        action: "speed",
+        delta: 0.5,
+        min: 0.25,
+        max: 4,
+        wrap: false,
+      });
+    });
+    assert((await page.$eval("video", (v) => v.playbackRate)) === 1.5, "reset-case: sped to 1.5×");
+
+    const reset = await page.evaluate((messages) => {
+      return PlaybackKeysBilibili.applyCommand({ action: "speed", reset: true }, { messages });
+    }, MESSAGES);
+    assert(reset?.handled === true, "reset should be handled");
+    assert((await page.$eval("video", (v) => v.playbackRate)) === 1, "reset writes 1×");
+
+    await page.evaluate(() => {
+      document.querySelector("video").playbackRate = 1;
+    });
+    await page.waitForTimeout(600);
+    assert(
+      (await page.$eval("video", (v) => v.playbackRate)) === 1,
+      "after reset, Hostile 1× must be left alone (no re-apply)",
+    );
+
+    // Speeding up again re-arms stickiness.
+    await page.evaluate(() => {
+      return PlaybackKeysBilibili.applyCommand({
+        action: "speed",
+        delta: 0.25,
+        min: 0.25,
+        max: 4,
+        wrap: false,
+      });
+    });
+    await page.evaluate(() => {
+      document.querySelector("video").playbackRate = 1;
+    });
+    await page.waitForFunction(() => document.querySelector("video").playbackRate === 1.25, null, {
+      timeout: 2000,
+    });
+    assert(
+      (await page.$eval("video", (v) => v.playbackRate)) === 1.25,
+      "speed after reset re-arms sticky rate",
+    );
+
+    await page.close();
+    console.log("✓ reset clears stickiness");
+  }
+
+  // --- Same BV+cid, new media node: desired rate moves without another Command ---
+  {
+    const page = await openWatchWithPlayer("www.bilibili.com/video/BVswap/?cid=9");
+
+    await page.evaluate(() => {
+      return PlaybackKeysBilibili.applyCommand({
+        action: "speed",
+        delta: 0.75,
+        min: 0.25,
+        max: 4,
+        wrap: false,
+      });
+    });
+    assert((await page.$eval("video", (v) => v.playbackRate)) === 1.75, "swap: initial rate 1.75×");
+
+    // Quality/codec swap: replace the media node, keep URL identity.
+    await page.evaluate(() => {
+      const old = document.querySelector("video");
+      const next = document.createElement("video");
+      next.id = "pk-video-swapped";
+      next.src = old.currentSrc || old.src;
+      next.muted = true;
+      next.controls = true;
+      next.style.width = "640px";
+      next.style.height = "360px";
+      old.replaceWith(next);
+      // Re-point Hostile player at the new node.
+      const calls = window.__pkPlayerCalls;
+      window.player = {
+        play() { calls.play += 1; next.play().catch(() => {}); },
+        pause() { calls.pause += 1; next.pause(); },
+        seek(seconds) { calls.seek.push(seconds); next.currentTime = seconds; },
+      };
+    });
+
+    await page.waitForSelector("#pk-video-swapped");
+    await page.waitForFunction(() => {
+      const v = document.querySelector("video");
+      return v && v.id === "pk-video-swapped" && v.readyState >= 1;
+    }, null, { timeout: 10000 });
+
+    // No new speed Command — sticky rate should land on the new node.
+    await page.waitForFunction(() => {
+      const v = document.querySelector("#pk-video-swapped");
+      return v && v.playbackRate === 1.75;
+    }, null, { timeout: 3000 });
+    assert(
+      (await page.$eval("#pk-video-swapped", (v) => v.playbackRate)) === 1.75,
+      "swap: desired rate applied to new Controllable video",
+    );
+
+    // Hostile snap on the new node still loses.
+    await page.evaluate(() => {
+      document.querySelector("#pk-video-swapped").playbackRate = 1;
+    });
+    await page.waitForFunction(() => document.querySelector("#pk-video-swapped").playbackRate === 1.75, null, {
+      timeout: 2000,
+    });
+
+    await page.close();
+    console.log("✓ same-identity media node swap keeps rate");
+  }
+
+  // --- New BV or cid: desired rate cleared; no re-apply on the new identity ---
+  {
+    const page = await openWatchWithPlayer("www.bilibili.com/video/BVold/?cid=1");
+
+    await page.evaluate(() => {
+      return PlaybackKeysBilibili.applyCommand({
+        action: "speed",
+        delta: 1,
+        min: 0.25,
+        max: 4,
+        wrap: false,
+      });
+    });
+    assert((await page.$eval("video", (v) => v.playbackRate)) === 2, "identity: armed at 2×");
+
+    // In-page identity change (cid). Rebind of *control* is #6; this ticket
+    // only requires sticky rate to stop re-applying the previous watch's rate.
+    await page.evaluate(() => {
+      history.pushState({}, "", "/video/BVold/?cid=2");
+      window.dispatchEvent(new PopStateEvent("popstate"));
+      // New identity's media starts at 1× (as a fresh watch would).
+      document.querySelector("video").playbackRate = 1;
+    });
+
+    await page.waitForTimeout(600);
+    assert(
+      (await page.$eval("video", (v) => v.playbackRate)) === 1,
+      "new cid: previous desired rate must not be re-applied",
+    );
+
+    // Hostile write of 1× still left alone on the new identity.
+    await page.evaluate(() => {
+      document.querySelector("video").playbackRate = 1;
+    });
+    await page.waitForTimeout(600);
+    assert(
+      (await page.$eval("video", (v) => v.playbackRate)) === 1,
+      "new cid: no sticky rate until a new speed Command",
+    );
+
+    await page.close();
+    console.log("✓ new cid clears desired rate");
+  }
+
+  {
+    const page = await openWatchWithPlayer("www.bilibili.com/video/BVone/?cid=1");
+
+    await page.evaluate(() => {
+      return PlaybackKeysBilibili.applyCommand({
+        action: "speed",
+        delta: 0.5,
+        min: 0.25,
+        max: 4,
+        wrap: false,
+      });
+    });
+    assert((await page.$eval("video", (v) => v.playbackRate)) === 1.5, "bv-change: armed at 1.5×");
+
+    await page.evaluate(() => {
+      history.pushState({}, "", "/video/BVtwo/?cid=1");
+      window.dispatchEvent(new PopStateEvent("popstate"));
+      document.querySelector("video").playbackRate = 1;
+    });
+
+    await page.waitForTimeout(600);
+    assert(
+      (await page.$eval("video", (v) => v.playbackRate)) === 1,
+      "new BV: previous desired rate must not be re-applied",
+    );
+
+    await page.close();
+    console.log("✓ new BV clears desired rate");
+  }
+
+  // --- Re-inject must not orphan sticky state (SW probe re-executes the file) ---
+  {
+    const page = await openWatchWithPlayer("www.bilibili.com/video/BVreinject/?cid=1");
+
+    await page.evaluate(() => {
+      return PlaybackKeysBilibili.applyCommand({
+        action: "speed",
+        delta: 0.25,
+        min: 0.25,
+        max: 4,
+        wrap: false,
+      });
+    });
+    assert((await page.$eval("video", (v) => v.playbackRate)) === 1.25, "re-inject: armed at 1.25×");
+
+    // Second inject (same source the worker loads before probe/seek/status).
+    await page.addScriptTag({ content: ADAPTER });
+
+    await page.evaluate(() => {
+      document.querySelector("video").playbackRate = 1;
+    });
+    await page.waitForFunction(() => document.querySelector("video").playbackRate === 1.25, null, {
+      timeout: 2000,
+    });
+    assert(
+      (await page.$eval("video", (v) => v.playbackRate)) === 1.25,
+      "re-inject: sticky rate still owned after second script load",
+    );
+
+    const reset = await page.evaluate((messages) => {
+      return PlaybackKeysBilibili.applyCommand({ action: "speed", reset: true }, { messages });
+    }, MESSAGES);
+    assert(reset?.handled === true, "re-inject: reset handled on surviving API");
+    assert((await page.$eval("video", (v) => v.playbackRate)) === 1, "re-inject: reset writes 1×");
+
+    await page.evaluate(() => {
+      document.querySelector("video").playbackRate = 1;
+    });
+    await page.waitForTimeout(600);
+    assert(
+      (await page.$eval("video", (v) => v.playbackRate)) === 1,
+      "re-inject: reset stops re-apply on surviving API",
+    );
+
+    await page.close();
+    console.log("✓ re-inject keeps single sticky owner");
+  }
+
+  // --- Speed range uses global max (default 4×), not Bilibili's 2× menu ---
+  {
+    const page = await openWatchWithPlayer("www.bilibili.com/video/BVfast/?cid=1");
+
+    let result = await page.evaluate(() => {
+      return PlaybackKeysBilibili.applyCommand({
+        action: "speed",
+        delta: 1.25,
+        min: 0.25,
+        max: 4,
+        wrap: false,
+      });
+    });
+    assert(result?.handled === true, "above-2x: handled");
+    assert((await page.$eval("video", (v) => v.playbackRate)) === 2.25, "above-2x: 2.25 exceeds Bilibili menu");
+
+    result = await page.evaluate(() => {
+      return PlaybackKeysBilibili.applyCommand({
+        action: "speed",
+        delta: 2,
+        min: 0.25,
+        max: 4,
+        wrap: false,
+      });
+    });
+    assert((await page.$eval("video", (v) => v.playbackRate)) === 4, "global max 4×");
+
+    result = await page.evaluate(() => {
+      return PlaybackKeysBilibili.applyCommand({
+        action: "speed",
+        delta: 0.25,
+        min: 0.25,
+        max: 4,
+        wrap: true,
+      });
+    });
+    assert((await page.$eval("video", (v) => v.playbackRate)) === 0.25, "wrap at max → min");
+
+    await page.evaluate(() => {
+      document.querySelector("video").playbackRate = 1;
+    });
+    await page.waitForFunction(() => document.querySelector("video").playbackRate === 0.25, null, {
+      timeout: 2000,
+    });
+
+    await page.close();
+    console.log("✓ global speed min/max/wrap (max 4×)");
+  }
+
   console.log("Bilibili adapter tests passed.");
 } finally {
   await context.close();
