@@ -37,7 +37,8 @@
     "*://*.youtube-nocookie.com/*",
     "*://*.vimeo.com/*",
     "*://*.udemy.com/*",
-    "*://*.coursera.org/*"
+    "*://*.coursera.org/*",
+    "*://www.bilibili.com/*"
   ],
   "optional_host_permissions": [
     "*://*/*"
@@ -49,7 +50,8 @@
         "*://*.youtube-nocookie.com/*",
         "*://*.vimeo.com/*",
         "*://*.udemy.com/*",
-        "*://*.coursera.org/*"
+        "*://*.coursera.org/*",
+        "*://www.bilibili.com/*"
       ],
       "js": ["content/bridge.js"],
       "run_at": "document_start",
@@ -63,7 +65,8 @@
         "*://*.youtube-nocookie.com/*",
         "*://*.vimeo.com/*",
         "*://*.udemy.com/*",
-        "*://*.coursera.org/*"
+        "*://*.coursera.org/*",
+        "*://www.bilibili.com/*"
       ],
       "js": ["content/injected.js"],
       "run_at": "document_start",

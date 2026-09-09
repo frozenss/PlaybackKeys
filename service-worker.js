@@ -9,7 +9,17 @@ const SUPPORTED_HOSTS = [
   /(^|\.)vimeo\.com$/i,
   /(^|\.)udemy\.com$/i,
   /(^|\.)coursera\.org$/i,
+  /^www\.bilibili\.com$/i,
 ];
+
+// Bilibili is Built-in only on VOD / Bangumi watch paths (ADR-0001).
+function isBilibiliWatchPath(pathname) {
+  return (
+    pathname.startsWith("/video/") ||
+    pathname.startsWith("/list/") ||
+    pathname.startsWith("/bangumi/play/")
+  );
+}
 
 const DEFAULTS = {
   seekSeconds: 5,
@@ -52,6 +62,10 @@ function isSupportedUrl(url, settings) {
   let u;
   try { u = new URL(url); } catch { return false; }
   if (u.protocol !== "http:" && u.protocol !== "https:") return false;
+  // Bilibili Commands are watch-path only (ADR-0001), including all-sites / opt-in.
+  if (/^www\.bilibili\.com$/i.test(u.hostname) && !isBilibiliWatchPath(u.pathname)) {
+    return false;
+  }
   if (settings && settings.runOnAllSites) return true;
   if (SUPPORTED_HOSTS.some((re) => re.test(u.hostname))) return true;
   const enabledOrigins = settings && settings.enabledOrigins;

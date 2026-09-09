@@ -4,6 +4,7 @@ const SUPPORTED_HOSTS = [
   /(^|\.)vimeo\.com$/i,
   /(^|\.)udemy\.com$/i,
   /(^|\.)coursera\.org$/i,
+  /^www\.bilibili\.com$/i,
 ];
 
 function detectIsMac() {
@@ -43,6 +44,7 @@ function friendlySiteLabel(url) {
     if (/(^|\.)vimeo\.com$/i.test(host)) return "Vimeo";
     if (/(^|\.)udemy\.com$/i.test(host)) return "Udemy";
     if (/(^|\.)coursera\.org$/i.test(host)) return "Coursera";
+    if (/^bilibili\.com$/i.test(host)) return "Bilibili";
     return host;
   } catch {
     return "";

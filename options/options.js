@@ -4,6 +4,7 @@ const BUILTIN = [
   { hostname: "vimeo.com", origin: "https://vimeo.com" },
   { hostname: "udemy.com", origin: "https://www.udemy.com" },
   { hostname: "coursera.org", origin: "https://www.coursera.org" },
+  { hostname: "www.bilibili.com", origin: "https://www.bilibili.com" },
 ];
 
 function detectIsMac() {

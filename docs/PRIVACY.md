@@ -35,8 +35,9 @@ This data never leaves your device.
 ## Permissions and why
 
 - **Host permissions** for youtube.com, youtube-nocookie.com,
-  vimeo.com, udemy.com, coursera.org. Used to inject the content
-  scripts that detect and control video elements on those sites.
+  vimeo.com, udemy.com, coursera.org, and www.bilibili.com. Used to
+  inject the content scripts that detect and control video elements
+  on those sites.
 - **Optional host permissions** (any site). Only requested if you
   click "Enable on this site" in the popup, and only for that origin.
 - **`storage`** to save your preferences locally.
