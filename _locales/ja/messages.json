@@ -4,7 +4,7 @@
     "description": "Extension name. Keep PlaybackKeys as the product name; localize the subtitle."
   },
   "appDescription": {
-    "message": "YouTube、Udemy、Vimeo、Coursera、ブラウザ動画向けのグローバルキーボードショートカット。",
+    "message": "YouTube、Udemy、Vimeo、Coursera、Bilibili、ブラウザ動画向けのグローバルキーボードショートカット。",
     "description": "Short extension description used by the manifest."
   },
   "commandPlayPause": {
@@ -558,7 +558,7 @@
     "description": "Onboarding section heading."
   },
   "useItOnAnyVideoSiteDesc": {
-    "message": "YouTube、Vimeo、Udemy、Coursera ではこれで完了です。それ以外ではページを開き、ツールバーアイコンをクリックして <b>このサイトで有効にする</b> を選びます。",
+    "message": "YouTube、Vimeo、Udemy、Coursera、Bilibili ではこれで完了です。それ以外ではページを開き、ツールバーアイコンをクリックして <b>このサイトで有効にする</b> を選びます。",
     "description": "Onboarding helper text. Contains trusted extension HTML."
   },
   "settingsCardDesc": {

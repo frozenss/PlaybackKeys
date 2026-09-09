@@ -4,7 +4,7 @@
     "description": "Extension name. Keep PlaybackKeys as the product name; localize the subtitle."
   },
   "appDescription": {
-    "message": "YouTube, Udemy, Vimeo, Coursera ve tarayıcı videoları için global klavye kısayolları.",
+    "message": "YouTube, Udemy, Vimeo, Coursera, Bilibili ve tarayıcı videoları için global klavye kısayolları.",
     "description": "Short extension description used by the manifest."
   },
   "commandPlayPause": {
@@ -558,7 +558,7 @@
     "description": "Onboarding section heading."
   },
   "useItOnAnyVideoSiteDesc": {
-    "message": "YouTube, Vimeo, Udemy ve Coursera için hazırsınız. Diğer sitelerde: sayfayı açın, araç çubuğu simgesine tıklayın ve <b>Bu sitede etkinleştir</b> seçeneğine basın.",
+    "message": "YouTube, Vimeo, Udemy, Coursera ve Bilibili için hazırsınız. Diğer sitelerde: sayfayı açın, araç çubuğu simgesine tıklayın ve <b>Bu sitede etkinleştir</b> seçeneğine basın.",
     "description": "Onboarding helper text. Contains trusted extension HTML."
   },
   "settingsCardDesc": {

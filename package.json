@@ -1,8 +1,8 @@
 {
   "name": "playbackkeys",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "private": true,
-  "description": "Global keyboard shortcuts for YouTube, Udemy, Vimeo, Coursera, and browser videos.",
+  "description": "Global keyboard shortcuts for YouTube, Udemy, Vimeo, Coursera, Bilibili, and browser videos.",
   "scripts": {
     "validate": "node scripts/validate-release.mjs",
     "package": "node scripts/validate-release.mjs --package",

@@ -4,7 +4,7 @@
     "description": "Extension name. Keep PlaybackKeys as the product name; localize the subtitle."
   },
   "appDescription": {
-    "message": "Global keyboard shortcuts for YouTube, Udemy, Vimeo, Coursera, and browser videos.",
+    "message": "Global keyboard shortcuts for YouTube, Udemy, Vimeo, Coursera, Bilibili, and browser videos.",
     "description": "Short extension description used by the manifest."
   },
   "commandPlayPause": {
@@ -558,7 +558,7 @@
     "description": "Onboarding section heading."
   },
   "useItOnAnyVideoSiteDesc": {
-    "message": "For YouTube, Vimeo, Udemy, and Coursera, you're done. For anything else: open the page, click the toolbar icon, hit <b>Enable on this site</b>.",
+    "message": "For YouTube, Vimeo, Udemy, Coursera, and Bilibili, you're done. For anything else: open the page, click the toolbar icon, hit <b>Enable on this site</b>.",
     "description": "Onboarding helper text. Contains trusted extension HTML."
   },
   "settingsCardDesc": {

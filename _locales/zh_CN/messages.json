@@ -4,7 +4,7 @@
     "description": "Extension name. Keep PlaybackKeys as the product name; localize the subtitle."
   },
   "appDescription": {
-    "message": "适用于 YouTube、Udemy、Vimeo、Coursera 和浏览器视频的全局键盘快捷键。",
+    "message": "适用于 YouTube、Udemy、Vimeo、Coursera、Bilibili 和浏览器视频的全局键盘快捷键。",
     "description": "Short extension description used by the manifest."
   },
   "commandPlayPause": {
@@ -558,7 +558,7 @@
     "description": "Onboarding section heading."
   },
   "useItOnAnyVideoSiteDesc": {
-    "message": "对于 YouTube、Vimeo、Udemy 和 Coursera，已经可以直接使用。其他网站：打开页面，点击工具栏图标，然后选择<b>在此网站启用</b>。",
+    "message": "对于 YouTube、Vimeo、Udemy、Coursera 和 Bilibili，已经可以直接使用。其他网站：打开页面，点击工具栏图标，然后选择<b>在此网站启用</b>。",
     "description": "Onboarding helper text. Contains trusted extension HTML."
   },
   "settingsCardDesc": {

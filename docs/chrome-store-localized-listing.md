@@ -10,13 +10,13 @@ Do not paste the “Internal search keywords” lines into the public listing. T
 
 Extension name: PlaybackKeys: Global Video Shortcuts
 
-Short description: Global keyboard shortcuts for YouTube, Udemy, Vimeo, Coursera, and browser videos.
+Short description: Global keyboard shortcuts for YouTube, Udemy, Vimeo, Coursera, Bilibili, and browser videos.
 
 Full description:
 
 Control browser videos with global keyboard shortcuts. Pause, rewind, skip forward, and change playback speed without switching back to the video tab.
 
-PlaybackKeys is a lightweight browser video controller for YouTube, Udemy, Vimeo, Coursera, and other HTML5 video sites.
+PlaybackKeys is a lightweight browser video controller for YouTube, Udemy, Vimeo, Coursera, Bilibili, and other HTML5 video sites.
 
 It is useful when you are watching a tutorial, lecture, online course, podcast, or long video while coding, studying, taking notes, working, or using another app.
 
@@ -41,6 +41,7 @@ PlaybackKeys works out of the box on:
 - Udemy
 - Vimeo
 - Coursera
+- Bilibili
 
 For other websites with standard HTML5 video, open the page, click the PlaybackKeys icon, and choose “Enable on this site”.
 
@@ -92,13 +93,13 @@ Internal search keywords, do not paste into public long description: YouTube sho
 
 Extension name: PlaybackKeys: Atajos globales de video
 
-Short description: Atajos de teclado globales para YouTube, Udemy, Vimeo, Coursera y videos del navegador.
+Short description: Atajos de teclado globales para YouTube, Udemy, Vimeo, Coursera, Bilibili y videos del navegador.
 
 Full description:
 
 Controla videos del navegador con atajos de teclado globales. Pausa, retrocede, avanza y cambia la velocidad de reproducción sin volver a la pestaña del video.
 
-PlaybackKeys es un controlador ligero de video del navegador para YouTube, Udemy, Vimeo, Coursera y otros sitios de video HTML5.
+PlaybackKeys es un controlador ligero de video del navegador para YouTube, Udemy, Vimeo, Coursera, Bilibili y otros sitios de video HTML5.
 
 Es útil cuando estás viendo un tutorial, una clase, un curso en línea, un podcast o un video largo mientras programas, estudias, tomas notas, trabajas o usas otra app.
 
@@ -123,6 +124,7 @@ PlaybackKeys funciona de inmediato en:
 - Udemy
 - Vimeo
 - Coursera
+- Bilibili
 
 Para otros sitios con video HTML5 estándar, abre la página, haz clic en el icono de PlaybackKeys y elige "Activar en este sitio".
 
@@ -174,13 +176,13 @@ Internal search keywords, do not paste into public long description: atajos de Y
 
 Extension name: PlaybackKeys: Atalhos globais de vídeo
 
-Short description: Atalhos globais de teclado para YouTube, Udemy, Vimeo, Coursera e vídeos no navegador.
+Short description: Atalhos globais de teclado para YouTube, Udemy, Vimeo, Coursera, Bilibili e vídeos no navegador.
 
 Full description:
 
 Controle vídeos no navegador com atalhos globais de teclado. Pause, retroceda, avance e altere a velocidade de reprodução sem voltar para a aba do vídeo.
 
-PlaybackKeys é um controlador leve de vídeos no navegador para YouTube, Udemy, Vimeo, Coursera e outros sites de vídeo HTML5.
+PlaybackKeys é um controlador leve de vídeos no navegador para YouTube, Udemy, Vimeo, Coursera, Bilibili e outros sites de vídeo HTML5.
 
 Ele é útil quando você está assistindo a um tutorial, aula, curso online, podcast ou vídeo longo enquanto programa, estuda, faz anotações, trabalha ou usa outro app.
 
@@ -205,6 +207,7 @@ PlaybackKeys funciona imediatamente em:
 - Udemy
 - Vimeo
 - Coursera
+- Bilibili
 
 Para outros sites com vídeo HTML5 padrão, abra a página, clique no ícone do PlaybackKeys e escolha "Ativar neste site".
 
@@ -256,13 +259,13 @@ Internal search keywords, do not paste into public long description: atalhos do 
 
 Extension name: PlaybackKeys: Globale Video-Tastenkürzel
 
-Short description: Globale Tastenkürzel für YouTube, Udemy, Vimeo, Coursera und Browser-Videos.
+Short description: Globale Tastenkürzel für YouTube, Udemy, Vimeo, Coursera, Bilibili und Browser-Videos.
 
 Full description:
 
 Steuere Browser-Videos mit globalen Tastenkürzeln. Pausiere, spule zurück, springe vor und ändere die Wiedergabegeschwindigkeit, ohne zurück zum Videotab zu wechseln.
 
-PlaybackKeys ist ein leichter Browser-Video-Controller für YouTube, Udemy, Vimeo, Coursera und andere HTML5-Videoseiten.
+PlaybackKeys ist ein leichter Browser-Video-Controller für YouTube, Udemy, Vimeo, Coursera, Bilibili und andere HTML5-Videoseiten.
 
 Er ist nützlich, wenn du ein Tutorial, eine Vorlesung, einen Onlinekurs, einen Podcast oder ein langes Video ansiehst, während du programmierst, lernst, Notizen machst, arbeitest oder eine andere App verwendest.
 
@@ -287,6 +290,7 @@ PlaybackKeys funktioniert sofort auf:
 - Udemy
 - Vimeo
 - Coursera
+- Bilibili
 
 Für andere Websites mit normalem HTML5-Video öffne die Seite, klicke auf das PlaybackKeys-Symbol und wähle „Auf dieser Website aktivieren“.
 
@@ -338,13 +342,13 @@ Internal search keywords, do not paste into public long description: YouTube Tas
 
 Extension name: PlaybackKeys: Raccourcis vidéo globaux
 
-Short description: Raccourcis clavier globaux pour YouTube, Udemy, Vimeo, Coursera et les vidéos du navigateur.
+Short description: Raccourcis clavier globaux pour YouTube, Udemy, Vimeo, Coursera, Bilibili et les vidéos du navigateur.
 
 Full description:
 
 Contrôlez les vidéos du navigateur avec des raccourcis clavier globaux. Mettez en pause, reculez, avancez et modifiez la vitesse de lecture sans revenir à l’onglet vidéo.
 
-PlaybackKeys est un contrôleur léger de vidéos du navigateur pour YouTube, Udemy, Vimeo, Coursera et les autres sites vidéo HTML5.
+PlaybackKeys est un contrôleur léger de vidéos du navigateur pour YouTube, Udemy, Vimeo, Coursera, Bilibili et les autres sites vidéo HTML5.
 
 Il est utile lorsque vous regardez un tutoriel, un cours, une formation en ligne, un podcast ou une longue vidéo pendant que vous codez, étudiez, prenez des notes, travaillez ou utilisez une autre application.
 
@@ -369,6 +373,7 @@ PlaybackKeys fonctionne immédiatement sur :
 - Udemy
 - Vimeo
 - Coursera
+- Bilibili
 
 Pour les autres sites avec une vidéo HTML5 standard, ouvrez la page, cliquez sur l’icône PlaybackKeys, puis choisissez « Activer sur ce site ».
 
@@ -420,13 +425,13 @@ Internal search keywords, do not paste into public long description: raccourcis 
 
 Extension name: PlaybackKeys: Global Video Kısayolları
 
-Short description: YouTube, Udemy, Vimeo, Coursera ve tarayıcı videoları için global klavye kısayolları.
+Short description: YouTube, Udemy, Vimeo, Coursera, Bilibili ve tarayıcı videoları için global klavye kısayolları.
 
 Full description:
 
 Tarayıcı videolarını global klavye kısayollarıyla kontrol edin. Video sekmesine geri dönmeden duraklatın, geri sarın, ileri sarın ve oynatma hızını değiştirin.
 
-PlaybackKeys; YouTube, Udemy, Vimeo, Coursera ve diğer HTML5 video siteleri için hafif bir tarayıcı video denetleyicisidir.
+PlaybackKeys; YouTube, Udemy, Vimeo, Coursera, Bilibili ve diğer HTML5 video siteleri için hafif bir tarayıcı video denetleyicisidir.
 
 Kod yazarken, ders çalışırken, not alırken, çalışırken veya başka bir uygulama kullanırken eğitim videosu, ders, online kurs, podcast ya da uzun video izliyorsanız kullanışlıdır.
 
@@ -451,6 +456,7 @@ PlaybackKeys şu sitelerde kutudan çıktığı gibi çalışır:
 - Udemy
 - Vimeo
 - Coursera
+- Bilibili
 
 Standart HTML5 video kullanan diğer web sitelerinde, sayfayı açın, PlaybackKeys simgesine tıklayın ve “Bu sitede etkinleştir” seçeneğini seçin.
 
@@ -502,13 +508,13 @@ Internal search keywords, do not paste into public long description: YouTube kı
 
 Extension name: PlaybackKeys: グローバル動画ショートカット
 
-Short description: YouTube、Udemy、Vimeo、Coursera、ブラウザ動画向けのグローバルキーボードショートカット。
+Short description: YouTube、Udemy、Vimeo、Coursera、Bilibili、ブラウザ動画向けのグローバルキーボードショートカット。
 
 Full description:
 
 グローバルキーボードショートカットでブラウザ動画を操作できます。動画タブに戻らずに、一時停止、巻き戻し、前方へスキップ、再生速度の変更ができます。
 
-PlaybackKeys は、YouTube、Udemy、Vimeo、Coursera、その他の HTML5 動画サイト向けの軽量なブラウザ動画コントローラーです。
+PlaybackKeys は、YouTube、Udemy、Vimeo、Coursera、Bilibili、その他の HTML5 動画サイト向けの軽量なブラウザ動画コントローラーです。
 
 チュートリアル、講義、オンラインコース、ポッドキャスト、長い動画を、コーディング、勉強、メモ、作業、または別のアプリの使用中に視聴しているときに便利です。
 
@@ -533,6 +539,7 @@ PlaybackKeys は以下でそのまま動作します。
 - Udemy
 - Vimeo
 - Coursera
+- Bilibili
 
 標準の HTML5 動画を使う他の Web サイトでは、ページを開き、PlaybackKeys アイコンをクリックして「このサイトで有効にする」を選びます。
 
@@ -584,13 +591,13 @@ Internal search keywords, do not paste into public long description: YouTube シ
 
 Extension name: PlaybackKeys: 전역 동영상 단축키
 
-Short description: YouTube, Udemy, Vimeo, Coursera 및 브라우저 동영상을 위한 전역 키보드 단축키.
+Short description: YouTube, Udemy, Vimeo, Coursera, Bilibili 및 브라우저 동영상을 위한 전역 키보드 단축키.
 
 Full description:
 
 전역 키보드 단축키로 브라우저 동영상을 제어하세요. 동영상 탭으로 다시 전환하지 않고도 일시정지, 되감기, 앞으로 건너뛰기, 재생 속도 변경을 할 수 있습니다.
 
-PlaybackKeys는 YouTube, Udemy, Vimeo, Coursera 및 기타 HTML5 동영상 사이트를 위한 가벼운 브라우저 동영상 컨트롤러입니다.
+PlaybackKeys는 YouTube, Udemy, Vimeo, Coursera, Bilibili 및 기타 HTML5 동영상 사이트를 위한 가벼운 브라우저 동영상 컨트롤러입니다.
 
 코딩, 공부, 메모, 업무 또는 다른 앱 사용 중에 튜토리얼, 강의, 온라인 강좌, 팟캐스트, 긴 동영상을 볼 때 유용합니다.
 
@@ -615,6 +622,7 @@ PlaybackKeys는 다음 사이트에서 바로 작동합니다.
 - Udemy
 - Vimeo
 - Coursera
+- Bilibili
 
 표준 HTML5 동영상이 있는 다른 웹사이트에서는 페이지를 열고 PlaybackKeys 아이콘을 클릭한 뒤 “이 사이트에서 활성화”를 선택하세요.
 
@@ -666,13 +674,13 @@ Internal search keywords, do not paste into public long description: YouTube 단
 
 Extension name: PlaybackKeys: 全局视频快捷键
 
-Short description: 适用于 YouTube、Udemy、Vimeo、Coursera 和浏览器视频的全局键盘快捷键。
+Short description: 适用于 YouTube、Udemy、Vimeo、Coursera、Bilibili 和浏览器视频的全局键盘快捷键。
 
 Full description:
 
 使用全局键盘快捷键控制浏览器视频。无需切回视频标签页，即可暂停、后退、快进并更改播放速度。
 
-PlaybackKeys 是一款轻量级浏览器视频控制器，适用于 YouTube、Udemy、Vimeo、Coursera 以及其他 HTML5 视频网站。
+PlaybackKeys 是一款轻量级浏览器视频控制器，适用于 YouTube、Udemy、Vimeo、Coursera、Bilibili 以及其他 HTML5 视频网站。
 
 当你在编码、学习、记笔记、工作或使用其他应用时观看教程、讲座、在线课程、播客或长视频，它会很有用。
 
@@ -697,6 +705,7 @@ PlaybackKeys 可开箱即用于：
 - Udemy
 - Vimeo
 - Coursera
+- Bilibili
 
 对于其他使用标准 HTML5 视频的网站，请打开页面，点击 PlaybackKeys 图标，然后选择“在此网站启用”。
 

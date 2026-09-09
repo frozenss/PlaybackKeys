@@ -7,8 +7,8 @@
 A Chromium extension for developers and students who watch tutorials or
 lectures on a second monitor while typing in another app. Built and tested on
 Chrome. Also runs on Edge, Brave, Arc, Opera, and other Chromium browsers.
-Works on YouTube, Vimeo, Udemy, and Coursera out of the box. Other sites are
-opt-in from the extension popup.
+Works on YouTube, Vimeo, Udemy, Coursera, and Bilibili (`www.bilibili.com`) out
+of the box. Other sites are opt-in from the extension popup.
 
 No account. No telemetry. No network requests. Open source under MIT.
 
@@ -18,7 +18,7 @@ No account. No telemetry. No network requests. Open source under MIT.
 
 1. **Visit:** [PlaybackKeys website](https://mehmetdemircs.github.io/PlaybackKeys/) for full details
 2. **Install:** [Add to Chrome](https://chromewebstore.google.com/detail/bhncnmnpinmgjpeoneoplieaakbkfdmn)
-3. **Open a video** on YouTube, Vimeo, Udemy, or Coursera
+3. **Open a video** on YouTube, Vimeo, Udemy, Coursera, or Bilibili
 4. **Press the play/pause shortcut** (`Ctrl+Shift+1` on Windows/Linux, `Command+Shift+1` on Mac), even when Chrome isn't focused
 5. **Customize shortcuts** at `chrome://extensions/shortcuts`
 
@@ -143,12 +143,13 @@ PlaybackKeys collects nothing. No data leaves your device. Settings live in
 [PRIVACY](https://mehmetdemircs.github.io/PlaybackKeys/PRIVACY)
 ([source](./docs/PRIVACY.md)).
 
-The host permissions list is intentionally narrow (only the four built-in
-sites). For any other site, you grant access per-origin via the popup's
-**Enable on this site** button. Chrome shows its native permission prompt
-for that one origin only. Power users can opt into a single bulk **Run on
-all sites** toggle in settings, which requests `<all_urls>` once. Both
-paths are off by default.
+The host permissions list is intentionally narrow: youtube.com,
+youtube-nocookie.com, vimeo.com, udemy.com, coursera.org, and
+`www.bilibili.com` only (not `*.bilibili.com`). For any other site, you
+grant access per-origin via the popup's **Enable on this site** button.
+Chrome shows its native permission prompt for that one origin only. Power
+users can opt into a single bulk **Run on all sites** toggle in settings,
+which requests `<all_urls>` once. Both paths are off by default.
 
 ![Settings panel. Built-in sites work by default. Other sites are opt-in, with a single 'Run on all sites' toggle behind a confirmation.](assets/chrome-web-store/04-sites-and-permissions.png)
 
@@ -167,7 +168,7 @@ prohibits modifying the standard playback UI.
 
 ## Contributing
 
-Issues and PRs welcome. **v1 is focused on stability for YouTube, Vimeo, Udemy, and Coursera.** Before opening a PR, please:
+Issues and PRs welcome. **v1 is focused on stability for YouTube, Vimeo, Udemy, Coursera, and Bilibili.** Before opening a PR, please:
 
 - Test the change on at least YouTube and one other supported site.
 - Check that both popup and `chrome://extensions/shortcuts` still load

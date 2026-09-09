@@ -31,7 +31,7 @@ const STORE_LISTING_LOCALES = {
   Korean: "ko",
   "Chinese Simplified": "zh_CN",
 };
-const STORE_SUPPORTED_SITES = ["YouTube", "Udemy", "Vimeo", "Coursera"];
+const STORE_BUILT_IN_SITES = ["YouTube", "Udemy", "Vimeo", "Coursera", "Bilibili"];
 const FORBIDDEN_PACKAGE_PATHS = [
   ".git",
   ".github",
@@ -248,11 +248,11 @@ function validateStoreListing() {
     assert(section.includes("https://mehmetdemircs.github.io/PlaybackKeys/PRIVACY/"), `${heading} store listing must include the privacy-policy URL.`);
 
     const fullDescription = fullMatch?.[1] || "";
-    const siteIndexes = STORE_SUPPORTED_SITES.map((site) => fullDescription.indexOf(site));
-    assert(siteIndexes.every((index) => index >= 0), `${heading} store listing full description must mention ${STORE_SUPPORTED_SITES.join(", ")}.`);
+    const siteIndexes = STORE_BUILT_IN_SITES.map((site) => fullDescription.indexOf(site));
+    assert(siteIndexes.every((index) => index >= 0), `${heading} store listing full description must mention ${STORE_BUILT_IN_SITES.join(", ")}.`);
     assert(
       siteIndexes.every((index, i) => i === 0 || index > siteIndexes[i - 1]),
-      `${heading} store listing must mention supported sites in this order: ${STORE_SUPPORTED_SITES.join(", ")}.`,
+      `${heading} store listing must mention Built-in sites in this order: ${STORE_BUILT_IN_SITES.join(", ")}.`,
     );
   }
 }

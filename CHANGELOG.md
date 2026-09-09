@@ -2,6 +2,12 @@
 
 All notable changes to PlaybackKeys will be documented in this file.
 
+## [0.8.0] - 2026-09-09
+
+### Added
+- Added Bilibili (`www.bilibili.com`) as a Built-in Hostile player: Commands on VOD and Bangumi watch pages; no stream fetching (ADR-0001).
+- Listed Bilibili with the other Built-in sites in options, popup naming, store listing copy, README, and the privacy host list.
+
 ## [0.7.0] - 2026-05-29
 
 ### Added
