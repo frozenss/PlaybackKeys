@@ -115,6 +115,10 @@ a { color: inherit; }
   padding: 10px 0;
 }
 .opt-row.toggle-row { grid-template-columns: 1fr auto; }
+.opt-row.skip-intervals-head {
+  grid-template-columns: 1fr;
+  padding-bottom: 0;
+}
 .opt-row .lbl { font-size: 13px; color: var(--pk-fg); }
 .opt-row .lbl small {
   display: block;
@@ -123,6 +127,28 @@ a { color: inherit; }
   margin-top: 2px;
   font-weight: 400;
 }
+
+.skip-intervals { display: flex; flex-direction: column; gap: 4px; }
+.skip-interval-row {
+  align-items: start;
+  border-top: 1px solid var(--pk-line);
+}
+.skip-interval-row:first-child { border-top: 0; }
+.skip-interval-controls { display: flex; flex-direction: column; gap: 8px; }
+.skip-interval-chords {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.skip-chord-chip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 12px;
+  color: var(--pk-fg-2);
+}
+.skip-chord-name { flex: 1; min-width: 0; }
 
 /* Segmented controls */
 .seg {

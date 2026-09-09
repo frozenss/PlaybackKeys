@@ -16,12 +16,28 @@
     "description": "Keyboard command label."
   },
   "commandSkipBack": {
-    "message": "Skip back",
-    "description": "Keyboard command label."
+    "message": "Skip back 1",
+    "description": "Keyboard command label for Skip interval 1 back."
   },
   "commandSkipForward": {
-    "message": "Skip forward",
-    "description": "Keyboard command label."
+    "message": "Skip forward 1",
+    "description": "Keyboard command label for Skip interval 1 forward."
+  },
+  "commandSkipBack2": {
+    "message": "Skip back 2",
+    "description": "Keyboard command label for Skip interval 2 back."
+  },
+  "commandSkipForward2": {
+    "message": "Skip forward 2",
+    "description": "Keyboard command label for Skip interval 2 forward."
+  },
+  "commandSkipBack3": {
+    "message": "Skip back 3",
+    "description": "Keyboard command label for Skip interval 3 back."
+  },
+  "commandSkipForward3": {
+    "message": "Skip forward 3",
+    "description": "Keyboard command label for Skip interval 3 forward."
   },
   "commandSpeedDown": {
     "message": "Speed -",
@@ -52,12 +68,12 @@
     "description": "Short keyboard command label."
   },
   "commandSkipBack5s": {
-    "message": "Skip back 5s",
-    "description": "Keyboard command label with skip amount."
+    "message": "Skip back 1",
+    "description": "Onboarding label for Skip interval 1 back (slot name)."
   },
   "commandSkipForward5s": {
-    "message": "Skip forward 5s",
-    "description": "Keyboard command label with skip amount."
+    "message": "Skip forward 1",
+    "description": "Onboarding label for Skip interval 1 forward (slot name)."
   },
   "settingsPageTitle": {
     "message": "PlaybackKeys Settings",
@@ -121,11 +137,25 @@
   },
   "skipInterval": {
     "message": "Skip interval",
-    "description": "Setting label."
+    "description": "Setting label for one Skip interval row."
+  },
+  "skipIntervals": {
+    "message": "Skip intervals",
+    "description": "Settings group heading for three Skip intervals."
   },
   "skipIntervalDesc": {
-    "message": "Seconds jumped by Skip back / forward",
-    "description": "Setting description."
+    "message": "Seconds jumped by this Skip back / forward pair",
+    "description": "Setting description for one Skip interval row."
+  },
+  "skipIntervalN": {
+    "message": "Skip interval $SLOT$",
+    "description": "Setting label; $SLOT$ is the interval slot number (1–3).",
+    "placeholders": {
+      "slot": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
   },
   "unitSeconds": {
     "message": "seconds",
@@ -584,5 +614,9 @@
   "yourChoice": {
     "message": "your choice",
     "description": "Unbound shortcut tag."
+  },
+  "skipIntervalsDesc": {
+    "message": "Three jump lengths, each with its own Skip back / forward Commands",
+    "description": "Settings group description for the three Skip intervals."
   }
 }

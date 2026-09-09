@@ -3,6 +3,12 @@
 // synchronously at the top level. Registering inside a promise/callback
 // silently fails in MV3.
 
+import {
+  SKIP_INTERVAL_DEFAULTS,
+  normalizeSkipIntervals,
+  commandToAction,
+} from "./shared/skip-intervals.js";
+
 const SUPPORTED_HOSTS = [
   /(^|\.)youtube\.com$/i,
   /(^|\.)youtube-nocookie\.com$/i,
@@ -22,7 +28,7 @@ function isBilibiliWatchPath(pathname) {
 }
 
 const DEFAULTS = {
-  seekSeconds: 5,
+  skipIntervals: [...SKIP_INTERVAL_DEFAULTS],
   speedStep: 0.25,
   speedMin: 0.25,
   speedMax: 4.0,
@@ -73,8 +79,14 @@ function isSupportedUrl(url, settings) {
 }
 
 async function getSettings() {
-  const stored = await chrome.storage.local.get(DEFAULTS);
-  return { ...DEFAULTS, ...stored };
+  // Read raw storage (no defaults) so a missing skipIntervals key still
+  // migrates from legacy seekSeconds instead of being filled by DEFAULTS.
+  const stored = await chrome.storage.local.get(null);
+  const skipIntervals = normalizeSkipIntervals(stored);
+  if (!Array.isArray(stored.skipIntervals)) {
+    await chrome.storage.local.set({ skipIntervals });
+  }
+  return { ...DEFAULTS, ...stored, skipIntervals };
 }
 
 async function getSession() {
@@ -325,23 +337,6 @@ async function pruneKnownTabs(knownVideoTabs) {
     await setSession({ knownVideoTabs: alive });
   }
   return alive;
-}
-
-function commandToAction(command, settings) {
-  const speedOpts = {
-    min: settings.speedMin,
-    max: settings.speedMax,
-    wrap: settings.wrapSpeed,
-  };
-  switch (command) {
-    case "1-play-pause":    return { action: "toggle" };
-    case "2-speed-up":      return { action: "speed", delta:  settings.speedStep, ...speedOpts };
-    case "3-skip-back":     return { action: "seek",  delta: -settings.seekSeconds };
-    case "4-skip-forward":  return { action: "seek",  delta:  settings.seekSeconds };
-    case "5-speed-down":    return { action: "speed", delta: -settings.speedStep, ...speedOpts };
-    case "6-speed-reset":   return { action: "speed", reset: true };
-    default:                return null;
-  }
 }
 
 async function dispatchToTab(tab, payload, opts = {}) {

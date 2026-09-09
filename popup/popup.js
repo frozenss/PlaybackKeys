@@ -1,3 +1,5 @@
+import { normalizeSkipIntervals } from "../shared/skip-intervals.js";
+
 const SUPPORTED_HOSTS = [
   /(^|\.)youtube\.com$/i,
   /(^|\.)youtube-nocookie\.com$/i,
@@ -94,8 +96,13 @@ async function fetchStatus() {
   return chrome.runtime.sendMessage({ type: "playbackkeys:get-status" }).catch(() => null);
 }
 async function fetchSettings() {
-  return chrome.storage.local.get({
-    seekSeconds: 5,
+  // Raw get so missing skipIntervals still migrates from seekSeconds.
+  const stored = await chrome.storage.local.get(null);
+  const skipIntervals = normalizeSkipIntervals(stored);
+  if (!Array.isArray(stored.skipIntervals)) {
+    await chrome.storage.local.set({ skipIntervals });
+  }
+  return {
     speedStep: 0.25,
     speedMin: 0.25,
     speedMax: 4.0,
@@ -103,7 +110,9 @@ async function fetchSettings() {
     enabledOrigins: {},
     runOnAllSites: false,
     themeMode: "system",
-  });
+    ...stored,
+    skipIntervals,
+  };
 }
 
 async function describeEmptyState(activeTab, settings) {
@@ -155,8 +164,9 @@ function applyChords(chordMap) {
   });
 }
 function applyLabels(s) {
-  document.getElementById("pp-skip-back-amt").textContent = `${s.seekSeconds}s`;
-  document.getElementById("pp-skip-fwd-amt").textContent  = `${s.seekSeconds}s`;
+  const interval1 = normalizeSkipIntervals(s)[0];
+  document.getElementById("pp-skip-back-amt").textContent = `${interval1}s`;
+  document.getElementById("pp-skip-fwd-amt").textContent  = `${interval1}s`;
   const stepStr = s.speedStep.toFixed(2);
   document.getElementById("pp-down-glyph").textContent = `−${stepStr}`;
   document.getElementById("pp-up-glyph").textContent   = `+${stepStr}`;

@@ -14,7 +14,8 @@ try {
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const WATCH_FIXTURE = readFileSync(join(ROOT, "tests/fixtures/video-page.html"), "utf8");
 const MINI_FIXTURE = readFileSync(join(ROOT, "tests/fixtures/mini-player-page.html"), "utf8");
-const SAMPLE_MP4 = readFileSync(join(ROOT, "tests/fixtures/sample.mp4"));
+// Long fixture so three Skip intervals (defaults 5/10/30) can seek without clamping.
+const SAMPLE_MP4 = readFileSync(join(ROOT, "tests/fixtures/sample-long.mp4"));
 const SMOKE_ROOT = mkdtempSync(join(tmpdir(), "playbackkeys-smoke-"));
 
 function assert(condition, message) {
@@ -328,6 +329,72 @@ try {
 
     await page.close();
     console.log(`✓ Bilibili non-watch ignored ${nonWatch}`);
+  }
+
+  // --- Skip intervals (#10): migration + each interval Command seeks its delta ---
+  {
+    const sender = await ensureExtensionSender(worker);
+    // Legacy seekSeconds migrates to interval 1; 2/3 default to 10/30.
+    await sender.evaluate(async () => {
+      await chrome.storage.local.clear();
+      await chrome.storage.local.set({ seekSeconds: 15 });
+    });
+    // Touch getSettings via a no-op dispatch path (needs a target tab).
+    const page = await openFixture("www.youtube.com/");
+    await page.bringToFront();
+    await dispatchCommand(worker, "6-speed-reset");
+    const migrated = await sender.evaluate(async () => chrome.storage.local.get(["skipIntervals", "seekSeconds"]));
+    assert(
+      JSON.stringify(migrated.skipIntervals) === JSON.stringify([15, 10, 30]),
+      `expected skipIntervals [15,10,30] after seekSeconds migration, got ${JSON.stringify(migrated.skipIntervals)}`,
+    );
+    console.log("✓ Skip interval seekSeconds → skipIntervals migration");
+
+    // Distinct intervals; Commands must seek the matching delta.
+    await sender.evaluate(async () => {
+      await chrome.storage.local.set({ skipIntervals: [5, 10, 30] });
+    });
+
+    const cases = [
+      ["3-skip-back", -5],
+      ["4-skip-forward", 5],
+      ["8-skip-back-2", -10],
+      ["9-skip-forward-2", 10],
+      ["10-skip-back-3", -30],
+      ["11-skip-forward-3", 30],
+    ];
+
+    const cmds = await sender.evaluate(async () => {
+      const all = await chrome.commands.getAll();
+      return all.map((c) => c.name).filter((n) => n !== "_execute_action").sort();
+    });
+    for (const [cmd] of cases) {
+      assert(cmds.includes(cmd), `manifest/chrome.commands missing ${cmd}; have ${cmds.join(",")}`);
+    }
+    console.log("✓ Skip interval Commands registered (1/2/3)");
+
+    for (const [cmd, delta] of cases) {
+      await page.$eval("video", (video) => {
+        video.pause();
+        video.currentTime = 40;
+      });
+      await page.waitForFunction(() => Math.abs(document.querySelector("video").currentTime - 40) < 0.25);
+      await page.bringToFront();
+      await dispatchCommand(worker, cmd);
+      const expected = 40 + delta;
+      await page.waitForFunction(
+        (target) => Math.abs(document.querySelector("video").currentTime - target) < 0.35,
+        expected,
+        { timeout: 3000 },
+      );
+      const time = (await readVideo(page)).currentTime;
+      assert(
+        Math.abs(time - expected) < 0.35,
+        `${cmd} expected ~${expected}s, got ${time}`,
+      );
+    }
+    await page.close();
+    console.log("✓ Skip interval Commands seek expected deltas");
   }
 
   console.log("PlaybackKeys smoke test passed.");

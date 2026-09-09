@@ -107,6 +107,22 @@
     "7-switch-target": {
       "description": "__MSG_commandSwitchTarget__",
       "global": true
+    },
+    "8-skip-back-2": {
+      "description": "__MSG_commandSkipBack2__",
+      "global": true
+    },
+    "9-skip-forward-2": {
+      "description": "__MSG_commandSkipForward2__",
+      "global": true
+    },
+    "10-skip-back-3": {
+      "description": "__MSG_commandSkipBack3__",
+      "global": true
+    },
+    "11-skip-forward-3": {
+      "description": "__MSG_commandSkipForward3__",
+      "global": true
     }
   }
 }

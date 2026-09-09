@@ -42,16 +42,14 @@
       <section class="opt-group" id="playback">
         <div class="opt-group-h"><span class="name" data-i18n="playbackSteps">Playback steps</span><span class="desc" data-i18n="playbackStepsDesc">how each chord changes the player</span></div>
 
-        <div class="opt-row">
-          <div class="lbl"><span data-i18n="skipInterval">Skip interval</span><small data-i18n="skipIntervalDesc">Seconds jumped by Skip back / forward</small></div>
-          <div>
-            <div class="seg" id="seg-skip"></div>
-            <div class="seg-custom" id="custom-skip" hidden>
-              <input type="number" id="custom-skip-input" min="1" />
-              <span class="unit" data-i18n="unitSeconds">seconds</span>
-            </div>
+        <div class="opt-row skip-intervals-head">
+          <div class="lbl">
+            <span data-i18n="skipIntervals">Skip intervals</span>
+            <small data-i18n="skipIntervalsDesc">Three jump lengths, each with its own Skip back / forward Commands</small>
           </div>
         </div>
+        <div id="skip-intervals" class="skip-intervals"></div>
+        <button class="btn-ghost" id="open-skip-shortcuts" style="margin-top:4px" data-i18n="openChromeShortcutSettings">Open Chrome shortcut settings ↗</button>
 
         <div class="opt-row">
           <div class="lbl"><span data-i18n="speedStep">Speed step</span><small data-i18n="speedStepDesc">Speed change per press</small></div>
@@ -133,6 +131,6 @@
   </div>
 
   <script src="../shared/i18n.js"></script>
-  <script src="options.js"></script>
+  <script type="module" src="options.js"></script>
 </body>
 </html>

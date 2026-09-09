@@ -16,12 +16,28 @@
     "description": "Keyboard command label."
   },
   "commandSkipBack": {
-    "message": "后退",
-    "description": "Keyboard command label."
+    "message": "后退 1",
+    "description": "Keyboard command label for Skip interval 1 back."
   },
   "commandSkipForward": {
-    "message": "前进",
-    "description": "Keyboard command label."
+    "message": "前进 1",
+    "description": "Keyboard command label for Skip interval 1 forward."
+  },
+  "commandSkipBack2": {
+    "message": "后退 2",
+    "description": "Keyboard command label for Skip interval 2 back."
+  },
+  "commandSkipForward2": {
+    "message": "前进 2",
+    "description": "Keyboard command label for Skip interval 2 forward."
+  },
+  "commandSkipBack3": {
+    "message": "后退 3",
+    "description": "Keyboard command label for Skip interval 3 back."
+  },
+  "commandSkipForward3": {
+    "message": "前进 3",
+    "description": "Keyboard command label for Skip interval 3 forward."
   },
   "commandSpeedDown": {
     "message": "减速",
@@ -52,12 +68,12 @@
     "description": "Short keyboard command label."
   },
   "commandSkipBack5s": {
-    "message": "后退 5 秒",
-    "description": "Keyboard command label with skip amount."
+    "message": "后退 1",
+    "description": "Onboarding label for Skip interval 1 back (slot name)."
   },
   "commandSkipForward5s": {
-    "message": "前进 5 秒",
-    "description": "Keyboard command label with skip amount."
+    "message": "前进 1",
+    "description": "Onboarding label for Skip interval 1 forward (slot name)."
   },
   "settingsPageTitle": {
     "message": "PlaybackKeys 设置",
@@ -121,11 +137,25 @@
   },
   "skipInterval": {
     "message": "跳转间隔",
-    "description": "Setting label."
+    "description": "Setting label for one Skip interval row."
+  },
+  "skipIntervals": {
+    "message": "跳转间隔",
+    "description": "Settings group heading for three Skip intervals."
   },
   "skipIntervalDesc": {
-    "message": "后退 / 前进跳转的秒数",
-    "description": "Setting description."
+    "message": "此后退 / 前进组合跳转的秒数",
+    "description": "Setting description for one Skip interval row."
+  },
+  "skipIntervalN": {
+    "message": "跳转间隔 $SLOT$",
+    "description": "Setting label; $SLOT$ is the interval slot number (1–3).",
+    "placeholders": {
+      "slot": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
   },
   "unitSeconds": {
     "message": "秒",
@@ -584,5 +614,9 @@
   "yourChoice": {
     "message": "自定义",
     "description": "Unbound shortcut tag."
+  },
+  "skipIntervalsDesc": {
+    "message": "三种跳转长度，各自拥有后退 / 前进命令",
+    "description": "Settings group description for the three Skip intervals."
   }
 }

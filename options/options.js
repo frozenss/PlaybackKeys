@@ -1,3 +1,11 @@
+import {
+  SKIP_INTERVAL_DEFAULTS,
+  SKIP_INTERVAL_COUNT,
+  SKIP_INTERVAL_PRESETS,
+  SKIP_INTERVAL_COMMAND_PAIRS,
+  normalizeSkipIntervals,
+} from "../shared/skip-intervals.js";
+
 const BUILTIN = [
   { hostname: "youtube.com", origin: "https://www.youtube.com" },
   { hostname: "youtube-nocookie.com", origin: "https://www.youtube-nocookie.com" },
@@ -18,22 +26,25 @@ const isMac = detectIsMac();
 const t = globalThis.PlaybackKeysI18n?.t || ((key, _subs, fallback) => fallback || key);
 
 const COMMAND_LABELS = {
-  "1-play-pause":   { key: "commandPlayPause", fallback: "Play / Pause" },
-  "2-speed-up":     { key: "commandSpeedUpStep", fallback: "Speed +0.25×" },
-  "3-skip-back":    { key: "commandSkipBack", fallback: "Skip back" },
-  "4-skip-forward": { key: "commandSkipForward", fallback: "Skip forward" },
-  "5-speed-down":   { key: "commandSpeedDownStep", fallback: "Speed −0.25×" },
-  "6-speed-reset":  { key: "commandResetSpeed1x", fallback: "Reset speed to 1×" },
-  "7-switch-target":{ key: "commandSwitchTargetShort", fallback: "Switch target tab" },
+  "1-play-pause":    { key: "commandPlayPause", fallback: "Play / Pause" },
+  "2-speed-up":      { key: "commandSpeedUpStep", fallback: "Speed +0.25×" },
+  "3-skip-back":     { key: "commandSkipBack", fallback: "Skip back 1" },
+  "4-skip-forward":  { key: "commandSkipForward", fallback: "Skip forward 1" },
+  "5-speed-down":    { key: "commandSpeedDownStep", fallback: "Speed −0.25×" },
+  "6-speed-reset":   { key: "commandResetSpeed1x", fallback: "Reset speed to 1×" },
+  "7-switch-target": { key: "commandSwitchTargetShort", fallback: "Switch target tab" },
+  "8-skip-back-2":   { key: "commandSkipBack2", fallback: "Skip back 2" },
+  "9-skip-forward-2":{ key: "commandSkipForward2", fallback: "Skip forward 2" },
+  "10-skip-back-3":  { key: "commandSkipBack3", fallback: "Skip back 3" },
+  "11-skip-forward-3": { key: "commandSkipForward3", fallback: "Skip forward 3" },
 };
 
-const SEEK_PRESETS  = [2, 5, 10, 15, 30];
 const STEP_PRESETS  = [0.10, 0.25, 0.50, 1.00];
 const TOAST_PRESETS = [800, 1500, 3000, 0];
 const THEME_MODES = ["system", "light", "dark"];
 
 const DEFAULTS = {
-  seekSeconds: 5,
+  skipIntervals: [...SKIP_INTERVAL_DEFAULTS],
   speedStep: 0.25,
   speedMin: 0.25,
   speedMax: 4.0,
@@ -49,7 +60,7 @@ const DEFAULTS = {
 
 function fmtToastDur(ms) { return ms === 0 ? t("off", undefined, "off") : `${(ms / 1000).toFixed(1)}s`; }
 function fmtSpeed(s)     { return `${s.toFixed(2)}×`; }
-function fmtSeek(s)      { return `${s}s`; }
+function fmtSkipInterval(s) { return `${s}s`; }
 function fmtTheme(mode) {
   const labels = {
     system: t("themeSystem", undefined, "System"),
@@ -72,10 +83,10 @@ async function setSetting(patch) {
   flashSaved();
 }
 
-function buildSeg(containerId, presets, currentValue, fmtFn, onPick, allowCustom) {
-  const c = document.getElementById(containerId);
+function buildSeg(container, presets, currentValue, fmtFn, onPick, allowCustom) {
+  const c = typeof container === "string" ? document.getElementById(container) : container;
   c.innerHTML = "";
-  let isPreset = presets.includes(currentValue);
+  const isPreset = presets.includes(currentValue);
   for (const v of presets) {
     const b = document.createElement("button");
     b.textContent = fmtFn(v);
@@ -89,6 +100,97 @@ function buildSeg(containerId, presets, currentValue, fmtFn, onPick, allowCustom
     custom.classList.toggle("on", !isPreset);
     custom.addEventListener("click", () => { onPick("custom"); });
     c.appendChild(custom);
+  }
+}
+
+function clampSkipIntervalSeconds(n) {
+  n = Math.round(Number(n));
+  if (!Number.isFinite(n) || n < 1) n = 1;
+  return n;
+}
+
+async function setSkipInterval(index, seconds) {
+  const settings = cachedSettings || DEFAULTS;
+  const next = normalizeSkipIntervals(settings).slice();
+  next[index] = clampSkipIntervalSeconds(seconds);
+  await setSetting({ skipIntervals: next });
+  render();
+}
+
+async function renderSkipIntervals(settings, commandMap) {
+  const root = document.getElementById("skip-intervals");
+  root.innerHTML = "";
+  const intervals = normalizeSkipIntervals(settings);
+
+  for (let i = 0; i < SKIP_INTERVAL_COUNT; i++) {
+    const seconds = intervals[i];
+    const [backId, forwardId] = SKIP_INTERVAL_COMMAND_PAIRS[i];
+    const row = document.createElement("div");
+    row.className = "opt-row skip-interval-row";
+
+    const lbl = document.createElement("div");
+    lbl.className = "lbl";
+    const title = document.createElement("span");
+    title.textContent = t("skipIntervalN", [String(i + 1)], `Skip interval ${i + 1}`);
+    const desc = document.createElement("small");
+    desc.textContent = t("skipIntervalDesc", undefined, "Seconds jumped by this Skip back / forward pair");
+    lbl.append(title, desc);
+
+    const controls = document.createElement("div");
+    controls.className = "skip-interval-controls";
+
+    const seg = document.createElement("div");
+    seg.className = "seg";
+    const customWrap = document.createElement("div");
+    customWrap.className = "seg-custom";
+    customWrap.hidden = SKIP_INTERVAL_PRESETS.includes(seconds);
+    const customInput = document.createElement("input");
+    customInput.type = "number";
+    customInput.min = "1";
+    customInput.value = String(seconds);
+    const unit = document.createElement("span");
+    unit.className = "unit";
+    unit.textContent = t("unitSeconds", undefined, "seconds");
+    customWrap.append(customInput, unit);
+
+    buildSeg(seg, SKIP_INTERVAL_PRESETS, seconds, fmtSkipInterval, async (v) => {
+      if (v === "custom") {
+        customWrap.hidden = false;
+        customInput.value = String(seconds);
+        customInput.focus();
+        customInput.select();
+        return;
+      }
+      customWrap.hidden = true;
+      await setSkipInterval(i, v);
+    }, true);
+
+    customInput.addEventListener("change", async () => {
+      const v = clampSkipIntervalSeconds(customInput.value);
+      customInput.value = String(v);
+      await setSkipInterval(i, v);
+    });
+
+    const chords = document.createElement("div");
+    chords.className = "skip-interval-chords";
+    for (const cmdId of [backId, forwardId]) {
+      const meta = COMMAND_LABELS[cmdId];
+      const chip = document.createElement("div");
+      chip.className = "skip-chord-chip";
+      const name = document.createElement("span");
+      name.className = "skip-chord-name";
+      name.textContent = t(meta.key, undefined, meta.fallback);
+      const keys = document.createElement("span");
+      keys.className = "shortcut-keys";
+      const shortcut = commandMap.get(cmdId)?.shortcut || "";
+      keys.appendChild(chordElement(shortcut));
+      chip.append(name, keys);
+      chords.appendChild(chip);
+    }
+
+    controls.append(seg, customWrap, chords);
+    row.append(lbl, controls);
+    root.appendChild(row);
   }
 }
 
@@ -247,10 +349,20 @@ function chordPlainText(shortcut) {
   return parts.join(isMac ? "" : "+");
 }
 
-async function renderShortcuts() {
+const COMMAND_ORDER = Object.keys(COMMAND_LABELS);
+
+async function renderShortcuts(commandMap) {
   const list = document.getElementById("shortcut-list");
-  const cmds = await chrome.commands.getAll();
-  cmds.sort((a, b) => a.name.localeCompare(b.name));
+  const cmds = commandMap
+    ? [...commandMap.values()]
+    : await chrome.commands.getAll();
+  cmds.sort((a, b) => {
+    const ai = COMMAND_ORDER.indexOf(a.name);
+    const bi = COMMAND_ORDER.indexOf(b.name);
+    const aKey = ai === -1 ? Number.MAX_SAFE_INTEGER : ai;
+    const bKey = bi === -1 ? Number.MAX_SAFE_INTEGER : bi;
+    return aKey - bKey || a.name.localeCompare(b.name);
+  });
   list.innerHTML = "";
   for (const cmd of cmds) {
     if (cmd.name === "_execute_action") continue;
@@ -281,29 +393,27 @@ async function renderShortcuts() {
 
 let cachedSettings = null;
 
-async function render() {
-  const settings = await chrome.storage.local.get(DEFAULTS);
+async function loadSettings() {
+  // Raw get (no defaults) so missing skipIntervals still migrates seekSeconds.
+  const stored = await chrome.storage.local.get(null);
+  const skipIntervals = normalizeSkipIntervals(stored);
+  if (!Array.isArray(stored.skipIntervals)) {
+    await chrome.storage.local.set({ skipIntervals });
+  }
+  const settings = { ...DEFAULTS, ...stored, skipIntervals };
   settings.themeMode = globalThis.PlaybackKeysTheme?.normalizeThemeMode
     ? globalThis.PlaybackKeysTheme.normalizeThemeMode(settings.themeMode)
     : (THEME_MODES.includes(settings.themeMode) ? settings.themeMode : "system");
+  return settings;
+}
+
+async function render() {
+  const settings = await loadSettings();
   cachedSettings = settings;
 
-  // Skip
-  buildSeg("seg-skip", SEEK_PRESETS, settings.seekSeconds, fmtSeek, async (v) => {
-    if (v === "custom") {
-      document.getElementById("custom-skip").hidden = false;
-      const inp = document.getElementById("custom-skip-input");
-      inp.value = String(settings.seekSeconds);
-      inp.focus();
-      inp.select();
-      return;
-    }
-    await setSetting({ seekSeconds: v });
-    document.getElementById("custom-skip").hidden = true;
-    render();
-  }, true);
-  document.getElementById("custom-skip").hidden = SEEK_PRESETS.includes(settings.seekSeconds);
-  document.getElementById("custom-skip-input").value = String(settings.seekSeconds);
+  const cmds = await chrome.commands.getAll();
+  const commandMap = new Map(cmds.map((cmd) => [cmd.name, cmd]));
+  await renderSkipIntervals(settings, commandMap);
 
   // Speed step
   buildSeg("seg-step", STEP_PRESETS, settings.speedStep, fmtSpeed, async (v) => {
@@ -362,29 +472,16 @@ async function render() {
   setSwitch("all-sites-toggle", !!settings.runOnAllSites && allSitesGranted);
 
   await renderSites(settings);
-  await renderShortcuts();
+  await renderShortcuts(commandMap);
   document.getElementById("opt-version").textContent = `v${chrome.runtime.getManifest().version}`;
 }
 
 function wireOnce() {
-  // Custom number inputs
-  function clampSeek(n) {
-    n = Math.round(Number(n));
-    if (!Number.isFinite(n) || n < 1) n = 1;
-    return n;
-  }
   function clampStep(n) {
     n = Number(n);
     if (!Number.isFinite(n) || n <= 0) n = 0.01;
     return Math.round(n * 100) / 100;
   }
-  const skipInp = document.getElementById("custom-skip-input");
-  skipInp.addEventListener("change", async () => {
-    const v = clampSeek(skipInp.value);
-    skipInp.value = String(v);
-    await setSetting({ seekSeconds: v });
-    render();
-  });
   const stepInp = document.getElementById("custom-step-input");
   stepInp.addEventListener("change", async () => {
     const v = clampStep(stepInp.value);
@@ -453,10 +550,12 @@ function wireOnce() {
     render();
   });
 
-  // Open shortcuts
-  document.getElementById("open-shortcuts").addEventListener("click", () => {
+  // Open shortcuts (Playback section + Shortcuts section)
+  function openShortcutSettings() {
     chrome.tabs.create({ url: "chrome://extensions/shortcuts" });
-  });
+  }
+  document.getElementById("open-shortcuts").addEventListener("click", openShortcutSettings);
+  document.getElementById("open-skip-shortcuts").addEventListener("click", openShortcutSettings);
 
   // Reset to defaults
   document.getElementById("reset-defaults").addEventListener("click", async () => {

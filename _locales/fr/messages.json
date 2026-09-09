@@ -16,12 +16,28 @@
     "description": "Keyboard command label."
   },
   "commandSkipBack": {
-    "message": "Reculer",
-    "description": "Keyboard command label."
+    "message": "Saut arrière 1",
+    "description": "Keyboard command label for Skip interval 1 back."
   },
   "commandSkipForward": {
-    "message": "Avancer",
-    "description": "Keyboard command label."
+    "message": "Saut avant 1",
+    "description": "Keyboard command label for Skip interval 1 forward."
+  },
+  "commandSkipBack2": {
+    "message": "Saut arrière 2",
+    "description": "Keyboard command label for Skip interval 2 back."
+  },
+  "commandSkipForward2": {
+    "message": "Saut avant 2",
+    "description": "Keyboard command label for Skip interval 2 forward."
+  },
+  "commandSkipBack3": {
+    "message": "Saut arrière 3",
+    "description": "Keyboard command label for Skip interval 3 back."
+  },
+  "commandSkipForward3": {
+    "message": "Saut avant 3",
+    "description": "Keyboard command label for Skip interval 3 forward."
   },
   "commandSpeedDown": {
     "message": "Ralentir",
@@ -52,12 +68,12 @@
     "description": "Short keyboard command label."
   },
   "commandSkipBack5s": {
-    "message": "Reculer de 5 s",
-    "description": "Keyboard command label with skip amount."
+    "message": "Saut arrière 1",
+    "description": "Onboarding label for Skip interval 1 back (slot name)."
   },
   "commandSkipForward5s": {
-    "message": "Avancer de 5 s",
-    "description": "Keyboard command label with skip amount."
+    "message": "Saut avant 1",
+    "description": "Onboarding label for Skip interval 1 forward (slot name)."
   },
   "settingsPageTitle": {
     "message": "Paramètres de PlaybackKeys",
@@ -121,11 +137,25 @@
   },
   "skipInterval": {
     "message": "Intervalle de saut",
-    "description": "Setting label."
+    "description": "Setting label for one Skip interval row."
+  },
+  "skipIntervals": {
+    "message": "Intervalles de saut",
+    "description": "Settings group heading for three Skip intervals."
   },
   "skipIntervalDesc": {
-    "message": "Secondes parcourues par Reculer / Avancer",
-    "description": "Setting description."
+    "message": "Secondes sautées par cette paire arrière / avant",
+    "description": "Setting description for one Skip interval row."
+  },
+  "skipIntervalN": {
+    "message": "Intervalle de saut $SLOT$",
+    "description": "Setting label; $SLOT$ is the interval slot number (1–3).",
+    "placeholders": {
+      "slot": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
   },
   "unitSeconds": {
     "message": "secondes",
@@ -584,5 +614,9 @@
   "yourChoice": {
     "message": "votre choix",
     "description": "Unbound shortcut tag."
+  },
+  "skipIntervalsDesc": {
+    "message": "Trois longueurs de saut, chacune avec ses propres commandes arrière / avant",
+    "description": "Settings group description for the three Skip intervals."
   }
 }
