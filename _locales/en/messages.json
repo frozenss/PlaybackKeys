@@ -265,6 +265,10 @@
     "message": "Open Chrome shortcut settings ↗",
     "description": "Button label."
   },
+  "activateExtensionNote": {
+    "message": "The browser-listed “Activate the extension” item only opens this extension’s popup. It does not add an Opt-in origin and is not a master switch for Commands.",
+    "description": "Shortcuts section note clarifying Chrome’s Activate the extension command."
+  },
   "privacyProse": {
     "message": "PlaybackKeys collects nothing. No telemetry, no network requests, no analytics. Settings live in <code>chrome.storage</code> on your device. Source code at <a href=\"https://github.com/mehmetdemircs/PlaybackKeys\" target=\"_blank\" rel=\"noopener\">github.com/mehmetdemircs/PlaybackKeys</a>.",
     "description": "Privacy section text. Contains trusted extension HTML."

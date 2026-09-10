@@ -265,6 +265,10 @@
     "message": "打开 Chrome 快捷键设置 ↗",
     "description": "Button label."
   },
+  "activateExtensionNote": {
+    "message": "浏览器列出的「激活扩展」项只会打开本扩展的弹窗。它不会添加 Opt-in 来源，也不是命令的总开关。",
+    "description": "Shortcuts section note clarifying Chrome’s Activate the extension command."
+  },
   "privacyProse": {
     "message": "PlaybackKeys 不收集任何数据。没有遥测、没有网络请求、没有分析。设置保存在你设备上的 <code>chrome.storage</code> 中。源代码位于 <a href=\"https://github.com/mehmetdemircs/PlaybackKeys\" target=\"_blank\" rel=\"noopener\">github.com/mehmetdemircs/PlaybackKeys</a>。",
     "description": "Privacy section text. Contains trusted extension HTML."

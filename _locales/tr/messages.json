@@ -265,6 +265,10 @@
     "message": "Chrome kısayol ayarlarını aç ↗",
     "description": "Button label."
   },
+  "activateExtensionNote": {
+    "message": "Tarayıcıda listelenen “Activate the extension” / “Uzantıyı etkinleştir” öğesi yalnızca bu uzantının popup’ını açar. Opt-in kaynağı eklemez ve Commands için ana anahtar değildir.",
+    "description": "Shortcuts section note clarifying Chrome’s Activate the extension command."
+  },
   "privacyProse": {
     "message": "PlaybackKeys hiçbir şey toplamaz. Telemetri yok, ağ isteği yok, analiz yok. Ayarlar cihazınızdaki <code>chrome.storage</code> içinde tutulur. Kaynak kodu <a href=\"https://github.com/mehmetdemircs/PlaybackKeys\" target=\"_blank\" rel=\"noopener\">github.com/mehmetdemircs/PlaybackKeys</a> adresindedir.",
     "description": "Privacy section text. Contains trusted extension HTML."

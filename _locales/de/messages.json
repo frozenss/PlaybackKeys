@@ -265,6 +265,10 @@
     "message": "Chrome-Tastenkürzel öffnen ↗",
     "description": "Button label."
   },
+  "activateExtensionNote": {
+    "message": "Der vom Browser gelistete Eintrag „Activate the extension“ / „Erweiterung aktivieren“ öffnet nur das Popup dieser Erweiterung. Er fügt keinen Opt-in-Ursprung hinzu und ist kein Hauptschalter für Commands.",
+    "description": "Shortcuts section note clarifying Chrome’s Activate the extension command."
+  },
   "privacyProse": {
     "message": "PlaybackKeys sammelt nichts. Keine Telemetrie, keine Netzwerkanfragen, keine Analysen. Einstellungen liegen in <code>chrome.storage</code> auf deinem Gerät. Quellcode unter <a href=\"https://github.com/mehmetdemircs/PlaybackKeys\" target=\"_blank\" rel=\"noopener\">github.com/mehmetdemircs/PlaybackKeys</a>.",
     "description": "Privacy section text. Contains trusted extension HTML."

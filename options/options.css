@@ -332,11 +332,20 @@ a { color: inherit; }
   box-shadow: 0 1px 0 var(--pk-key-edge);
 }
 #shortcut-list .kbd-chord .plus { font-size: 15px; }
+#shortcut-list .kbd-chord.unbound {
+  cursor: pointer;
+}
 #shortcut-list .kbd-chord.unbound .add-key {
   min-width: 90px;
   color: var(--pk-fg-3);
   font-weight: 500;
   text-transform: capitalize;
+}
+.shortcuts-activate-note {
+  margin: 8px 0 0;
+  font-size: 13px;
+  color: var(--pk-fg-3);
+  max-width: 62ch;
 }
 
 /* AHK bridge External hotkey mappings (#14/#15/#16) */

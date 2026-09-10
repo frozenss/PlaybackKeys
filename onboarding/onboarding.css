@@ -120,6 +120,9 @@ body {
   background: transparent;
   border-style: dashed;
 }
+.kbd-chord.unbound {
+  cursor: pointer;
+}
 .kbd-chord.unbound .key {
   color: var(--pk-fg-4);
   background: transparent;

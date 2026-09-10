@@ -265,6 +265,10 @@
     "message": "Chrome のショートカット設定を開く ↗",
     "description": "Button label."
   },
+  "activateExtensionNote": {
+    "message": "ブラウザに表示される「Activate the extension」（拡張機能を有効にする）は、この拡張機能のポップアップを開くだけです。Opt-in オリジンは追加されず、Commands のマスタースイッチでもありません。",
+    "description": "Shortcuts section note clarifying Chrome’s Activate the extension command."
+  },
   "privacyProse": {
     "message": "PlaybackKeys は何も収集しません。テレメトリ、ネットワークリクエスト、分析はありません。設定はお使いのデバイスの <code>chrome.storage</code> に保存されます。ソースコードは <a href=\"https://github.com/mehmetdemircs/PlaybackKeys\" target=\"_blank\" rel=\"noopener\">github.com/mehmetdemircs/PlaybackKeys</a> にあります。",
     "description": "Privacy section text. Contains trusted extension HTML."

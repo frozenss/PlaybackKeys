@@ -319,16 +319,33 @@ function shortcutParts(shortcut) {
   return parts.length > 0 ? parts : [shortcut];
 }
 
+function openBrowserShortcuts() {
+  chrome.tabs.create({ url: "chrome://extensions/shortcuts" });
+}
+
 function chordElement(shortcut) {
   const parts = shortcutParts(shortcut);
   const chord = document.createElement("span");
   chord.className = "kbd-chord";
   if (!parts) {
     chord.classList.add("unbound");
+    chord.setAttribute("role", "button");
+    chord.tabIndex = 0;
+    chord.setAttribute(
+      "aria-label",
+      t("openChromeShortcutSettings", undefined, "Open Chrome shortcut settings ↗"),
+    );
     const key = document.createElement("span");
     key.className = "key add-key";
     key.textContent = t("add", undefined, "add");
     chord.appendChild(key);
+    chord.addEventListener("click", openBrowserShortcuts);
+    chord.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        openBrowserShortcuts();
+      }
+    });
     return chord;
   }
   parts.forEach((part, index) => {
@@ -945,10 +962,8 @@ function wireOnce() {
     render();
   });
 
-  // Open shortcuts (Shortcuts section only)
-  document.getElementById("open-shortcuts").addEventListener("click", () => {
-    chrome.tabs.create({ url: "chrome://extensions/shortcuts" });
-  });
+  // Open shortcuts (Shortcuts section only; unbound Add chips call the same helper)
+  document.getElementById("open-shortcuts").addEventListener("click", openBrowserShortcuts);
 
   // AHK bridge: download, clear-all, drift dismiss, expanded-only drift chrome
   applyAhkBridgePlatformGating();

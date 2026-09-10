@@ -265,6 +265,10 @@
     "message": "Abrir configurações de atalhos do Chrome ↗",
     "description": "Button label."
   },
+  "activateExtensionNote": {
+    "message": "O item “Activate the extension” / “Ativar a extensão” listado pelo navegador só abre o popup desta extensão. Ele não adiciona uma origem Opt-in e não é um interruptor mestre de Commands.",
+    "description": "Shortcuts section note clarifying Chrome’s Activate the extension command."
+  },
   "privacyProse": {
     "message": "PlaybackKeys não coleta nada. Sem telemetria, sem solicitações de rede e sem análises. As configurações ficam em <code>chrome.storage</code> no seu dispositivo. Código-fonte em <a href=\"https://github.com/mehmetdemircs/PlaybackKeys\" target=\"_blank\" rel=\"noopener\">github.com/mehmetdemircs/PlaybackKeys</a>.",
     "description": "Privacy section text. Contains trusted extension HTML."

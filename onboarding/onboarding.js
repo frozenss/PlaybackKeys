@@ -99,13 +99,27 @@ async function renderShortcutList() {
       extraClass = "is-suggested";
       suffix = `<span class="ob-sc-tag">${t("suggested", undefined, "suggested")}</span>`;
     } else {
-      chordEl = `<span class="kbd-chord unbound"><span class="key">${t("add", undefined, "add")}</span></span>`;
+      chordEl = `<span class="kbd-chord unbound" role="button" tabindex="0"><span class="key">${t("add", undefined, "add")}</span></span>`;
       extraClass = "is-unbound";
       suffix = `<span class="ob-sc-tag">${t("yourChoice", undefined, "your choice")}</span>`;
     }
     const row = document.createElement("div");
     row.className = "ob-sc-row " + extraClass;
     row.innerHTML = `${chordEl}<span class="name">${t(meta.key, undefined, meta.fallback)}</span>${suffix}`;
+    const unboundChord = row.querySelector(".kbd-chord.unbound");
+    if (unboundChord) {
+      unboundChord.setAttribute(
+        "aria-label",
+        t("openChromeShortcutSettings", undefined, "Open Chrome shortcut settings ↗"),
+      );
+      unboundChord.addEventListener("click", openShortcuts);
+      unboundChord.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          openShortcuts(e);
+        }
+      });
+    }
     list.appendChild(row);
   }
 
