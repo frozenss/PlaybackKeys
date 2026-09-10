@@ -51,35 +51,59 @@ export function migrateCommandId(commandId) {
 }
 
 /**
+ * @param {unknown} row
+ * @returns {{ commandId: string, ahkHotkey: string, label?: string } | null}
+ */
+function normalizeMappingRow(row) {
+  if (!row || typeof row !== "object") return null;
+  const nextId = migrateCommandId(/** @type {{ commandId?: unknown }} */ (row).commandId);
+  if (!nextId) return null;
+  const ahkHotkey = String(/** @type {{ ahkHotkey?: unknown }} */ (row).ahkHotkey || "");
+  if (!ahkHotkey) return null;
+  const label = /** @type {{ label?: unknown }} */ (row).label;
+  /** @type {{ commandId: string, ahkHotkey: string, label?: string }} */
+  const next = { commandId: nextId, ahkHotkey };
+  if (typeof label === "string" && label) next.label = label;
+  return next;
+}
+
+/**
  * Remap External hotkey mappings to current Command ids; drop orphans.
- * First occurrence of a target id wins when legacy and current collide.
+ * Already-current rows win over legacy rows that map to the same id.
  *
  * @param {unknown} raw
  * @returns {Array<{ commandId: string, ahkHotkey: string, label?: string }>}
  */
 export function migrateAhkExternalMappings(raw) {
   if (!Array.isArray(raw)) return [];
-  /** @type {Array<{ commandId: string, ahkHotkey: string, label?: string }>} */
-  const out = [];
-  const seen = new Set();
+  /** @type {Map<string, { commandId: string, ahkHotkey: string, label?: string }>} */
+  const byId = new Map();
+
+  // Pass 1: keep rows that already use current ids.
   for (const row of raw) {
     if (!row || typeof row !== "object") continue;
-    const nextId = migrateCommandId(/** @type {{ commandId?: unknown }} */ (row).commandId);
-    if (!nextId || seen.has(nextId)) continue;
-    const ahkHotkey = String(/** @type {{ ahkHotkey?: unknown }} */ (row).ahkHotkey || "");
-    if (!ahkHotkey) continue;
-    seen.add(nextId);
-    const label = /** @type {{ label?: unknown }} */ (row).label;
-    /** @type {{ commandId: string, ahkHotkey: string, label?: string }} */
-    const next = { commandId: nextId, ahkHotkey };
-    if (typeof label === "string" && label) next.label = label;
-    out.push(next);
+    const rawId = String(/** @type {{ commandId?: unknown }} */ (row).commandId || "");
+    if (!CURRENT_IDS.has(rawId) || byId.has(rawId)) continue;
+    const normalized = normalizeMappingRow(row);
+    if (normalized) byId.set(normalized.commandId, normalized);
   }
-  return out;
+
+  // Pass 2: migrate legacy ids only when the target is still empty.
+  for (const row of raw) {
+    if (!row || typeof row !== "object") continue;
+    const rawId = String(/** @type {{ commandId?: unknown }} */ (row).commandId || "");
+    if (CURRENT_IDS.has(rawId)) continue;
+    const normalized = normalizeMappingRow(row);
+    if (!normalized || byId.has(normalized.commandId)) continue;
+    byId.set(normalized.commandId, normalized);
+  }
+
+  return [...byId.values()];
 }
 
 /**
  * Remap chord-snapshot keys to current Command ids; drop orphans.
+ * Already-current keys win over legacy keys that map to the same id.
  * @param {unknown} raw
  * @returns {Record<string, string> | null}
  */
@@ -89,6 +113,11 @@ export function migrateChordSnapshot(raw) {
   /** @type {Record<string, string>} */
   const out = {};
   for (const [commandId, shortcut] of Object.entries(raw)) {
+    if (!CURRENT_IDS.has(commandId)) continue;
+    out[commandId] = typeof shortcut === "string" ? shortcut : "";
+  }
+  for (const [commandId, shortcut] of Object.entries(raw)) {
+    if (CURRENT_IDS.has(commandId)) continue;
     const nextId = migrateCommandId(commandId);
     if (!nextId || Object.prototype.hasOwnProperty.call(out, nextId)) continue;
     out[nextId] = typeof shortcut === "string" ? shortcut : "";

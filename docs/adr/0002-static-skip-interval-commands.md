@@ -8,7 +8,7 @@ Chrome's `commands` API only accepts chords declared in the manifest, so Playbac
 
 - **One configurable pair only.** Rejected: the product needs multiple jump sizes with independent chords.
 - **Dynamically add/remove commands.** Rejected: not supported by `chrome.commands`; chords must be manifest-declared.
-- **Rename interval 1 into a symmetric id scheme.** Rejected: renames silently drop existing user bindings.
+- **Rename interval 1 into a symmetric id scheme.** Originally rejected to preserve bindings; later superseded by ADR-0004 (full zero-padded renumber; rebind accepted).
 - **Per-interval enable flags.** Rejected: unbound chords already mean "unused"; an extra off switch fights Chrome's binding state.
 - **Role names in Chrome (Short/Medium/Long).** Rejected: users can set any seconds per slot, so role names lie.
 

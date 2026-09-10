@@ -107,8 +107,8 @@ assertDeepEqual(
     { commandId: "1-play-pause", ahkHotkey: "F13", label: "F13" },
     { commandId: "01-play-pause", ahkHotkey: "F99", label: "F99" },
   ]),
-  [{ commandId: "01-play-pause", ahkHotkey: "F13", label: "F13" }],
-  "legacy row wins when both legacy and current collide (first kept)",
+  [{ commandId: "01-play-pause", ahkHotkey: "F99", label: "F99" }],
+  "already-current row wins when legacy and current collide",
 );
 
 assertDeepEqual(migrateAhkExternalMappings(null), [], "null mappings → []");

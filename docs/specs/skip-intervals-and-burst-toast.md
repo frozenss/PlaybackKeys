@@ -62,13 +62,13 @@ Cover at least:
 - Clamped end: presses still report intended cumulative toast while `currentTime` stops at the bound.
 - `showToast: false` seeks without toast.
 - Migration: stored `seekSeconds: 15` becomes interval 1 = 15 with intervals 2/3 at defaults 10/30 (unless product code defines a clearer migration; document the chosen rule in the PR if it differs only in unused slots).
-- Regression: play/pause, speed, badge, Bilibili adapter seek still function; interval 1 Command ids unchanged.
+- Regression: play/pause, speed, badge, Bilibili adapter seek still function. (Interval 1 Command id stability superseded by ADR-0004 / #20.)
 
 Prefer unit/adapter-level tests for burst accounting and toast payload; use existing Playwright smoke patterns for one extension-level seek if already cheap. Do not depend on live YouTube/Bilibili.
 
 ## Out of Scope
 
-YouTube-style left/right overlay, configurable burst window, asymmetric forward/back seconds within one interval, more than three intervals, in-extension key capture / hold-to-repeat, renaming interval 1 Command ids, popup buttons for intervals 2/3, per-interval enable flags, changing absolute-seek toast policy beyond “no join / no clear”.
+YouTube-style left/right overlay, configurable burst window, asymmetric forward/back seconds within one interval, more than three intervals, in-extension key capture / hold-to-repeat, popup buttons for intervals 2/3, per-interval enable flags, changing absolute-seek toast policy beyond “no join / no clear”. (Command id renumber moved to ADR-0004 / #20.)
 
 ## Further Notes
 

@@ -4,7 +4,7 @@ import {
   SKIP_INTERVAL_PRESETS,
   normalizeSkipIntervals,
 } from "../shared/skip-intervals.js";
-import { migrateAhkBridgeStoredState } from "../shared/command-ids.js";
+import { COMMAND_IDS, migrateAhkBridgeStoredState } from "../shared/command-ids.js";
 import { captureExternalHotkey } from "../shared/external-hotkey.js";
 import {
   AHK_BRIDGE_STORAGE,
@@ -371,7 +371,7 @@ function chordPlainText(shortcut) {
   return parts.join(isMac ? "" : "+");
 }
 
-const COMMAND_ORDER = Object.keys(COMMAND_LABELS);
+const COMMAND_ORDER = COMMAND_IDS.filter((id) => COMMAND_LABELS[id]);
 
 function sortCommands(cmds) {
   return [...cmds].sort((a, b) => {
