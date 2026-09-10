@@ -9,31 +9,32 @@ const isMac = detectIsMac();
 const t = globalThis.PlaybackKeysI18n?.t || ((key, _subs, fallback) => fallback || key);
 
 const COMMAND_LABELS = {
-  "1-play-pause":    { key: "commandPlayPause", fallback: "Play / Pause" },
-  "2-speed-up":      { key: "commandSpeedUpStep", fallback: "Speed +0.25×" },
-  "3-skip-back":     { key: "commandSkipBack", fallback: "Skip back 1" },
-  "4-skip-forward":  { key: "commandSkipForward", fallback: "Skip forward 1" },
-  "5-speed-down":    { key: "commandSpeedDownStep", fallback: "Speed −0.25×" },
-  "6-speed-reset":   { key: "commandResetSpeed1x", fallback: "Reset speed to 1×" },
-  "7-switch-target": { key: "commandSwitchTargetShort", fallback: "Switch target tab" },
+  "01-play-pause":    { key: "commandPlayPause", fallback: "Play / Pause" },
+  "02-speed-up":      { key: "commandSpeedUpStep", fallback: "Speed +0.25×" },
+  "03-speed-down":    { key: "commandSpeedDownStep", fallback: "Speed −0.25×" },
+  "04-speed-reset":   { key: "commandResetSpeed1x", fallback: "Reset speed to 1×" },
+  "05-switch-target": { key: "commandSwitchTargetShort", fallback: "Switch target tab" },
+  "06-skip-back":     { key: "commandSkipBack", fallback: "Skip back 1" },
+  "07-skip-forward":  { key: "commandSkipForward", fallback: "Skip forward 1" },
 };
 // Interval 2/3 Commands stay keyboard-first (options + Chrome shortcuts), not onboarding.
+// Product order matches ADR-0004 (non-Skip, then Skip interval 1).
 const ORDER = [
-  "1-play-pause", "2-speed-up", "3-skip-back", "4-skip-forward",
-  "5-speed-down", "6-speed-reset", "7-switch-target",
+  "01-play-pause", "02-speed-up", "03-speed-down", "04-speed-reset",
+  "05-switch-target", "06-skip-back", "07-skip-forward",
 ];
 
 // Suggested chord parts (just the digits) for the unbound commands.
 const SUGGESTED = isMac
   ? {
-      "5-speed-down":    ["⌘", "⇧", "7"],
-      "6-speed-reset":   ["⌘", "⇧", "0"],
-      "7-switch-target": null,
+      "03-speed-down":    ["⌘", "⇧", "7"],
+      "04-speed-reset":   ["⌘", "⇧", "0"],
+      "05-switch-target": null,
     }
   : {
-      "5-speed-down":    ["Ctrl", "Shift", "7"],
-      "6-speed-reset":   ["Ctrl", "Shift", "0"],
-      "7-switch-target": null,
+      "03-speed-down":    ["Ctrl", "Shift", "7"],
+      "04-speed-reset":   ["Ctrl", "Shift", "0"],
+      "05-switch-target": null,
     };
 
 function translateKey(p) {

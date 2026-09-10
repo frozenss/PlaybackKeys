@@ -314,7 +314,7 @@ try {
 
     // Worker dispatch path (pickTargetTab → command) also works on the active watch tab.
     await page.bringToFront();
-    await dispatchCommand(worker, "2-speed-up");
+    await dispatchCommand(worker, "02-speed-up");
     await page.waitForFunction(() => document.querySelector("video").playbackRate === 1.25);
     assert((await readVideo(page)).playbackRate === 1.25, `${watchPath} worker dispatch speed failed`);
 
@@ -337,7 +337,7 @@ try {
     );
 
     const before = await readVideo(page);
-    await dispatchCommand(worker, "2-speed-up");
+    await dispatchCommand(worker, "02-speed-up");
     await sleep(400);
     const after = await readVideo(page);
     assert(
@@ -360,7 +360,7 @@ try {
     // Touch getSettings via a no-op dispatch path (needs a target tab).
     const page = await openFixture("www.youtube.com/");
     await page.bringToFront();
-    await dispatchCommand(worker, "6-speed-reset");
+    await dispatchCommand(worker, "04-speed-reset");
     const migrated = await sender.evaluate(async () => chrome.storage.local.get(["skipIntervals", "seekSeconds"]));
     assert(
       JSON.stringify(migrated.skipIntervals) === JSON.stringify([15, 10, 30]),
@@ -374,10 +374,10 @@ try {
     });
 
     const cases = [
-      ["3-skip-back", -5],
-      ["4-skip-forward", 5],
-      ["8-skip-back-2", -10],
-      ["9-skip-forward-2", 10],
+      ["06-skip-back", -5],
+      ["07-skip-forward", 5],
+      ["08-skip-back-2", -10],
+      ["09-skip-forward-2", 10],
       ["10-skip-back-3", -30],
       ["11-skip-forward-3", 30],
     ];
@@ -433,29 +433,29 @@ try {
     });
     await page.waitForFunction(() => Math.abs(document.querySelector("video").currentTime - 10) < 0.25);
 
-    await dispatchCommand(worker, "4-skip-forward");
+    await dispatchCommand(worker, "07-skip-forward");
     await waitForToastName(page, "+5s");
-    await dispatchCommand(worker, "4-skip-forward");
+    await dispatchCommand(worker, "07-skip-forward");
     await waitForToastName(page, "+10s");
-    await dispatchCommand(worker, "4-skip-forward");
+    await dispatchCommand(worker, "07-skip-forward");
     await waitForToastName(page, "+15s");
     assert((await toastName(page)) === "+15s", "three interval-1 forwards should toast +15s");
 
     // Non-skip Command clears burst; next skip starts fresh.
-    await dispatchCommand(worker, "1-play-pause");
+    await dispatchCommand(worker, "01-play-pause");
     await waitForToast(page);
-    await dispatchCommand(worker, "4-skip-forward");
+    await dispatchCommand(worker, "07-skip-forward");
     await waitForToastName(page, "+5s");
     assert((await toastName(page)) === "+5s", "skip after play/pause should restart burst at +5s");
 
     // Absolute seek neither joins nor clears.
-    await dispatchCommand(worker, "4-skip-forward");
+    await dispatchCommand(worker, "07-skip-forward");
     await waitForToastName(page, "+10s");
     await sender.evaluate(async () => {
       await chrome.runtime.sendMessage({ type: "playbackkeys:seek-to", absoluteTime: 50 });
     });
     await page.waitForFunction(() => Math.abs(document.querySelector("video").currentTime - 50) < 0.5);
-    await dispatchCommand(worker, "4-skip-forward");
+    await dispatchCommand(worker, "07-skip-forward");
     await waitForToastName(page, "+15s");
     assert((await toastName(page)) === "+15s", "absolute seek should not clear Skip burst");
 

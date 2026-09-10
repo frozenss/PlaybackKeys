@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "__MSG_appName__",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "description": "__MSG_appDescription__",
   "default_locale": "en",
   "minimum_chrome_version": "111",
@@ -76,43 +76,43 @@
     }
   ],
   "commands": {
-    "1-play-pause": {
+    "01-play-pause": {
       "suggested_key": { "default": "Ctrl+Shift+1", "mac": "Command+Shift+1" },
       "description": "__MSG_commandPlayPause__",
       "global": true
     },
-    "2-speed-up": {
+    "02-speed-up": {
       "suggested_key": { "default": "Ctrl+Shift+2", "mac": "Command+Shift+2" },
       "description": "__MSG_commandSpeedUp__",
       "global": true
     },
-    "3-skip-back": {
+    "03-speed-down": {
+      "description": "__MSG_commandSpeedDown__",
+      "global": true
+    },
+    "04-speed-reset": {
+      "description": "__MSG_commandResetSpeed__",
+      "global": true
+    },
+    "05-switch-target": {
+      "description": "__MSG_commandSwitchTarget__",
+      "global": true
+    },
+    "06-skip-back": {
       "suggested_key": { "default": "Ctrl+Shift+3", "mac": "Command+Shift+8" },
       "description": "__MSG_commandSkipBack__",
       "global": true
     },
-    "4-skip-forward": {
+    "07-skip-forward": {
       "suggested_key": { "default": "Ctrl+Shift+4", "mac": "Command+Shift+9" },
       "description": "__MSG_commandSkipForward__",
       "global": true
     },
-    "5-speed-down": {
-      "description": "__MSG_commandSpeedDown__",
-      "global": true
-    },
-    "6-speed-reset": {
-      "description": "__MSG_commandResetSpeed__",
-      "global": true
-    },
-    "7-switch-target": {
-      "description": "__MSG_commandSwitchTarget__",
-      "global": true
-    },
-    "8-skip-back-2": {
+    "08-skip-back-2": {
       "description": "__MSG_commandSkipBack2__",
       "global": true
     },
-    "9-skip-forward-2": {
+    "09-skip-forward-2": {
       "description": "__MSG_commandSkipForward2__",
       "global": true
     },

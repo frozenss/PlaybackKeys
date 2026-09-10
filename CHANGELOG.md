@@ -2,6 +2,19 @@
 
 All notable changes to PlaybackKeys will be documented in this file.
 
+## [0.9.0] - 2026-09-10
+
+### Changed
+- Renumbered all Commands with zero-padded ids so the browser shortcuts page lists non-Skip Commands first, then Skip back/forward for intervals 1–3 as one contiguous block (ADR-0004).
+- Updated in-extension shortcut and AHK mapping lists to the same product order.
+- Migrated stored AHK External hotkey mappings (and chord snapshots) from old Command ids; orphan ids are cleared.
+
+### Fixed
+- Chrome/Edge shortcuts pages no longer sort `10-` / `11-` next to `1-`, and Skip pairs are no longer split among speed/switch Commands.
+
+### Notes
+- **Rebind required after upgrade.** Chrome drops bindings when Command ids change. Open `chrome://extensions/shortcuts` (or Edge’s equivalent) and rebind your chords. If you use the AHK bridge, regenerate and reload the script after rebinding.
+
 ## [0.8.0] - 2026-09-09
 
 ### Added

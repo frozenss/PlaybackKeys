@@ -9,6 +9,8 @@ import {
   commandToAction,
   parseSkipCommand,
 } from "./shared/skip-intervals.js";
+import { migrateAhkBridgeStoredState } from "./shared/command-ids.js";
+import { AHK_BRIDGE_STORAGE } from "./shared/ahk-bridge.js";
 import { applySkipToBurst, clearSkipBurst } from "./shared/skip-burst.js";
 
 const SUPPORTED_HOSTS = [
@@ -259,7 +261,7 @@ async function pickTargetTab(command) {
 
   // If switch-target, cycle through known video tabs that ACTUALLY still
   // have a video (probe each — a cached tab may have navigated away).
-  if (command === "7-switch-target") {
+  if (command === "05-switch-target") {
     const known = await pruneKnownTabs(session.knownVideoTabs);
     const filtered = [];
     for (const entry of known) {
@@ -397,7 +399,7 @@ async function handleCommand(command) {
     return;
   }
 
-  if (command === "7-switch-target") {
+  if (command === "05-switch-target") {
     skipBurstState = clearSkipBurst();
     await dispatchToTab(tab, { action: "noop" }, { showToast: true });
     return;
@@ -554,8 +556,38 @@ function ensureContextMenu() {
     });
   });
 }
+async function migrateAhkCommandIdsIfNeeded() {
+  const stored = await chrome.storage.local.get({
+    [AHK_BRIDGE_STORAGE.externalMappings]: [],
+    [AHK_BRIDGE_STORAGE.lastChordSnapshot]: null,
+  });
+  const migrated = migrateAhkBridgeStoredState({
+    ahkExternalMappings: stored[AHK_BRIDGE_STORAGE.externalMappings],
+    ahkLastChordSnapshot: stored[AHK_BRIDGE_STORAGE.lastChordSnapshot],
+  });
+  if (!migrated.changed) return;
+  await chrome.storage.local.set({
+    [AHK_BRIDGE_STORAGE.externalMappings]: migrated.externalMappings,
+    [AHK_BRIDGE_STORAGE.lastChordSnapshot]: migrated.lastChordSnapshot,
+  });
+}
+
 chrome.runtime.onInstalled.addListener(ensureContextMenu);
 chrome.runtime.onStartup.addListener(ensureContextMenu);
+chrome.runtime.onInstalled.addListener(() => {
+  migrateAhkCommandIdsIfNeeded().catch((err) =>
+    console.warn("[PlaybackKeys] AHK command-id migration failed:", err),
+  );
+});
+chrome.runtime.onStartup.addListener(() => {
+  migrateAhkCommandIdsIfNeeded().catch((err) =>
+    console.warn("[PlaybackKeys] AHK command-id migration failed:", err),
+  );
+});
+// Also run once when the service worker wakes (idempotent).
+migrateAhkCommandIdsIfNeeded().catch((err) =>
+  console.warn("[PlaybackKeys] AHK command-id migration failed:", err),
+);
 
 chrome.contextMenus.onClicked.addListener(async (info) => {
   if (info.menuItemId !== "playbackkeys-reset-speed") return;

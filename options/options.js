@@ -4,6 +4,7 @@ import {
   SKIP_INTERVAL_PRESETS,
   normalizeSkipIntervals,
 } from "../shared/skip-intervals.js";
+import { migrateAhkBridgeStoredState } from "../shared/command-ids.js";
 import { captureExternalHotkey } from "../shared/external-hotkey.js";
 import {
   AHK_BRIDGE_STORAGE,
@@ -46,17 +47,18 @@ const isMac = detectIsMac();
 const isWindows = detectIsWindows();
 const t = globalThis.PlaybackKeysI18n?.t || ((key, _subs, fallback) => fallback || key);
 
+/** Product order (ADR-0004): non-Skip, then Skip intervals 1–3. */
 const COMMAND_LABELS = {
-  "1-play-pause":    { key: "commandPlayPause", fallback: "Play / Pause" },
-  "2-speed-up":      { key: "commandSpeedUpStep", fallback: "Speed +0.25×" },
-  "3-skip-back":     { key: "commandSkipBack", fallback: "Skip back 1" },
-  "4-skip-forward":  { key: "commandSkipForward", fallback: "Skip forward 1" },
-  "5-speed-down":    { key: "commandSpeedDownStep", fallback: "Speed −0.25×" },
-  "6-speed-reset":   { key: "commandResetSpeed1x", fallback: "Reset speed to 1×" },
-  "7-switch-target": { key: "commandSwitchTargetShort", fallback: "Switch target tab" },
-  "8-skip-back-2":   { key: "commandSkipBack2", fallback: "Skip back 2" },
-  "9-skip-forward-2":{ key: "commandSkipForward2", fallback: "Skip forward 2" },
-  "10-skip-back-3":  { key: "commandSkipBack3", fallback: "Skip back 3" },
+  "01-play-pause":     { key: "commandPlayPause", fallback: "Play / Pause" },
+  "02-speed-up":       { key: "commandSpeedUpStep", fallback: "Speed +0.25×" },
+  "03-speed-down":     { key: "commandSpeedDownStep", fallback: "Speed −0.25×" },
+  "04-speed-reset":    { key: "commandResetSpeed1x", fallback: "Reset speed to 1×" },
+  "05-switch-target":  { key: "commandSwitchTargetShort", fallback: "Switch target tab" },
+  "06-skip-back":      { key: "commandSkipBack", fallback: "Skip back 1" },
+  "07-skip-forward":   { key: "commandSkipForward", fallback: "Skip forward 1" },
+  "08-skip-back-2":    { key: "commandSkipBack2", fallback: "Skip back 2" },
+  "09-skip-forward-2": { key: "commandSkipForward2", fallback: "Skip forward 2" },
+  "10-skip-back-3":    { key: "commandSkipBack3", fallback: "Skip back 3" },
   "11-skip-forward-3": { key: "commandSkipForward3", fallback: "Skip forward 3" },
 };
 
@@ -445,9 +447,26 @@ function normalizeAhkExternalMappings(raw) {
   }
   return out;
 }
+async function ensureAhkCommandIdsMigrated() {
+  const stored = await chrome.storage.local.get({
+    [AHK_BRIDGE_STORAGE.externalMappings]: [],
+    [AHK_BRIDGE_STORAGE.lastChordSnapshot]: null,
+  });
+  const migrated = migrateAhkBridgeStoredState({
+    ahkExternalMappings: stored[AHK_BRIDGE_STORAGE.externalMappings],
+    ahkLastChordSnapshot: stored[AHK_BRIDGE_STORAGE.lastChordSnapshot],
+  });
+  if (!migrated.changed) return migrated;
+  await chrome.storage.local.set({
+    [AHK_BRIDGE_STORAGE.externalMappings]: migrated.externalMappings,
+    [AHK_BRIDGE_STORAGE.lastChordSnapshot]: migrated.lastChordSnapshot,
+  });
+  return migrated;
+}
+
 async function loadAhkExternalMappings() {
-  const stored = await chrome.storage.local.get({ [AHK_BRIDGE_STORAGE.externalMappings]: [] });
-  return normalizeAhkExternalMappings(stored[AHK_BRIDGE_STORAGE.externalMappings]);
+  const migrated = await ensureAhkCommandIdsMigrated();
+  return normalizeAhkExternalMappings(migrated.externalMappings);
 }
 
 async function saveAhkExternalMappings(mappings) {
@@ -472,8 +491,8 @@ function commandShortcutsFromCommands(cmds) {
 }
 
 async function loadAhkLastChordSnapshot() {
-  const stored = await chrome.storage.local.get({ [AHK_BRIDGE_STORAGE.lastChordSnapshot]: null });
-  const raw = stored[AHK_BRIDGE_STORAGE.lastChordSnapshot];
+  const migrated = await ensureAhkCommandIdsMigrated();
+  const raw = migrated.lastChordSnapshot;
   if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null;
   /** @type {Record<string, string>} */
   const out = {};

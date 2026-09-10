@@ -1,6 +1,6 @@
 {
   "name": "playbackkeys",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "private": true,
   "type": "module",
   "description": "Global keyboard shortcuts for YouTube, Udemy, Vimeo, Coursera, Bilibili, and browser videos.",
@@ -9,6 +9,7 @@
     "package": "node scripts/validate-release.mjs --package",
     "release-notes": "node scripts/extract-changelog.mjs",
     "smoke": "node scripts/smoke-test.mjs",
+    "test:command-ids": "node scripts/command-ids-test.mjs",
     "test:skip-intervals": "node scripts/skip-intervals-test.mjs",
     "test:options-skip-intervals-ui": "node scripts/options-skip-intervals-ui-test.mjs",
     "test:options-unbound-add-shortcuts-ui": "node scripts/options-unbound-add-shortcuts-ui-test.mjs",

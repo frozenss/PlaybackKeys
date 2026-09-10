@@ -1,8 +1,8 @@
 # Static Skip interval Commands
 
-Chrome's `commands` API only accepts chords declared in the manifest, so PlaybackKeys always registers three Skip intervals (six skip Commands) even when some are unbound. Interval 1 keeps the existing `3-skip-back` / `4-skip-forward` ids so already-bound user shortcuts survive; intervals 2 and 3 use `8-skip-back-2` / `9-skip-forward-2` and `10-skip-back-3` / `11-skip-forward-3`. Chrome shortcut labels are slot-based ("Skip back 1", …), not second values, because command descriptions are static.
+Chrome's `commands` API only accepts chords declared in the manifest, so PlaybackKeys always registers three Skip intervals (six skip Commands) even when some are unbound. Interval 1 originally kept `3-skip-back` / `4-skip-forward` so already-bound user shortcuts survived; intervals 2 and 3 used `8-skip-back-2` / `9-skip-forward-2` and `10-skip-back-3` / `11-skip-forward-3`. Chrome shortcut labels are slot-based ("Skip back 1", …), not second values, because command descriptions are static.
 
-**Status:** accepted
+**Status:** accepted (id-stability clause superseded by ADR-0004)
 
 ## Considered options
 

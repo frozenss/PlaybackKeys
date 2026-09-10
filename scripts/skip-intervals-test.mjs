@@ -75,22 +75,22 @@ assertDeepEqual(
 const settings = { skipIntervals: [5, 10, 30], speedStep: 0.25, speedMin: 0.25, speedMax: 4, wrapSpeed: false };
 
 assertDeepEqual(
-  commandToAction("3-skip-back", settings),
+  commandToAction("06-skip-back", settings),
   { action: "seek", delta: -5 },
   "interval 1 back uses skipIntervals[0]",
 );
 assertDeepEqual(
-  commandToAction("4-skip-forward", settings),
+  commandToAction("07-skip-forward", settings),
   { action: "seek", delta: 5 },
   "interval 1 forward uses skipIntervals[0]",
 );
 assertDeepEqual(
-  commandToAction("8-skip-back-2", settings),
+  commandToAction("08-skip-back-2", settings),
   { action: "seek", delta: -10 },
   "interval 2 back uses skipIntervals[1]",
 );
 assertDeepEqual(
-  commandToAction("9-skip-forward-2", settings),
+  commandToAction("09-skip-forward-2", settings),
   { action: "seek", delta: 10 },
   "interval 2 forward uses skipIntervals[1]",
 );
@@ -107,27 +107,31 @@ assertDeepEqual(
 
 const custom = { ...settings, skipIntervals: [3, 8, 20] };
 assertDeepEqual(
-  commandToAction("9-skip-forward-2", custom),
+  commandToAction("09-skip-forward-2", custom),
   { action: "seek", delta: 8 },
   "custom interval 2 seconds are used",
 );
 
 assert(
-  commandToAction("1-play-pause", settings)?.action === "toggle",
+  commandToAction("01-play-pause", settings)?.action === "toggle",
   "play/pause still maps",
 );
 assert(
   commandToAction("unknown-cmd", settings) === null,
   "unknown command returns null",
 );
+assert(
+  commandToAction("1-play-pause", settings) === null,
+  "legacy unpadded ids are gone from runtime wiring",
+);
 
 assertDeepEqual(
   SKIP_COMMAND_IDS,
   [
-    "3-skip-back",
-    "4-skip-forward",
-    "8-skip-back-2",
-    "9-skip-forward-2",
+    "06-skip-back",
+    "07-skip-forward",
+    "08-skip-back-2",
+    "09-skip-forward-2",
     "10-skip-back-3",
     "11-skip-forward-3",
   ],
@@ -135,10 +139,11 @@ assertDeepEqual(
 );
 
 assertDeepEqual(
-  parseSkipCommand("9-skip-forward-2"),
+  parseSkipCommand("09-skip-forward-2"),
   { index: 1, sign: 1 },
   "parseSkipCommand maps interval 2 forward",
 );
-assert(parseSkipCommand("1-play-pause") === null, "parseSkipCommand ignores non-skip");
+assert(parseSkipCommand("01-play-pause") === null, "parseSkipCommand ignores non-skip");
+assert(parseSkipCommand("3-skip-back") === null, "parseSkipCommand ignores legacy skip ids");
 
 console.log("skip-intervals unit tests passed.");

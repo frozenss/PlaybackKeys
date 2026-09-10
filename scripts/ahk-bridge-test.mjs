@@ -34,8 +34,8 @@ function assertDeepEqual(actual, expected, message) {
 
 {
   const result = generateAhkBridge({
-    mappings: [{ commandId: "1-play-pause", ahkHotkey: "F13", label: "F13" }],
-    commandShortcuts: { "1-play-pause": "Ctrl+Shift+1" },
+    mappings: [{ commandId: "01-play-pause", ahkHotkey: "F13", label: "F13" }],
+    commandShortcuts: { "01-play-pause": "Ctrl+Shift+1" },
   });
   assert(result.eligible === true, "complete mapping row is eligible");
   assertDeepEqual(result.skippedUnbound, [], "bound Command is not skipped");
@@ -51,13 +51,13 @@ function assertDeepEqual(actual, expected, message) {
 
 {
   const result = generateAhkBridge({
-    mappings: [{ commandId: "5-speed-down", ahkHotkey: "F17", label: "F17" }],
-    commandShortcuts: { "5-speed-down": "" },
+    mappings: [{ commandId: "03-speed-down", ahkHotkey: "F17", label: "F17" }],
+    commandShortcuts: { "03-speed-down": "" },
   });
   assert(result.eligible === false, "unbound-only mapping is not eligible");
   assertDeepEqual(
     result.skippedUnbound,
-    [{ commandId: "5-speed-down", ahkHotkey: "F17", label: "F17" }],
+    [{ commandId: "03-speed-down", ahkHotkey: "F17", label: "F17" }],
     "unbound mapped Command is reported in skippedUnbound",
   );
   assert(!result.scriptText.includes("F17::"), "unbound-only emits no active hotkey line");
@@ -68,18 +68,18 @@ function assertDeepEqual(actual, expected, message) {
 {
   const result = generateAhkBridge({
     mappings: [
-      { commandId: "1-play-pause", ahkHotkey: "F13", label: "F13" },
-      { commandId: "5-speed-down", ahkHotkey: "F17", label: "F17" },
+      { commandId: "01-play-pause", ahkHotkey: "F13", label: "F13" },
+      { commandId: "03-speed-down", ahkHotkey: "F17", label: "F17" },
     ],
     commandShortcuts: {
-      "1-play-pause": "Ctrl+Shift+1",
-      "5-speed-down": "",
+      "01-play-pause": "Ctrl+Shift+1",
+      "03-speed-down": "",
     },
   });
   assert(result.eligible === true, "one complete row keeps generate eligible");
   assertDeepEqual(
     result.skippedUnbound,
-    [{ commandId: "5-speed-down", ahkHotkey: "F17", label: "F17" }],
+    [{ commandId: "03-speed-down", ahkHotkey: "F17", label: "F17" }],
     "unbound row is listed in skippedUnbound",
   );
   assert(result.scriptText.includes("F13::"), "bound External hotkey stays in script");
@@ -91,8 +91,8 @@ function assertDeepEqual(actual, expected, message) {
 // --- Drift: no prior snapshot → false; aligned → false; changed mapped chord → true ---
 
 {
-  const mappings = [{ commandId: "1-play-pause", ahkHotkey: "F13", label: "F13" }];
-  const current = { "1-play-pause": "Ctrl+Shift+1" };
+  const mappings = [{ commandId: "01-play-pause", ahkHotkey: "F13", label: "F13" }];
+  const current = { "01-play-pause": "Ctrl+Shift+1" };
 
   assert(
     generateAhkBridge({ mappings, commandShortcuts: current }).drift === false,
@@ -110,7 +110,7 @@ function assertDeepEqual(actual, expected, message) {
     generateAhkBridge({
       mappings,
       commandShortcuts: current,
-      lastSnapshot: { "1-play-pause": "Ctrl+Shift+1" },
+      lastSnapshot: { "01-play-pause": "Ctrl+Shift+1" },
     }).drift === false,
     "aligned snapshot → drift false",
   );
@@ -118,7 +118,7 @@ function assertDeepEqual(actual, expected, message) {
     generateAhkBridge({
       mappings,
       commandShortcuts: current,
-      lastSnapshot: { "1-play-pause": "Ctrl+Shift+9" },
+      lastSnapshot: { "01-play-pause": "Ctrl+Shift+9" },
     }).drift === true,
     "mapped Command chord differs from lastSnapshot → drift true",
   );
@@ -128,14 +128,14 @@ function assertDeepEqual(actual, expected, message) {
 
 {
   const result = generateAhkBridge({
-    mappings: [{ commandId: "1-play-pause", ahkHotkey: "F13" }],
+    mappings: [{ commandId: "01-play-pause", ahkHotkey: "F13" }],
     commandShortcuts: {
-      "1-play-pause": "Ctrl+Shift+1",
-      "2-speed-up": "Ctrl+Shift+2",
+      "01-play-pause": "Ctrl+Shift+1",
+      "02-speed-up": "Ctrl+Shift+2",
     },
     lastSnapshot: {
-      "1-play-pause": "Ctrl+Shift+1",
-      "2-speed-up": "Alt+Shift+2",
+      "01-play-pause": "Ctrl+Shift+1",
+      "02-speed-up": "Alt+Shift+2",
     },
   });
   assert(result.drift === false, "unmapped Command chord changes do not count as drift");
@@ -146,12 +146,12 @@ function assertDeepEqual(actual, expected, message) {
 {
   const result = generateAhkBridge({
     mappings: [
-      { commandId: "1-play-pause", ahkHotkey: "F13", label: "F13" },
-      { commandId: "2-speed-up", ahkHotkey: "F14", label: "F14" },
+      { commandId: "01-play-pause", ahkHotkey: "F13", label: "F13" },
+      { commandId: "02-speed-up", ahkHotkey: "F14", label: "F14" },
     ],
     commandShortcuts: {
-      "1-play-pause": "Ctrl+Shift+1",
-      "2-speed-up": "Alt+Shift+F1",
+      "01-play-pause": "Ctrl+Shift+1",
+      "02-speed-up": "Alt+Shift+F1",
     },
   });
 

@@ -16,7 +16,7 @@ Ship three Skip intervals (symmetric ±N each). Interval defaults are 5 / 10 / 3
 1. As a user, I want three Skip intervals with independent skip-back and skip-forward Commands, so that I can bind both a short nudge and a longer jump.
 2. As a new install, I want defaults of 5s, 10s, and 30s, so that multi-interval skipping works before I open options.
 3. As an existing user who customized `seekSeconds`, I want that value to become interval 1, so that my muscle memory and setting are not reset to 5 if I had changed it.
-4. As an existing user, I want interval 1 to keep Command ids `3-skip-back` and `4-skip-forward`, so that chords I already bound in Chrome keep working.
+4. ~~As an existing user, I want interval 1 to keep Command ids `3-skip-back` and `4-skip-forward`, so that chords I already bound in Chrome keep working.~~ Superseded by ADR-0004 / #20 (zero-padded renumber; rebind required).
 5. As a user opening Chrome’s shortcut settings, I want slot labels “Skip back 1/2/3” and “Skip forward 1/2/3”, so that static descriptions stay honest when I change seconds.
 6. As a user who never binds intervals 2 and 3, I want those Commands to simply do nothing until bound, so that I do not need a separate “disable interval” switch.
 7. As a user in options Playback, I want one row per Skip interval with its seconds control only, so that jump lengths stay separate from Command chords (chords live under Shortcuts; see #17).
@@ -36,7 +36,7 @@ Ship three Skip intervals (symmetric ±N each). Interval defaults are 5 / 10 / 3
 
 ## Implementation Decisions
 
-- Manifest: keep `3-skip-back` / `4-skip-forward` for interval 1; add `8-skip-back-2` / `9-skip-forward-2` / `10-skip-back-3` / `11-skip-forward-3`. All global.
+- Manifest: six Skip Commands with ADR-0004 zero-padded ids (`06`–`11`); interval 1 no longer keeps legacy `3`/`4` ids. All global.
 - i18n command descriptions: Skip back/forward 1/2/3 (slot names only).
 - Settings: replace the single `seekSeconds` product surface with three symmetric interval values (storage may migrate `seekSeconds` → interval 1). Defaults `[5, 10, 30]`. Presets may stay `[2, 5, 10, 15, 30]` plus custom ≥ 1s per row.
 - `commandToAction` (and popup interval-1 buttons) map each skip Command to `{ action: "seek", delta: ±intervalSeconds }`.
