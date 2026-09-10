@@ -1,8 +1,9 @@
 /**
- * Unit tests for AHK bridge generator (#13).
+ * Unit tests for AHK bridge generator (#13, #21).
  * Seam: shared/ahk-bridge.js (generateAhkBridge).
  *
- * Inputs: External hotkey mappings + Command shortcut snapshot (+ optional prior snapshot).
+ * Inputs: External hotkey mappings + Command shortcut snapshot (+ optional prior
+ * snapshot and optional Bridge toggle hotkey).
  * Outputs: eligibility, skipped-unbound details, drift, full AHK bridge script text.
  */
 import { generateAhkBridge } from "../shared/ahk-bridge.js";
@@ -175,6 +176,94 @@ function assertDeepEqual(actual, expected, message) {
   assert(result.scriptText.includes('SendPlayback("!+F1")'), "Alt+Shift+F1 → !+F1");
   assert(result.scriptText.includes("F13::"), "first External hotkey line present");
   assert(result.scriptText.includes("F14::"), "second External hotkey line present");
+}
+
+const BASELINE_MAPPINGS = [{ commandId: "01-play-pause", ahkHotkey: "F13", label: "F13" }];
+const BASELINE_SHORTCUTS = { "01-play-pause": "Ctrl+Shift+1" };
+const BASELINE_NO_TOGGLE_SCRIPT = generateAhkBridge({
+  mappings: BASELINE_MAPPINGS,
+  commandShortcuts: BASELINE_SHORTCUTS,
+}).scriptText;
+
+// --- No Bridge toggle hotkey → prior no-toggle script shape ---
+
+{
+  assert(
+    generateAhkBridge({
+      mappings: BASELINE_MAPPINGS,
+      commandShortcuts: BASELINE_SHORTCUTS,
+      bridgeToggleHotkey: "",
+    }).scriptText === BASELINE_NO_TOGGLE_SCRIPT,
+    "empty Bridge toggle hotkey matches omitted-toggle output",
+  );
+  assert(
+    generateAhkBridge({
+      mappings: BASELINE_MAPPINGS,
+      commandShortcuts: BASELINE_SHORTCUTS,
+      bridgeToggleHotkey: "   ",
+    }).scriptText === BASELINE_NO_TOGGLE_SCRIPT,
+    "whitespace-only Bridge toggle hotkey matches omitted-toggle output",
+  );
+  assert(
+    BASELINE_NO_TOGGLE_SCRIPT.includes("#HotIf HasUsableBrowserWindow()\n"),
+    "no-toggle script keeps prior #HotIf gate",
+  );
+  assert(
+    !/BridgeRemapsEnabled|TrayTip\s*\(/.test(BASELINE_NO_TOGGLE_SCRIPT),
+    "no-toggle script has no Bridge toggle remaps flag or TrayTip",
+  );
+}
+
+// --- Optional Bridge toggle hotkey embeds global toggle outside remap #HotIf ---
+
+{
+  const result = generateAhkBridge({
+    mappings: BASELINE_MAPPINGS,
+    commandShortcuts: BASELINE_SHORTCUTS,
+    bridgeToggleHotkey: "F24",
+  });
+  assert(result.eligible === true, "Bridge toggle hotkey does not affect eligibility");
+  assert(result.scriptText.includes("F24::"), "script embeds Bridge toggle hotkey");
+  assert(
+    result.scriptText.includes("BridgeRemapsEnabled := true"),
+    "remaps default on at script start/reload",
+  );
+  assert(
+    /#HotIf\s+HasUsableBrowserWindow\(\)\s*&&\s*BridgeRemapsEnabled/.test(result.scriptText),
+    "External hotkey remaps also require BridgeRemapsEnabled",
+  );
+  assert(
+    result.scriptText.includes('SendPlayback("^+1")'),
+    "External hotkey remap lines remain when toggle is present",
+  );
+
+  const toggleIndex = result.scriptText.indexOf("F24::");
+  const remapHotIfIndex = result.scriptText.search(
+    /#HotIf\s+HasUsableBrowserWindow\(\)\s*&&\s*BridgeRemapsEnabled/,
+  );
+  assert(toggleIndex >= 0 && remapHotIfIndex >= 0, "toggle and remap #HotIf are both present");
+  assert(
+    toggleIndex < remapHotIfIndex,
+    "Bridge toggle hotkey is declared outside / before the External hotkey remap #HotIf",
+  );
+
+  const toggleBlock = result.scriptText.slice(toggleIndex, remapHotIfIndex);
+  assert(
+    /TrayTip\s*\(/.test(toggleBlock),
+    "toggle handler shows a TrayTip",
+  );
+  assert(
+    /External hotkeys ON/.test(toggleBlock) && /External hotkeys OFF/.test(toggleBlock),
+    "TrayTip uses English ON/OFF copy",
+  );
+  assert(
+    !/IniRead|IniWrite|FileAppend|A_AppData|A_ScriptDir\s*\.\s*"\\/.test(result.scriptText),
+    "on/off state is in-memory only (no ini/appdata persistence helpers)",
+  );
+  assert(
+    result.scriptText !== BASELINE_NO_TOGGLE_SCRIPT,
+    "toggle-bearing script differs from no-toggle output",
+  );
 }
 
 console.log("ahk-bridge unit tests passed.");

@@ -1,8 +1,9 @@
 /**
  * Pure AHK bridge generator + settings helpers:
  * External hotkey mappings + Command shortcut snapshot → eligibility, skip
- * info, drift, and AutoHotkey v2 script text (#13); Windows gating and
- * clear/reset storage policy for the companion panel (#16).
+ * info, drift, and AutoHotkey v2 script text (#13); optional Bridge toggle
+ * hotkey embedding (#21); Windows gating and clear/reset storage policy for
+ * the companion panel (#16).
  * No DOM / chrome.*.
  */
 
@@ -29,6 +30,7 @@ export const AHK_BRIDGE_STORAGE = Object.freeze({
   externalMappings: "ahkExternalMappings",
   lastChordSnapshot: "ahkLastChordSnapshot",
   driftDismissedFingerprint: "ahkDriftDismissedFingerprint",
+  bridgeToggleHotkey: "ahkBridgeToggleHotkey",
 });
 
 /**
@@ -43,12 +45,14 @@ export function ahkBridgeStorageKeys() {
  * Used by the explicit "Clear AHK mappings" control — not by Reset all to defaults.
  *
  * @returns {Record<string, [] | null | string>}
+ *   Clears External hotkey mappings, generate snapshot state, and Bridge toggle hotkey.
  */
 export function clearedAhkBridgeStorage() {
   return {
     [AHK_BRIDGE_STORAGE.externalMappings]: [],
     [AHK_BRIDGE_STORAGE.lastChordSnapshot]: null,
     [AHK_BRIDGE_STORAGE.driftDismissedFingerprint]: "",
+    [AHK_BRIDGE_STORAGE.bridgeToggleHotkey]: "",
   };
 }
 
@@ -184,6 +188,7 @@ function hasPriorSnapshot(lastSnapshot) {
  *   mappings?: ExternalHotkeyMapping[],
  *   commandShortcuts?: CommandShortcutSnapshot,
  *   lastSnapshot?: CommandShortcutSnapshot | null,
+ *   bridgeToggleHotkey?: string | null,
  * }} input
  * @returns {AhkBridgeGenerateResult}
  */
@@ -193,6 +198,7 @@ export function generateAhkBridge(input = {}) {
     input.commandShortcuts && typeof input.commandShortcuts === "object"
       ? input.commandShortcuts
       : {};
+  const bridgeToggleHotkey = normalizeBridgeToggleHotkey(input.bridgeToggleHotkey);
 
   if (mappings.length === 0) {
     return {
@@ -222,7 +228,7 @@ export function generateAhkBridge(input = {}) {
   }
 
   const eligible = active.length > 0;
-  const scriptText = eligible ? buildScriptText(active) : "";
+  const scriptText = eligible ? buildScriptText(active, bridgeToggleHotkey) : "";
   const drift = detectDrift(mappings, commandShortcuts, input.lastSnapshot);
 
   return {
@@ -231,6 +237,14 @@ export function generateAhkBridge(input = {}) {
     drift,
     scriptText,
   };
+}
+
+/**
+ * @param {unknown} value
+ * @returns {string}
+ */
+function normalizeBridgeToggleHotkey(value) {
+  return typeof value === "string" ? value.trim() : "";
 }
 
 /**
@@ -257,14 +271,32 @@ function detectDrift(mappings, commandShortcuts, lastSnapshot) {
 
 /**
  * @param {Array<{ commandId: string, ahkHotkey: string, label?: string, ahkSend: string }>} active
+ * @param {string} [bridgeToggleHotkey]
  */
-function buildScriptText(active) {
+function buildScriptText(active, bridgeToggleHotkey = "") {
   const hotkeyLines = active
     .map((row) => {
       const comment = row.label ? ` ; ${row.label}` : ` ; ${row.commandId}`;
       return `${row.ahkHotkey}:: SendPlayback("${row.ahkSend}")${comment}`;
     })
     .join("\n");
+
+  const togglePrefix = bridgeToggleHotkey
+    ? `BridgeRemapsEnabled := true
+
+; Bridge toggle hotkey stays global: it is outside the External hotkey remap #HotIf
+; and is never disabled when remaps are off. On/off is in-memory only (resets on reload).
+${bridgeToggleHotkey}:: {
+    global BridgeRemapsEnabled
+    BridgeRemapsEnabled := !BridgeRemapsEnabled
+    TrayTip(BridgeRemapsEnabled ? "External hotkeys ON" : "External hotkeys OFF", "PlaybackKeys")
+}
+
+`
+    : "";
+  const remapHotIf = bridgeToggleHotkey
+    ? "#HotIf HasUsableBrowserWindow() && BridgeRemapsEnabled"
+    : "#HotIf HasUsableBrowserWindow()";
 
   return `#Requires AutoHotkey v2.0
 #SingleInstance Force
@@ -277,8 +309,8 @@ Persistent()
 SendMode "Input"
 SetWorkingDir A_ScriptDir
 
-; Only intercept External hotkeys while a usable supported browser window is known.
-#HotIf HasUsableBrowserWindow()
+${togglePrefix}; Only intercept External hotkeys while a usable supported browser window is known.
+${remapHotIf}
 
 ${hotkeyLines}
 

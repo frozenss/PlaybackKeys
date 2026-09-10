@@ -1,9 +1,10 @@
 /**
- * Unit tests for AHK bridge settings helpers (#16).
+ * Unit tests for AHK bridge settings helpers (#16, #21).
  * Seam: shared/ahk-bridge.js (isWindowsPlatform, clearedAhkBridgeStorage,
  * resetPatchOmitsAhkBridgeStorage).
  *
- * Covers Windows gating signals and clear/reset storage policy — not options DOM.
+ * Covers Windows gating signals and clear/reset storage policy (including Bridge
+ * toggle hotkey companion state) — not options DOM.
  */
 import {
   AHK_BRIDGE_STORAGE,
@@ -78,11 +79,17 @@ function assertDeepEqual(actual, expected, message) {
   assertDeepEqual(
     ahkBridgeStorageKeys().slice().sort(),
     [
+      AHK_BRIDGE_STORAGE.bridgeToggleHotkey,
       AHK_BRIDGE_STORAGE.driftDismissedFingerprint,
       AHK_BRIDGE_STORAGE.externalMappings,
       AHK_BRIDGE_STORAGE.lastChordSnapshot,
     ].sort(),
-    "AHK bridge storage keys are the External hotkey + snapshot companions",
+    "AHK bridge storage keys include External hotkeys, snapshot companions, and Bridge toggle hotkey",
+  );
+
+  assert(
+    AHK_BRIDGE_STORAGE.bridgeToggleHotkey === "ahkBridgeToggleHotkey",
+    "Bridge toggle hotkey uses a dedicated companion storage key",
   );
 
   assertDeepEqual(
@@ -91,8 +98,9 @@ function assertDeepEqual(actual, expected, message) {
       [AHK_BRIDGE_STORAGE.externalMappings]: [],
       [AHK_BRIDGE_STORAGE.lastChordSnapshot]: null,
       [AHK_BRIDGE_STORAGE.driftDismissedFingerprint]: "",
+      [AHK_BRIDGE_STORAGE.bridgeToggleHotkey]: "",
     },
-    "Clear AHK mappings wipes mappings and related bridge snapshot state",
+    "Clear AHK mappings wipes mappings, snapshot state, and Bridge toggle hotkey",
   );
 }
 
@@ -121,6 +129,13 @@ function assertDeepEqual(actual, expected, message) {
       [AHK_BRIDGE_STORAGE.lastChordSnapshot]: null,
     }) === false,
     "reset patch that clears chord snapshot is rejected by policy helper",
+  );
+  assert(
+    resetPatchOmitsAhkBridgeStorage({
+      ...playbackDefaults,
+      [AHK_BRIDGE_STORAGE.bridgeToggleHotkey]: "",
+    }) === false,
+    "reset patch that clears Bridge toggle hotkey is rejected by policy helper",
   );
 }
 
