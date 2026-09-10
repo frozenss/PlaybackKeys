@@ -201,12 +201,30 @@ async function toastVisible(page) {
   });
 }
 
+async function toastName(page) {
+  return page.evaluate(() => {
+    const host = document.querySelector("[data-playbackkeys]");
+    const toast = host?.shadowRoot?.querySelector(".pk-toast");
+    if (!toast || !toast.classList.contains("on")) return null;
+    return toast.querySelector(".name")?.textContent || null;
+  });
+}
+
 async function waitForToast(page) {
   await page.waitForFunction(() => {
     const host = document.querySelector("[data-playbackkeys]");
     const toast = host?.shadowRoot?.querySelector(".pk-toast");
     return !!(toast && toast.classList.contains("on"));
   }, null, { timeout: 3000 });
+}
+
+async function waitForToastName(page, name) {
+  await page.waitForFunction((expected) => {
+    const host = document.querySelector("[data-playbackkeys]");
+    const toast = host?.shadowRoot?.querySelector(".pk-toast");
+    if (!toast || !toast.classList.contains("on")) return false;
+    return toast.querySelector(".name")?.textContent === expected;
+  }, name, { timeout: 3000 });
 }
 
 try {
@@ -395,6 +413,54 @@ try {
     }
     await page.close();
     console.log("✓ Skip interval Commands seek expected deltas");
+  }
+
+  // --- Skip burst cumulative toast (#11 / ADR-0003) ---
+  {
+    const sender = await ensureExtensionSender(worker);
+    await sender.evaluate(async () => {
+      await chrome.storage.local.set({
+        skipIntervals: [5, 10, 30],
+        showToast: true,
+        toastDurationMs: 1500,
+      });
+    });
+    const page = await openFixture("www.youtube.com/");
+    await page.bringToFront();
+    await page.$eval("video", (video) => {
+      video.pause();
+      video.currentTime = 10;
+    });
+    await page.waitForFunction(() => Math.abs(document.querySelector("video").currentTime - 10) < 0.25);
+
+    await dispatchCommand(worker, "4-skip-forward");
+    await waitForToastName(page, "+5s");
+    await dispatchCommand(worker, "4-skip-forward");
+    await waitForToastName(page, "+10s");
+    await dispatchCommand(worker, "4-skip-forward");
+    await waitForToastName(page, "+15s");
+    assert((await toastName(page)) === "+15s", "three interval-1 forwards should toast +15s");
+
+    // Non-skip Command clears burst; next skip starts fresh.
+    await dispatchCommand(worker, "1-play-pause");
+    await waitForToast(page);
+    await dispatchCommand(worker, "4-skip-forward");
+    await waitForToastName(page, "+5s");
+    assert((await toastName(page)) === "+5s", "skip after play/pause should restart burst at +5s");
+
+    // Absolute seek neither joins nor clears.
+    await dispatchCommand(worker, "4-skip-forward");
+    await waitForToastName(page, "+10s");
+    await sender.evaluate(async () => {
+      await chrome.runtime.sendMessage({ type: "playbackkeys:seek-to", absoluteTime: 50 });
+    });
+    await page.waitForFunction(() => Math.abs(document.querySelector("video").currentTime - 50) < 0.5);
+    await dispatchCommand(worker, "4-skip-forward");
+    await waitForToastName(page, "+15s");
+    assert((await toastName(page)) === "+15s", "absolute seek should not clear Skip burst");
+
+    await page.close();
+    console.log("✓ Skip burst cumulative toast");
   }
 
   console.log("PlaybackKeys smoke test passed.");

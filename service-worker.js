@@ -7,7 +7,9 @@ import {
   SKIP_INTERVAL_DEFAULTS,
   normalizeSkipIntervals,
   commandToAction,
+  parseSkipCommand,
 } from "./shared/skip-intervals.js";
+import { applySkipToBurst, clearSkipBurst } from "./shared/skip-burst.js";
 
 const SUPPORTED_HOSTS = [
   /(^|\.)youtube\.com$/i,
@@ -382,6 +384,10 @@ chrome.commands.onCommand.addListener((command) => {
   );
 });
 
+// Skip burst state lives in the service worker (ADR-0003). Absolute seeks
+// must not clear it; non-skip Commands and switch-target must.
+let skipBurstState = null;
+
 async function handleCommand(command) {
   const settings = await getSettings();
   const tab = await pickTargetTab(command);
@@ -392,12 +398,42 @@ async function handleCommand(command) {
   }
 
   if (command === "7-switch-target") {
+    skipBurstState = clearSkipBurst();
     await dispatchToTab(tab, { action: "noop" }, { showToast: true });
+    return;
+  }
+
+  const skipMeta = parseSkipCommand(command);
+  if (skipMeta) {
+    const intervals = normalizeSkipIntervals(settings);
+    const intervalSeconds = intervals[skipMeta.index];
+    const toastDurationMs = Number.isFinite(settings.toastDurationMs)
+      ? settings.toastDurationMs
+      : 1500;
+    const burst = applySkipToBurst(skipBurstState, {
+      intervalIndex: skipMeta.index,
+      sign: skipMeta.sign,
+      intervalSeconds,
+      now: Date.now(),
+      toastDurationMs,
+    });
+    skipBurstState = burst.state;
+    await dispatchToTab(
+      tab,
+      {
+        action: "seek",
+        delta: skipMeta.sign * intervalSeconds,
+        burstToast: burst.toast,
+        toastHideMs: burst.hideMs,
+      },
+      { showToast: settings.showToast },
+    );
     return;
   }
 
   const action = commandToAction(command, settings);
   if (!action) return;
+  skipBurstState = clearSkipBurst();
   await dispatchToTab(tab, action, { showToast: settings.showToast });
 }
 
@@ -468,6 +504,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   if (msg?.type === "playbackkeys:reset-speed") {
     pickTargetTab(null).then(async (t) => {
       if (!t) { sendResponse(false); return; }
+      skipBurstState = clearSkipBurst();
       await dispatchToTab(t, { action: "speed", reset: true });
       sendResponse(true);
     });
@@ -523,7 +560,10 @@ chrome.runtime.onStartup.addListener(ensureContextMenu);
 chrome.contextMenus.onClicked.addListener(async (info) => {
   if (info.menuItemId !== "playbackkeys-reset-speed") return;
   const tab = await pickTargetTab(null);
-  if (tab) await dispatchToTab(tab, { action: "speed", reset: true });
+  if (tab) {
+    skipBurstState = clearSkipBurst();
+    await dispatchToTab(tab, { action: "speed", reset: true });
+  }
 });
 
 chrome.tabs.onRemoved.addListener((tabId) => {

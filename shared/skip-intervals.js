@@ -56,6 +56,12 @@ export function normalizeSkipIntervals(stored = {}) {
   );
 }
 
+/** Parse a skip Command id into Skip interval index and direction sign. */
+export function parseSkipCommand(command) {
+  const skip = SKIP_COMMAND_MAP[command];
+  return skip ? { index: skip.index, sign: skip.sign } : null;
+}
+
 /**
  * Map a chrome.commands id to an in-page action payload.
  * Skip Commands use the matching Skip interval seconds; non-skip
@@ -63,7 +69,7 @@ export function normalizeSkipIntervals(stored = {}) {
  */
 export function commandToAction(command, settings) {
   const intervals = normalizeSkipIntervals(settings);
-  const skip = SKIP_COMMAND_MAP[command];
+  const skip = parseSkipCommand(command);
   if (skip) {
     return { action: "seek", delta: skip.sign * intervals[skip.index] };
   }

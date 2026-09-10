@@ -257,6 +257,19 @@ try {
     assert(calls.seek.length >= 1, `${watchPath} seek must invoke window.player.seek`);
     assert(calls.seek[0] >= 0.9, `${watchPath} player.seek target should be ~1s, got ${calls.seek[0]}`);
 
+    // Skip burst toast payload from the service worker must win over raw delta (#11).
+    result = await page.evaluate(() => {
+      return PlaybackKeysBilibili.applyCommand({
+        action: "seek",
+        delta: 10,
+        burstToast: { ic: "»", name: "+30s", det: "" },
+        toastHideMs: 2000,
+      });
+    });
+    assert(result?.handled === true, `${watchPath} burst seek handled`);
+    assert(result?.toast?.name === "+30s", `${watchPath} burstToast must override delta toast`);
+    assert(result?.toast?.hideMs === 2000, `${watchPath} toastHideMs must pass through`);
+
     result = await page.evaluate(() => {
       return PlaybackKeysBilibili.applyCommand({
         action: "speed",

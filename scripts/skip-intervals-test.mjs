@@ -6,6 +6,7 @@ import {
   SKIP_INTERVAL_DEFAULTS,
   normalizeSkipIntervals,
   commandToAction,
+  parseSkipCommand,
   SKIP_COMMAND_IDS,
 } from "../shared/skip-intervals.js";
 
@@ -132,5 +133,12 @@ assertDeepEqual(
   ],
   "six skip Command ids are exported",
 );
+
+assertDeepEqual(
+  parseSkipCommand("9-skip-forward-2"),
+  { index: 1, sign: 1 },
+  "parseSkipCommand maps interval 2 forward",
+);
+assert(parseSkipCommand("1-play-pause") === null, "parseSkipCommand ignores non-skip");
 
 console.log("skip-intervals unit tests passed.");

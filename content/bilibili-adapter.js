@@ -493,7 +493,15 @@
         if (!transportSeek(player, video, target)) return { handled: false };
 
         if (Number.isFinite(payload.absoluteTime)) {
+          // Absolute seek neither joins nor clears a Skip burst (ADR-0003);
+          // burst state lives in the service worker.
           return { handled: true, toast: null };
+        }
+        // Prefer Skip burst toast from the service worker when present.
+        if (payload.burstToast) {
+          const toast = { ...payload.burstToast };
+          if (Number.isFinite(payload.toastHideMs)) toast.hideMs = payload.toastHideMs;
+          return { handled: true, toast };
         }
         const delta = Number(payload.delta) || 0;
         const sign = delta >= 0 ? "+" : "−";
