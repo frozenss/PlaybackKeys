@@ -353,6 +353,86 @@ a { color: inherit; }
   text-transform: capitalize;
 }
 
+/* AHK bridge External hotkey mappings (#14) */
+.ahk-bridge {
+  margin-top: 28px;
+  padding-top: 20px;
+  border-top: 1px dashed var(--pk-line);
+}
+.ahk-bridge-h {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+.ahk-bridge-h .name { font-size: 13px; font-weight: 600; }
+.ahk-bridge-h .desc { font-size: 12px; color: var(--pk-fg-3); }
+.ahk-bridge-note {
+  margin: 0 0 12px;
+  font-size: 12px;
+  color: var(--pk-fg-3);
+  max-width: 64ch;
+}
+.ahk-mapping-list {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--pk-line);
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--pk-inset);
+}
+.ahk-mapping-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) auto;
+  gap: 16px;
+  align-items: center;
+  padding: 14px 16px;
+  border-top: 1px solid var(--pk-line);
+}
+.ahk-mapping-row:first-child { border-top: 0; }
+.ahk-mapping-row .cmd-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--pk-fg);
+  min-width: 0;
+}
+.ahk-mapping-row .cmd-name small {
+  display: block;
+  font-size: 11px;
+  color: var(--pk-fg-3);
+  margin-top: 3px;
+  font-family: var(--pk-mono);
+  font-weight: 500;
+}
+.ahk-mapping-row.is-target-missing .cmd-name { color: var(--pk-fg-2); font-weight: 500; }
+.ahk-external {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.ahk-external .hotkey-label {
+  font-family: var(--pk-mono);
+  font-size: 12px;
+  color: var(--pk-fg);
+}
+.ahk-external .hotkey-label.is-empty { color: var(--pk-fg-4); }
+.ahk-external .hotkey-ahk {
+  font-family: var(--pk-mono);
+  font-size: 10px;
+  color: var(--pk-fg-3);
+}
+.ahk-mapping-actions {
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+.ahk-mapping-actions .btn-ghost.is-recording {
+  border-color: var(--pk-accent);
+  color: var(--pk-accent);
+}
+
 /* Prose + footer */
 .opt-prose { font-size: 13px; color: var(--pk-fg-2); max-width: 64ch; }
 .opt-prose code {

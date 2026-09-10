@@ -618,5 +618,41 @@
   "skipIntervalsDesc": {
     "message": "三种跳转长度，各自拥有后退 / 前进命令",
     "description": "Settings group description for the three Skip intervals."
+  },
+  "ahkBridgeTitle": {
+    "message": "Windows：用 AutoHotkey 重映射",
+    "description": "AHK bridge panel title on the options Shortcuts section."
+  },
+  "ahkBridgeDesc": {
+    "message": "将 External hotkey 映射到 Command",
+    "description": "AHK bridge panel short description."
+  },
+  "ahkBridgeNote": {
+    "message": "为每个 Command 录制系统级 External hotkey。AHK bridge script 下载将在后续提供。",
+    "description": "AHK bridge panel helper note for External hotkey recording."
+  },
+  "ahkRecordExternal": {
+    "message": "录制",
+    "description": "Button to start External hotkey capture for a Command."
+  },
+  "ahkRecording": {
+    "message": "请按键…",
+    "description": "External hotkey capture in-progress label."
+  },
+  "ahkClearExternal": {
+    "message": "清除",
+    "description": "Button to clear one Command External hotkey mapping."
+  },
+  "ahkNoExternal": {
+    "message": "无 External hotkey",
+    "description": "Empty External hotkey mapping placeholder."
+  },
+  "ahkChromeTargetMissing": {
+    "message": "缺少 Chrome 目标快捷键",
+    "description": "Shown when a Command has an External hotkey row but no chrome.commands shortcut yet."
+  },
+  "ahkHighCollisionWarn": {
+    "message": "此 External hotkey 是常用按键。在可用的浏览器窗口存在时，AutoHotkey 会全局吞掉它。仍然绑定吗？",
+    "description": "One-shot confirm when binding a high-collision External hotkey."
   }
 }

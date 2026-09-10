@@ -116,6 +116,15 @@
         <div class="opt-group-h"><span class="name" data-i18n="navShortcuts">Shortcuts</span><span class="desc" data-i18n="shortcutsDesc">read-only, bound in chrome://extensions/shortcuts</span></div>
         <div id="shortcut-list"></div>
         <button class="btn-ghost" id="open-shortcuts" style="margin-top:12px" data-i18n="openChromeShortcutSettings">Open Chrome shortcut settings ↗</button>
+
+        <div class="ahk-bridge" id="ahk-bridge">
+          <div class="ahk-bridge-h">
+            <span class="name" data-i18n="ahkBridgeTitle">Windows: remap with AutoHotkey</span>
+            <span class="desc" data-i18n="ahkBridgeDesc">map External hotkeys to Commands</span>
+          </div>
+          <p class="ahk-bridge-note" data-i18n="ahkBridgeNote">Record an OS-level External hotkey for each Command. Download of the AHK bridge script comes in a follow-up.</p>
+          <div id="ahk-mapping-list" class="ahk-mapping-list"></div>
+        </div>
       </section>
 
       <section class="opt-group" id="privacy">

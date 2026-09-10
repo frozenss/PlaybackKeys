@@ -618,5 +618,41 @@
   "skipIntervalsDesc": {
     "message": "それぞれ専用のスキップ戻る / 進むコマンドを持つ3つのジャンプ長",
     "description": "Settings group description for the three Skip intervals."
+  },
+  "ahkBridgeTitle": {
+    "message": "Windows: remap with AutoHotkey",
+    "description": "AHK bridge panel title on the options Shortcuts section."
+  },
+  "ahkBridgeDesc": {
+    "message": "map External hotkeys to Commands",
+    "description": "AHK bridge panel short description."
+  },
+  "ahkBridgeNote": {
+    "message": "Record an OS-level External hotkey for each Command. Download of the AHK bridge script comes in a follow-up.",
+    "description": "AHK bridge panel helper note for External hotkey recording."
+  },
+  "ahkRecordExternal": {
+    "message": "Record",
+    "description": "Button to start External hotkey capture for a Command."
+  },
+  "ahkRecording": {
+    "message": "Press a key…",
+    "description": "External hotkey capture in-progress label."
+  },
+  "ahkClearExternal": {
+    "message": "Clear",
+    "description": "Button to clear one Command External hotkey mapping."
+  },
+  "ahkNoExternal": {
+    "message": "No External hotkey",
+    "description": "Empty External hotkey mapping placeholder."
+  },
+  "ahkChromeTargetMissing": {
+    "message": "Chrome target chord missing",
+    "description": "Shown when a Command has an External hotkey row but no chrome.commands shortcut yet."
+  },
+  "ahkHighCollisionWarn": {
+    "message": "This External hotkey is commonly typed. While a supported browser window is usable, AutoHotkey will swallow it globally. Bind it anyway?",
+    "description": "One-shot confirm when binding a high-collision External hotkey."
   }
 }

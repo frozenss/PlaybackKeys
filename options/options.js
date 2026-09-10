@@ -5,6 +5,11 @@ import {
   SKIP_INTERVAL_COMMAND_PAIRS,
   normalizeSkipIntervals,
 } from "../shared/skip-intervals.js";
+import { captureExternalHotkey } from "../shared/external-hotkey.js";
+import { normalizeExternalHotkeyMapping } from "../shared/ahk-bridge.js";
+
+/** Storage key for External hotkey mappings (generator ExternalHotkeyMapping[]). Not in DEFAULTS so reset-all leaves them intact. */
+const AHK_EXTERNAL_MAPPINGS_KEY = "ahkExternalMappings";
 
 const BUILTIN = [
   { hostname: "youtube.com", origin: "https://www.youtube.com" },
@@ -351,18 +356,21 @@ function chordPlainText(shortcut) {
 
 const COMMAND_ORDER = Object.keys(COMMAND_LABELS);
 
-async function renderShortcuts(commandMap) {
-  const list = document.getElementById("shortcut-list");
-  const cmds = commandMap
-    ? [...commandMap.values()]
-    : await chrome.commands.getAll();
-  cmds.sort((a, b) => {
+function sortCommands(cmds) {
+  return [...cmds].sort((a, b) => {
     const ai = COMMAND_ORDER.indexOf(a.name);
     const bi = COMMAND_ORDER.indexOf(b.name);
     const aKey = ai === -1 ? Number.MAX_SAFE_INTEGER : ai;
     const bKey = bi === -1 ? Number.MAX_SAFE_INTEGER : bi;
     return aKey - bKey || a.name.localeCompare(b.name);
   });
+}
+
+async function renderShortcuts(commandMap) {
+  const list = document.getElementById("shortcut-list");
+  const cmds = sortCommands(
+    commandMap ? [...commandMap.values()] : await chrome.commands.getAll(),
+  );
   list.innerHTML = "";
   for (const cmd of cmds) {
     if (cmd.name === "_execute_action") continue;
@@ -391,6 +399,208 @@ async function renderShortcuts(commandMap) {
   }
 }
 
+/** @type {string | null} */
+let recordingCommandId = null;
+/** @type {((e: KeyboardEvent) => void) | null} */
+let recordingKeyHandler = null;
+
+function stopExternalHotkeyRecording() {
+  if (recordingKeyHandler) {
+    window.removeEventListener("keydown", recordingKeyHandler, true);
+    recordingKeyHandler = null;
+  }
+  recordingCommandId = null;
+}
+
+/**
+ * Normalize stored External hotkey mappings via the generator contract.
+ * @param {unknown} raw
+ * @returns {Array<{ commandId: string, ahkHotkey: string, label?: string }>}
+ */
+function normalizeAhkExternalMappings(raw) {
+  if (!Array.isArray(raw)) return [];
+  /** @type {Array<{ commandId: string, ahkHotkey: string, label?: string }>} */
+  const out = [];
+  const seen = new Set();
+  for (const row of raw) {
+    const normalized = normalizeExternalHotkeyMapping(row);
+    if (!normalized || seen.has(normalized.commandId)) continue;
+    seen.add(normalized.commandId);
+    out.push(normalized);
+  }
+  return out;
+}
+async function loadAhkExternalMappings() {
+  const stored = await chrome.storage.local.get({ [AHK_EXTERNAL_MAPPINGS_KEY]: [] });
+  return normalizeAhkExternalMappings(stored[AHK_EXTERNAL_MAPPINGS_KEY]);
+}
+
+async function saveAhkExternalMappings(mappings) {
+  const normalized = normalizeAhkExternalMappings(mappings);
+  await chrome.storage.local.set({ [AHK_EXTERNAL_MAPPINGS_KEY]: normalized });
+  flashSaved();
+  return normalized;
+}
+
+async function upsertAhkExternalMapping(mapping) {
+  const current = await loadAhkExternalMappings();
+  const next = current.filter((row) => row.commandId !== mapping.commandId);
+  next.push({
+    commandId: mapping.commandId,
+    ahkHotkey: mapping.ahkHotkey,
+    ...(mapping.label != null ? { label: mapping.label } : {}),
+  });
+  // Keep Command order stable for readability.
+  next.sort((a, b) => {
+    const ai = COMMAND_ORDER.indexOf(a.commandId);
+    const bi = COMMAND_ORDER.indexOf(b.commandId);
+    const aKey = ai === -1 ? Number.MAX_SAFE_INTEGER : ai;
+    const bKey = bi === -1 ? Number.MAX_SAFE_INTEGER : bi;
+    return aKey - bKey;
+  });
+  return saveAhkExternalMappings(next);
+}
+
+async function clearAhkExternalMapping(commandId) {
+  const current = await loadAhkExternalMappings();
+  return saveAhkExternalMappings(current.filter((row) => row.commandId !== commandId));
+}
+
+function startExternalHotkeyRecording(commandId, commandMap) {
+  stopExternalHotkeyRecording();
+  recordingCommandId = commandId;
+
+  recordingKeyHandler = async (e) => {
+    if (recordingCommandId !== commandId) return;
+    e.preventDefault();
+    e.stopPropagation();
+
+    const captured = captureExternalHotkey(e);
+    if (!captured) return;
+
+    // Detach capture before any modal so the confirm dialog cannot re-enter the listener.
+    stopExternalHotkeyRecording();
+
+    if (captured.cancel) {
+      await renderAhkBridge(commandMap);
+      return;
+    }
+
+    if (captured.highCollision) {
+      const ok = confirm(t(
+        "ahkHighCollisionWarn",
+        undefined,
+        "This External hotkey is commonly typed. While a supported browser window is usable, AutoHotkey will swallow it globally. Bind it anyway?",
+      ));
+      if (!ok) {
+        await renderAhkBridge(commandMap);
+        return;
+      }
+    }
+
+    await upsertAhkExternalMapping({
+      commandId,
+      ahkHotkey: captured.ahkHotkey,
+      label: captured.label,
+    });
+    await renderAhkBridge(commandMap);
+  };
+
+  window.addEventListener("keydown", recordingKeyHandler, true);
+}
+
+async function renderAhkBridge(commandMap) {
+  const list = document.getElementById("ahk-mapping-list");
+  if (!list) return;
+
+  const mappings = await loadAhkExternalMappings();
+  const byCommand = new Map(mappings.map((row) => [row.commandId, row]));
+  const cmds = sortCommands(
+    commandMap ? [...commandMap.values()] : await chrome.commands.getAll(),
+  );
+
+  list.innerHTML = "";
+  for (const cmd of cmds) {
+    if (cmd.name === "_execute_action") continue;
+    const meta = COMMAND_LABELS[cmd.name];
+    if (!meta) continue;
+
+    const mapping = byCommand.get(cmd.name);
+    const targetMissing = !cmd.shortcut;
+    const isRecording = recordingCommandId === cmd.name;
+
+    const row = document.createElement("div");
+    row.className = "ahk-mapping-row" + (targetMissing ? " is-target-missing" : "");
+
+    const name = document.createElement("div");
+    name.className = "cmd-name";
+    name.textContent = t(meta.key, undefined, meta.fallback);
+    if (targetMissing) {
+      const small = document.createElement("small");
+      small.textContent = t(
+        "ahkChromeTargetMissing",
+        undefined,
+        "Chrome target chord missing",
+      );
+      name.appendChild(small);
+    }
+
+    const external = document.createElement("div");
+    external.className = "ahk-external";
+    const hotkeyLabel = document.createElement("span");
+    hotkeyLabel.className = "hotkey-label" + (mapping ? "" : " is-empty");
+    if (isRecording) {
+      hotkeyLabel.textContent = t("ahkRecording", undefined, "Press a key…");
+    } else if (mapping) {
+      hotkeyLabel.textContent = mapping.label || mapping.ahkHotkey;
+    } else {
+      hotkeyLabel.textContent = t("ahkNoExternal", undefined, "No External hotkey");
+    }
+    external.appendChild(hotkeyLabel);
+    if (mapping && !isRecording) {
+      const ahkSyntax = document.createElement("span");
+      ahkSyntax.className = "hotkey-ahk";
+      ahkSyntax.textContent = mapping.ahkHotkey;
+      external.appendChild(ahkSyntax);
+    }
+
+    const actions = document.createElement("div");
+    actions.className = "ahk-mapping-actions";
+
+    const recordBtn = document.createElement("button");
+    recordBtn.type = "button";
+    recordBtn.className = "btn-ghost" + (isRecording ? " is-recording" : "");
+    recordBtn.textContent = isRecording
+      ? t("ahkRecording", undefined, "Press a key…")
+      : t("ahkRecordExternal", undefined, "Record");
+    recordBtn.addEventListener("click", async () => {
+      if (recordingCommandId === cmd.name) {
+        stopExternalHotkeyRecording();
+        await renderAhkBridge(commandMap);
+        return;
+      }
+      startExternalHotkeyRecording(cmd.name, commandMap);
+      await renderAhkBridge(commandMap);
+    });
+    actions.appendChild(recordBtn);
+
+    if (mapping && !isRecording) {
+      const clearBtn = document.createElement("button");
+      clearBtn.type = "button";
+      clearBtn.className = "btn-ghost";
+      clearBtn.textContent = t("ahkClearExternal", undefined, "Clear");
+      clearBtn.addEventListener("click", async () => {
+        stopExternalHotkeyRecording();
+        await clearAhkExternalMapping(cmd.name);
+        await renderAhkBridge(commandMap);
+      });
+      actions.appendChild(clearBtn);
+    }
+
+    row.append(name, external, actions);
+    list.appendChild(row);
+  }
+}
 let cachedSettings = null;
 
 async function loadSettings() {
@@ -473,6 +683,7 @@ async function render() {
 
   await renderSites(settings);
   await renderShortcuts(commandMap);
+  await renderAhkBridge(commandMap);
   document.getElementById("opt-version").textContent = `v${chrome.runtime.getManifest().version}`;
 }
 

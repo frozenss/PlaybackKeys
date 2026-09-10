@@ -72,16 +72,23 @@ function shortcutOf(commandShortcuts, commandId) {
   return typeof value === "string" ? value.trim() : "";
 }
 
-/** @returns {{ commandId: string, ahkHotkey: string, label?: string } | null} */
-function normalizeMappingRow(mapping) {
+/**
+ * Normalize one External hotkey mapping to the generator input shape.
+ * Shared with options persistence so storage and download use one contract.
+ *
+ * @param {unknown} mapping
+ * @returns {{ commandId: string, ahkHotkey: string, label?: string } | null}
+ */
+export function normalizeExternalHotkeyMapping(mapping) {
   if (!mapping || typeof mapping !== "object") return null;
-  const commandId = String(mapping.commandId || "");
-  const ahkHotkey = String(mapping.ahkHotkey || "").trim();
+  const commandId = String(/** @type {{ commandId?: unknown }} */ (mapping).commandId || "");
+  const ahkHotkey = String(/** @type {{ ahkHotkey?: unknown }} */ (mapping).ahkHotkey || "").trim();
   if (!commandId || !ahkHotkey) return null;
+  const label = /** @type {{ label?: unknown }} */ (mapping).label;
   return {
     commandId,
     ahkHotkey,
-    ...(mapping.label != null ? { label: String(mapping.label) } : {}),
+    ...(label != null ? { label: String(label) } : {}),
   };
 }
 
@@ -125,7 +132,7 @@ export function generateAhkBridge(input = {}) {
   const skippedUnbound = [];
 
   for (const mapping of mappings) {
-    const row = normalizeMappingRow(mapping);
+    const row = normalizeExternalHotkeyMapping(mapping);
     if (!row) continue;
 
     const chromeShortcut = shortcutOf(commandShortcuts, row.commandId);
@@ -161,7 +168,7 @@ function detectDrift(mappings, commandShortcuts, lastSnapshot) {
   if (!hasPriorSnapshot(lastSnapshot)) return false;
 
   for (const mapping of mappings) {
-    const row = normalizeMappingRow(mapping);
+    const row = normalizeExternalHotkeyMapping(mapping);
     if (!row) continue;
 
     const current = shortcutOf(commandShortcuts, row.commandId);

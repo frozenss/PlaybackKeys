@@ -13,7 +13,8 @@
     "test:skip-burst": "node scripts/skip-burst-test.mjs",
     "test:ahk-bridge": "node scripts/ahk-bridge-test.mjs",
     "test:bilibili-adapter": "node scripts/bilibili-adapter-test.mjs",
-    "screenshots": "node scripts/generate-store-screenshots.mjs"
+    "screenshots": "node scripts/generate-store-screenshots.mjs",
+    "test:external-hotkey": "node scripts/external-hotkey-test.mjs"
   },
   "devDependencies": {
     "playwright": "^1.52.0"
