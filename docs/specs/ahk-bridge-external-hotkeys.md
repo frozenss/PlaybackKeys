@@ -75,6 +75,7 @@ Cover at least:
 - Allowlist: generated script text mentions `chrome.exe`, `msedge.exe`, `brave.exe`, and `chromium.exe`.
 - Empty mappings → download not eligible.
 - Chord encoding: representative Chrome shortcut strings encode to the expected AHK `SendPlayback` argument (e.g. Ctrl+Shift+1 → `^+1`).
+- Bridge toggle hotkey: optional input embeds only when present; generator accepts bare AHK string or `{ ahkHotkey, label }` record; Clear AHK mappings clears toggle storage; reset-all omits AHK companion keys; bidirectional External ↔ Bridge toggle collision helpers reject matching chords; toggle alone does not make download eligible.
 
 Prior art: `shared/skip-burst.js` + `scripts/skip-burst-test.mjs`, `shared/skip-intervals.js` + `scripts/skip-intervals-test.mjs` (pure module + Node assert script). Do not require Playwright for the generator. Manual or light smoke check of the options panel is enough for wiring.
 
