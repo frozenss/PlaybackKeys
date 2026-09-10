@@ -7,14 +7,15 @@ import {
 } from "../shared/skip-intervals.js";
 import { captureExternalHotkey } from "../shared/external-hotkey.js";
 import {
+  AHK_BRIDGE_STORAGE,
+  clearedAhkBridgeStorage,
   generateAhkBridge,
+  isWindowsPlatform,
   normalizeExternalHotkeyMapping,
+  resetPatchOmitsAhkBridgeStorage,
 } from "../shared/ahk-bridge.js";
 
-/** Storage keys for AHK bridge state. Not in DEFAULTS so reset-all leaves them intact. */
-const AHK_EXTERNAL_MAPPINGS_KEY = "ahkExternalMappings";
-const AHK_LAST_CHORD_SNAPSHOT_KEY = "ahkLastChordSnapshot";
-const AHK_DRIFT_DISMISSED_FINGERPRINT_KEY = "ahkDriftDismissedFingerprint";
+/** AHK bridge companion storage lives in AHK_BRIDGE_STORAGE (not DEFAULTS). */
 const AHK_SCRIPT_FILENAME = "PlaybackKeys.ahk";
 
 const BUILTIN = [
@@ -33,7 +34,17 @@ function detectIsMac() {
   if (/Macintosh|Mac OS X|iPhone|iPad/i.test(navigator.userAgent || "")) return true;
   return false;
 }
+
+function detectIsWindows() {
+  return isWindowsPlatform({
+    userAgentDataPlatform: navigator.userAgentData?.platform || "",
+    platform: navigator.platform || "",
+    userAgent: navigator.userAgent || "",
+  });
+}
+
 const isMac = detectIsMac();
+const isWindows = detectIsWindows();
 const t = globalThis.PlaybackKeysI18n?.t || ((key, _subs, fallback) => fallback || key);
 
 const COMMAND_LABELS = {
@@ -437,13 +448,13 @@ function normalizeAhkExternalMappings(raw) {
   return out;
 }
 async function loadAhkExternalMappings() {
-  const stored = await chrome.storage.local.get({ [AHK_EXTERNAL_MAPPINGS_KEY]: [] });
-  return normalizeAhkExternalMappings(stored[AHK_EXTERNAL_MAPPINGS_KEY]);
+  const stored = await chrome.storage.local.get({ [AHK_BRIDGE_STORAGE.externalMappings]: [] });
+  return normalizeAhkExternalMappings(stored[AHK_BRIDGE_STORAGE.externalMappings]);
 }
 
 async function saveAhkExternalMappings(mappings) {
   const normalized = normalizeAhkExternalMappings(mappings);
-  await chrome.storage.local.set({ [AHK_EXTERNAL_MAPPINGS_KEY]: normalized });
+  await chrome.storage.local.set({ [AHK_BRIDGE_STORAGE.externalMappings]: normalized });
   flashSaved();
   return normalized;
 }
@@ -463,8 +474,8 @@ function commandShortcutsFromCommands(cmds) {
 }
 
 async function loadAhkLastChordSnapshot() {
-  const stored = await chrome.storage.local.get({ [AHK_LAST_CHORD_SNAPSHOT_KEY]: null });
-  const raw = stored[AHK_LAST_CHORD_SNAPSHOT_KEY];
+  const stored = await chrome.storage.local.get({ [AHK_BRIDGE_STORAGE.lastChordSnapshot]: null });
+  const raw = stored[AHK_BRIDGE_STORAGE.lastChordSnapshot];
   if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null;
   /** @type {Record<string, string>} */
   const out = {};
@@ -477,20 +488,20 @@ async function loadAhkLastChordSnapshot() {
 async function saveAhkLastChordSnapshot(snapshot) {
   const next =
     snapshot && typeof snapshot === "object" && !Array.isArray(snapshot) ? { ...snapshot } : {};
-  await chrome.storage.local.set({ [AHK_LAST_CHORD_SNAPSHOT_KEY]: next });
+  await chrome.storage.local.set({ [AHK_BRIDGE_STORAGE.lastChordSnapshot]: next });
   return next;
 }
 
 async function loadAhkDriftDismissedFingerprint() {
-  const stored = await chrome.storage.local.get({ [AHK_DRIFT_DISMISSED_FINGERPRINT_KEY]: "" });
-  return typeof stored[AHK_DRIFT_DISMISSED_FINGERPRINT_KEY] === "string"
-    ? stored[AHK_DRIFT_DISMISSED_FINGERPRINT_KEY]
+  const stored = await chrome.storage.local.get({ [AHK_BRIDGE_STORAGE.driftDismissedFingerprint]: "" });
+  return typeof stored[AHK_BRIDGE_STORAGE.driftDismissedFingerprint] === "string"
+    ? stored[AHK_BRIDGE_STORAGE.driftDismissedFingerprint]
     : "";
 }
 
 async function saveAhkDriftDismissedFingerprint(fingerprint) {
   await chrome.storage.local.set({
-    [AHK_DRIFT_DISMISSED_FINGERPRINT_KEY]: typeof fingerprint === "string" ? fingerprint : "",
+    [AHK_BRIDGE_STORAGE.driftDismissedFingerprint]: typeof fingerprint === "string" ? fingerprint : "",
   });
 }
 
@@ -564,6 +575,7 @@ async function downloadAhkBridgeScript(commandMap) {
  * @param {Map<string, chrome.commands.Command> | null | undefined} commandMap
  */
 async function updateAhkDownloadUi(commandMap) {
+  if (!isWindows) return;
   const downloadBtn = document.getElementById("ahk-download");
   const reasonEl = document.getElementById("ahk-download-reason");
   const skipEl = document.getElementById("ahk-skip-reasons");
@@ -638,6 +650,22 @@ async function clearAhkExternalMapping(commandId) {
   return saveAhkExternalMappings(current.filter((row) => row.commandId !== commandId));
 }
 
+async function clearAllAhkBridgeState() {
+  stopExternalHotkeyRecording();
+  await chrome.storage.local.set(clearedAhkBridgeStorage());
+}
+
+/**
+ * Non-Windows: muted Windows-only note, full AHK configurator hidden.
+ * Windows: collapsed advanced panel available; note hidden.
+ */
+function applyAhkBridgePlatformGating() {
+  const note = document.getElementById("ahk-windows-only");
+  const panel = document.getElementById("ahk-bridge");
+  if (note) note.hidden = isWindows;
+  if (panel) panel.hidden = !isWindows;
+}
+
 function startExternalHotkeyRecording(commandId, commandMap) {
   stopExternalHotkeyRecording();
   recordingCommandId = commandId;
@@ -682,8 +710,9 @@ function startExternalHotkeyRecording(commandId, commandMap) {
 }
 
 async function renderAhkBridge(commandMap) {
+  applyAhkBridgePlatformGating();
   const list = document.getElementById("ahk-mapping-list");
-  if (!list) return;
+  if (!list || !isWindows) return;
 
   const mappings = await loadAhkExternalMappings();
   const byCommand = new Map(mappings.map((row) => [row.commandId, row]));
@@ -942,14 +971,28 @@ function wireOnce() {
   document.getElementById("open-shortcuts").addEventListener("click", openShortcutSettings);
   document.getElementById("open-skip-shortcuts").addEventListener("click", openShortcutSettings);
 
-  // AHK bridge: download, drift dismiss, expanded-only drift chrome
+  // AHK bridge: download, clear-all, drift dismiss, expanded-only drift chrome
+  applyAhkBridgePlatformGating();
   const ahkPanel = document.getElementById("ahk-bridge");
   const ahkDownloadBtn = document.getElementById("ahk-download");
+  const ahkClearMappingsBtn = document.getElementById("ahk-clear-mappings");
   const ahkDriftDismissBtn = document.getElementById("ahk-drift-dismiss");
   if (ahkDownloadBtn) {
     ahkDownloadBtn.addEventListener("click", async () => {
       if (ahkDownloadBtn.disabled) return;
       await downloadAhkBridgeScript(await currentCommandMap());
+    });
+  }
+  if (ahkClearMappingsBtn) {
+    ahkClearMappingsBtn.addEventListener("click", async () => {
+      if (!confirm(t(
+        "ahkClearMappingsConfirm",
+        undefined,
+        "Clear all External hotkey mappings and AHK bridge download snapshot state?",
+      ))) return;
+      await clearAllAhkBridgeState();
+      flashSaved();
+      await renderAhkBridge(await currentCommandMap());
     });
   }
   if (ahkDriftDismissBtn) {
@@ -967,13 +1010,16 @@ function wireOnce() {
     });
   }
 
-  // Reset to defaults
+  // Reset to defaults (playback settings only — AHK bridge companion state stays intact)
   document.getElementById("reset-defaults").addEventListener("click", async () => {
     if (!confirm(t(
       "confirmResetDefaults",
       undefined,
       "Reset all PlaybackKeys settings to defaults? This won't remove granted site permissions.",
     ))) return;
+    if (!resetPatchOmitsAhkBridgeStorage(DEFAULTS)) {
+      throw new Error("DEFAULTS must omit AHK bridge storage keys");
+    }
     await chrome.storage.local.set(DEFAULTS);
     await globalThis.PlaybackKeysTheme?.setThemeMode?.(DEFAULTS.themeMode);
     flashSaved();

@@ -12,6 +12,7 @@
     "test:skip-intervals": "node scripts/skip-intervals-test.mjs",
     "test:skip-burst": "node scripts/skip-burst-test.mjs",
     "test:ahk-bridge": "node scripts/ahk-bridge-test.mjs",
+    "test:ahk-bridge-settings": "node scripts/ahk-bridge-settings-test.mjs",
     "test:bilibili-adapter": "node scripts/bilibili-adapter-test.mjs",
     "screenshots": "node scripts/generate-store-screenshots.mjs",
     "test:external-hotkey": "node scripts/external-hotkey-test.mjs"

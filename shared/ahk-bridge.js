@@ -1,7 +1,9 @@
 /**
- * Pure AHK bridge generator: External hotkey mappings + Command shortcut
- * snapshot → eligibility, skip info, drift, and AutoHotkey v2 script text.
- * No DOM / chrome.* (issue #13).
+ * Pure AHK bridge generator + settings helpers:
+ * External hotkey mappings + Command shortcut snapshot → eligibility, skip
+ * info, drift, and AutoHotkey v2 script text (#13); Windows gating and
+ * clear/reset storage policy for the companion panel (#16).
+ * No DOM / chrome.*.
  */
 
 /**
@@ -14,7 +16,82 @@
  *   drift: boolean,
  *   scriptText: string,
  * }} AhkBridgeGenerateResult
+ *
+ * @typedef {{
+ *   userAgentDataPlatform?: string,
+ *   platform?: string,
+ *   userAgent?: string,
+ * }} PlatformSignals
  */
+
+/** chrome.storage.local keys for AHK bridge companion state (not playback defaults). */
+export const AHK_BRIDGE_STORAGE = Object.freeze({
+  externalMappings: "ahkExternalMappings",
+  lastChordSnapshot: "ahkLastChordSnapshot",
+  driftDismissedFingerprint: "ahkDriftDismissedFingerprint",
+});
+
+/**
+ * @returns {string[]}
+ */
+export function ahkBridgeStorageKeys() {
+  return Object.values(AHK_BRIDGE_STORAGE);
+}
+
+/**
+ * Storage patch that clears External hotkey mappings and related bridge snapshot state.
+ * Used by the explicit "Clear AHK mappings" control — not by Reset all to defaults.
+ *
+ * @returns {Record<string, [] | null | string>}
+ */
+export function clearedAhkBridgeStorage() {
+  return {
+    [AHK_BRIDGE_STORAGE.externalMappings]: [],
+    [AHK_BRIDGE_STORAGE.lastChordSnapshot]: null,
+    [AHK_BRIDGE_STORAGE.driftDismissedFingerprint]: "",
+  };
+}
+
+/**
+ * True when a reset-all patch leaves AHK bridge companion keys untouched.
+ *
+ * @param {Record<string, unknown> | null | undefined} patch
+ * @returns {boolean}
+ */
+export function resetPatchOmitsAhkBridgeStorage(patch) {
+  if (!patch || typeof patch !== "object") return true;
+  return ahkBridgeStorageKeys().every(
+    (key) => !Object.prototype.hasOwnProperty.call(patch, key),
+  );
+}
+
+/**
+ * Detect Windows for AHK bridge panel gating from normal web platform signals.
+ * Unknown / empty signals → false so non-Windows (and uncertain) hosts only see
+ * the muted Windows-only note, not the full configurator.
+ *
+ * @param {PlatformSignals} [signals]
+ * @returns {boolean}
+ */
+export function isWindowsPlatform(signals = {}) {
+  const uaData = String(signals.userAgentDataPlatform || "").trim();
+  if (uaData) {
+    if (/win/i.test(uaData)) return true;
+    if (/mac|iphone|ipad|ipod|linux|android|cros|chrome\s*os/i.test(uaData)) {
+      return false;
+    }
+  }
+
+  const platform = String(signals.platform || "").trim();
+  if (platform) {
+    if (/win/i.test(platform)) return true;
+    if (/mac|iphone|ipad|ipod|linux|android|cros/i.test(platform)) return false;
+  }
+
+  const userAgent = String(signals.userAgent || "");
+  if (/Windows/i.test(userAgent)) return true;
+  return false;
+}
 
 const MODIFIER_TO_AHK = Object.freeze({
   ctrl: "^",

@@ -353,7 +353,17 @@ a { color: inherit; }
   text-transform: capitalize;
 }
 
-/* AHK bridge External hotkey mappings (#14/#15) */
+/* AHK bridge External hotkey mappings (#14/#15/#16) */
+.ahk-windows-only {
+  margin: 20px 0 0;
+  padding-top: 16px;
+  border-top: 1px dashed var(--pk-line);
+  font-size: 12px;
+  color: var(--pk-fg-4);
+  max-width: 56ch;
+}
+.ahk-windows-only[hidden],
+.ahk-bridge[hidden] { display: none; }
 .ahk-bridge {
   margin-top: 28px;
   padding-top: 20px;
@@ -379,12 +389,19 @@ a { color: inherit; }
 .ahk-bridge[open] > summary.ahk-bridge-h { margin-bottom: 8px; }
 .ahk-bridge-h .name { font-size: 13px; font-weight: 600; }
 .ahk-bridge-h .desc { font-size: 12px; color: var(--pk-fg-3); }
-.ahk-bridge-note {
+.ahk-bridge-note,
+.ahk-bridge-guidance {
   margin: 0 0 12px;
   font-size: 12px;
   color: var(--pk-fg-3);
   max-width: 64ch;
 }
+.ahk-bridge-guidance a {
+  color: var(--pk-accent);
+  text-decoration: none;
+}
+.ahk-bridge-guidance a:hover { text-decoration: underline; }
+.ahk-bridge-guidance b { color: var(--pk-fg-2); font-weight: 600; }
 .ahk-mapping-list {
   display: flex;
   flex-direction: column;
@@ -480,6 +497,11 @@ a { color: inherit; }
   max-width: 64ch;
 }
 .ahk-drift-hint[hidden] { display: none; }
+.ahk-clear-row {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--pk-line);
+}
 
 /* Prose + footer */
 .opt-prose { font-size: 13px; color: var(--pk-fg-2); max-width: 64ch; }

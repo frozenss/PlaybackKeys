@@ -117,13 +117,16 @@
         <div id="shortcut-list"></div>
         <button class="btn-ghost" id="open-shortcuts" style="margin-top:12px" data-i18n="openChromeShortcutSettings">Open Chrome shortcut settings ↗</button>
 
-        <details class="ahk-bridge" id="ahk-bridge">
+        <p id="ahk-windows-only" class="ahk-windows-only" data-i18n="ahkWindowsOnly" hidden>AutoHotkey bridge is Windows-only.</p>
+
+        <details class="ahk-bridge" id="ahk-bridge" hidden>
           <summary class="ahk-bridge-h">
             <span class="name" data-i18n="ahkBridgeTitle">Windows: remap with AutoHotkey</span>
-            <span class="desc" data-i18n="ahkBridgeDesc">map External hotkeys to Commands</span>
+            <span class="desc" data-i18n="ahkBridgeDesc">advanced · optional — map External hotkeys to Commands</span>
           </summary>
           <div class="ahk-bridge-body">
             <p class="ahk-bridge-note" data-i18n="ahkBridgeNote">Record OS-level External hotkeys for Commands, then download one AHK bridge script. Rows without a Chrome target chord can still be recorded; they are skipped in the script until bound.</p>
+            <p class="ahk-bridge-guidance" data-i18n-html="ahkBridgeGuidance">Install <a href="https://www.autohotkey.com/" target="_blank" rel="noopener">AutoHotkey v2</a>, download the script, then run it (optionally start with Windows). Keep each Command set to <b>Global</b> in Chrome shortcut settings so SendInput still reaches PlaybackKeys while another app is focused.</p>
             <div id="ahk-mapping-list" class="ahk-mapping-list"></div>
             <p id="ahk-skip-reasons" class="ahk-skip-reasons" hidden></p>
             <div class="ahk-download-row">
@@ -133,6 +136,9 @@
                 <span data-i18n="ahkDriftHint">Chrome Command chords changed since the last download. Regenerate the AHK bridge script.</span>
                 <button type="button" class="btn-ghost" id="ahk-drift-dismiss" data-i18n="ahkDriftDismiss">Dismiss</button>
               </div>
+            </div>
+            <div class="ahk-clear-row">
+              <button type="button" class="btn-ghost" id="ahk-clear-mappings" data-i18n="ahkClearMappings">Clear AHK mappings</button>
             </div>
           </div>
         </details>
