@@ -624,31 +624,31 @@
     "description": "Settings group description for the three Skip intervals."
   },
   "ahkWindowsOnly": {
-    "message": "AutoHotkey bridge is Windows-only.",
+    "message": "AutoHotkey 桥接仅限 Windows。",
     "description": "Muted one-line note shown on non-Windows instead of the full AHK bridge configurator."
   },
   "ahkBridgeTitle": {
-    "message": "Windows: remap with AutoHotkey",
+    "message": "Windows：使用 AutoHotkey 重映射",
     "description": "AHK bridge panel title on the options Shortcuts section."
   },
   "ahkBridgeDesc": {
-    "message": "advanced · optional — map External hotkeys to Commands",
+    "message": "高级 · 可选 — 将 External hotkey 映射到 Command",
     "description": "AHK bridge panel short description marking the feature as advanced and optional."
   },
   "ahkBridgeNote": {
-    "message": "Record OS-level External hotkeys for Commands, then download one AHK bridge script. Rows without a Chrome target chord can still be recorded; they are skipped in the script until bound.",
+    "message": "为 Command 录制系统级 External hotkey，然后下载一份 AHK bridge script。尚无 Chrome 目标快捷键的行仍可录制；在绑定之前，它们会在脚本中被跳过。",
     "description": "AHK bridge panel helper note for External hotkey recording and download."
   },
   "ahkBridgeGuidance": {
-    "message": "Install <a href=\"https://www.autohotkey.com/\" target=\"_blank\" rel=\"noopener\">AutoHotkey v2</a>, download the script, then run it (optionally start with Windows). Keep each Command set to <b>Global</b> in Chrome shortcut settings so SendInput still reaches PlaybackKeys while another app is focused.",
+    "message": "安装 <a href=\"https://www.autohotkey.com/\" target=\"_blank\" rel=\"noopener\">AutoHotkey v2</a>，下载脚本并运行（可选随 Windows 启动）。请在 Chrome 快捷键设置中将每个 Command 保持为 <b>Global</b>，以便在其他应用处于前台时，SendInput 仍能送达 PlaybackKeys。",
     "description": "Brief AutoHotkey v2 install/run guidance plus reminder that Commands must remain Global in Chrome."
   },
   "ahkClearMappings": {
-    "message": "Clear AHK mappings",
+    "message": "清除 AHK 映射",
     "description": "Button that clears all External hotkey mappings and related AHK bridge snapshot state."
   },
   "ahkClearMappingsConfirm": {
-    "message": "Clear all External hotkey mappings and AHK bridge download snapshot state?",
+    "message": "确定清除所有 External hotkey 映射以及 AHK bridge 下载快照状态？",
     "description": "Confirm dialog before clearing all AHK bridge companion storage."
   },
 
