@@ -19,7 +19,7 @@ Ship three Skip intervals (symmetric ±N each). Interval defaults are 5 / 10 / 3
 4. As an existing user, I want interval 1 to keep Command ids `3-skip-back` and `4-skip-forward`, so that chords I already bound in Chrome keep working.
 5. As a user opening Chrome’s shortcut settings, I want slot labels “Skip back 1/2/3” and “Skip forward 1/2/3”, so that static descriptions stay honest when I change seconds.
 6. As a user who never binds intervals 2 and 3, I want those Commands to simply do nothing until bound, so that I do not need a separate “disable interval” switch.
-7. As a user in options, I want one row per Skip interval with its seconds control and read-only chord display, so that seconds and keys sit together.
+7. As a user in options Playback, I want one row per Skip interval with its seconds control only, so that jump lengths stay separate from Command chords (chords live under Shortcuts; see #17).
 8. As a user of the popup, I want only interval 1’s skip buttons, so that the popup stays compact while extra intervals stay keyboard-first.
 9. As a user who rapidly presses the same skip-forward Command, I want the toast to show cumulative intended seconds (for example three 10s presses → `+30s`), so that I know how far the Skip burst asked to jump.
 10. As a user who waits about two seconds without another matching skip, I want the next skip to start a new Skip burst at one interval, so that unrelated later skips do not keep adding.
@@ -43,7 +43,7 @@ Ship three Skip intervals (symmetric ±N each). Interval defaults are 5 / 10 / 3
 - Skip burst state: same Skip interval + same direction; window 2000ms since last matching skip; toast shows intended cumulative `|delta| * count` with existing `«`/`»` and `+`/`−` styling.
 - End burst on: opposite direction, different Skip interval, or any non-skip Command. Absolute seek does not join or clear.
 - Toast visibility while bursting: refresh on each matching skip; schedule hide with `max(2000, toastDurationMs)` (and still honor `showToast` / duration off).
-- Options: one “Skip intervals” group, three rows (seconds + read-only shortcuts + link to Chrome shortcut settings as today).
+- Options Playback: one “Skip intervals” group, three seconds-only rows (presets/custom). Command chords and the single “Open Chrome shortcut settings” control live in the Shortcuts section (#17).
 - Popup: only interval 1 skip controls; labels show that interval’s seconds.
 - No per-interval enable flag; no YouTube side overlay in this scope; no dedicated hold-to-repeat loop.
 - Respect ADR-0002 and ADR-0003.

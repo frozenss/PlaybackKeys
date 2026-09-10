@@ -2,7 +2,6 @@ import {
   SKIP_INTERVAL_DEFAULTS,
   SKIP_INTERVAL_COUNT,
   SKIP_INTERVAL_PRESETS,
-  SKIP_INTERVAL_COMMAND_PAIRS,
   normalizeSkipIntervals,
 } from "../shared/skip-intervals.js";
 import { captureExternalHotkey } from "../shared/external-hotkey.js";
@@ -139,14 +138,13 @@ async function setSkipInterval(index, seconds) {
   render();
 }
 
-async function renderSkipIntervals(settings, commandMap) {
+async function renderSkipIntervals(settings) {
   const root = document.getElementById("skip-intervals");
   root.innerHTML = "";
   const intervals = normalizeSkipIntervals(settings);
 
   for (let i = 0; i < SKIP_INTERVAL_COUNT; i++) {
     const seconds = intervals[i];
-    const [backId, forwardId] = SKIP_INTERVAL_COMMAND_PAIRS[i];
     const row = document.createElement("div");
     row.className = "opt-row skip-interval-row";
 
@@ -193,24 +191,7 @@ async function renderSkipIntervals(settings, commandMap) {
       await setSkipInterval(i, v);
     });
 
-    const chords = document.createElement("div");
-    chords.className = "skip-interval-chords";
-    for (const cmdId of [backId, forwardId]) {
-      const meta = COMMAND_LABELS[cmdId];
-      const chip = document.createElement("div");
-      chip.className = "skip-chord-chip";
-      const name = document.createElement("span");
-      name.className = "skip-chord-name";
-      name.textContent = t(meta.key, undefined, meta.fallback);
-      const keys = document.createElement("span");
-      keys.className = "shortcut-keys";
-      const shortcut = commandMap.get(cmdId)?.shortcut || "";
-      keys.appendChild(chordElement(shortcut));
-      chip.append(name, keys);
-      chords.appendChild(chip);
-    }
-
-    controls.append(seg, customWrap, chords);
+    controls.append(seg, customWrap);
     row.append(lbl, controls);
     root.appendChild(row);
   }
@@ -826,7 +807,7 @@ async function render() {
 
   const cmds = await chrome.commands.getAll();
   const commandMap = new Map(cmds.map((cmd) => [cmd.name, cmd]));
-  await renderSkipIntervals(settings, commandMap);
+  await renderSkipIntervals(settings);
 
   // Speed step
   buildSeg("seg-step", STEP_PRESETS, settings.speedStep, fmtSpeed, async (v) => {
@@ -964,12 +945,10 @@ function wireOnce() {
     render();
   });
 
-  // Open shortcuts (Playback section + Shortcuts section)
-  function openShortcutSettings() {
+  // Open shortcuts (Shortcuts section only)
+  document.getElementById("open-shortcuts").addEventListener("click", () => {
     chrome.tabs.create({ url: "chrome://extensions/shortcuts" });
-  }
-  document.getElementById("open-shortcuts").addEventListener("click", openShortcutSettings);
-  document.getElementById("open-skip-shortcuts").addEventListener("click", openShortcutSettings);
+  });
 
   // AHK bridge: download, clear-all, drift dismiss, expanded-only drift chrome
   applyAhkBridgePlatformGating();

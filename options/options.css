@@ -135,20 +135,6 @@ a { color: inherit; }
 }
 .skip-interval-row:first-child { border-top: 0; }
 .skip-interval-controls { display: flex; flex-direction: column; gap: 8px; }
-.skip-interval-chords {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.skip-chord-chip {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  font-size: 12px;
-  color: var(--pk-fg-2);
-}
-.skip-chord-name { flex: 1; min-width: 0; }
 
 /* Segmented controls */
 .seg {

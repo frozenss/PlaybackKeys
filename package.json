@@ -10,6 +10,7 @@
     "release-notes": "node scripts/extract-changelog.mjs",
     "smoke": "node scripts/smoke-test.mjs",
     "test:skip-intervals": "node scripts/skip-intervals-test.mjs",
+    "test:options-skip-intervals-ui": "node scripts/options-skip-intervals-ui-test.mjs",
     "test:skip-burst": "node scripts/skip-burst-test.mjs",
     "test:ahk-bridge": "node scripts/ahk-bridge-test.mjs",
     "test:ahk-bridge-settings": "node scripts/ahk-bridge-settings-test.mjs",

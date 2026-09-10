@@ -17,4 +17,4 @@ Chrome's `commands` API only accepts chords declared in the manifest, so Playbac
 - Manifest always ships eleven Commands (five non-skip + six skip).
 - Options configure three symmetric second values; defaults 5 / 10 / 30. Existing `seekSeconds` migrates to interval 1.
 - Popup skip buttons stay on interval 1 only.
-- Options show one row per Skip interval (seconds + read-only chord), with binding still in `chrome://extensions/shortcuts`.
+- Binding remains in `chrome://extensions/shortcuts` (and Edge’s equivalent). Playback Settings configure Skip interval seconds only; read-only Command chords and the browser-shortcuts CTA live in the Shortcuts section (see #17).
