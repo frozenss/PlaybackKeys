@@ -18,11 +18,15 @@ _Avoid_: shortcut (the site's own keys), hotkey, External hotkey
 
 **External hotkey**:
 The OS-level key or chord a Windows user presses; AutoHotkey intercepts it and turns it into a Command's current target chord via SendInput.
-_Avoid_: Command, shortcut, global shortcut (unqualified)
+_Avoid_: Command, shortcut, global shortcut (unqualified), Bridge toggle hotkey
 
 **AHK bridge script**:
 The generated AutoHotkey v2 script that maps External hotkeys to Commands without activating the browser window.
 _Avoid_: companion app, native host, remap script (unqualified)
+
+**Bridge toggle hotkey**:
+The OS-level key or chord, recorded in the extension only so it can be embedded into the AHK bridge script, that enables or disables External hotkey remapping at AHK runtime without ever disabling itself. It is not a Command and does not SendInput a Command chord.
+_Avoid_: External hotkey, Command, Suspend hotkey, global shortcut (unqualified)
 
 **Skip interval**:
 A configured jump length in seconds, shared symmetrically by one skip-back Command and its matching skip-forward Command. PlaybackKeys has three Skip intervals.

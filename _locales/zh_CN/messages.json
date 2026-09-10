@@ -645,13 +645,12 @@
   },
   "ahkClearMappings": {
     "message": "清除 AHK 映射",
-    "description": "Button that clears all External hotkey mappings and related AHK bridge snapshot state."
+    "description": "Button that clears all External hotkey mappings, Bridge toggle hotkey, and related AHK bridge snapshot state."
   },
   "ahkClearMappingsConfirm": {
-    "message": "确定清除所有 External hotkey 映射以及 AHK bridge 下载快照状态？",
-    "description": "Confirm dialog before clearing all AHK bridge companion storage."
+    "message": "确定清除所有 External hotkey 映射、重映射开/关热键以及 AHK bridge 下载快照状态？",
+    "description": "Confirm dialog before clearing all AHK bridge companion storage, including the Bridge toggle hotkey."
   },
-
   "ahkRecordExternal": {
     "message": "录制",
     "description": "Button to start External hotkey capture for a Command."
@@ -695,5 +694,29 @@
   "ahkDriftDismiss": {
     "message": "忽略",
     "description": "Dismiss the AHK chord-drift regenerate hint."
+  },
+  "ahkBridgeToggleLabel": {
+    "message": "重映射开/关热键",
+    "description": "Friendly label for the optional Bridge toggle hotkey row in the AHK panel."
+  },
+  "ahkBridgeToggleDesc": {
+    "message": "可选 — 开启或关闭 External hotkey 重映射，且不会禁用此键本身",
+    "description": "Helper text under the remaps on/off hotkey row."
+  },
+  "ahkNoBridgeToggle": {
+    "message": "未设置",
+    "description": "Empty placeholder when no remaps on/off hotkey is recorded."
+  },
+  "ahkBridgeToggleConflict": {
+    "message": "该键已用作 External hotkey。请选择其他重映射开/关热键。",
+    "description": "Reject saving a Bridge toggle hotkey that collides with an External hotkey."
+  },
+  "ahkExternalConflictsWithBridgeToggle": {
+    "message": "该键已用作重映射开/关热键。请选择其他 External hotkey。",
+    "description": "Reject saving an External hotkey that collides with the Bridge toggle hotkey."
+  },
+  "ahkBridgeToggleHighCollisionWarn": {
+    "message": "此键是常用按键。在 AHK bridge script 运行期间，AutoHotkey 会全局吞掉它。仍然绑定吗？",
+    "description": "One-shot confirm when binding a high-collision Bridge toggle hotkey (global while script runs)."
   }
 }

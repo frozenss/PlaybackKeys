@@ -264,6 +264,16 @@ const BASELINE_NO_TOGGLE_SCRIPT = generateAhkBridge({
     result.scriptText !== BASELINE_NO_TOGGLE_SCRIPT,
     "toggle-bearing script differs from no-toggle output",
   );
+
+  const fromRecord = generateAhkBridge({
+    mappings: BASELINE_MAPPINGS,
+    commandShortcuts: BASELINE_SHORTCUTS,
+    bridgeToggleHotkey: { ahkHotkey: "F24", label: "F24" },
+  });
+  assert(
+    fromRecord.scriptText === result.scriptText,
+    "stored Bridge toggle hotkey record embeds the same as a bare AHK string",
+  );
 }
 
 console.log("ahk-bridge unit tests passed.");

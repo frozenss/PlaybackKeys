@@ -2,8 +2,9 @@
  * Pure AHK bridge generator + settings helpers:
  * External hotkey mappings + Command shortcut snapshot → eligibility, skip
  * info, drift, and AutoHotkey v2 script text (#13); optional Bridge toggle
- * hotkey embedding (#21); Windows gating and clear/reset storage policy for
- * the companion panel (#16).
+ * hotkey embedding (#21); Bridge toggle persist/normalize + External
+ * collision helpers for the options recorder (#22); Windows gating and
+ * clear/reset storage policy for the companion panel (#16).
  * No DOM / chrome.*.
  */
 
@@ -173,6 +174,70 @@ export function normalizeExternalHotkeyMapping(mapping) {
   };
 }
 
+/**
+ * Normalize Bridge toggle hotkey companion storage to a display/persist record.
+ * Accepts legacy bare AHK strings and `{ ahkHotkey, label }` objects.
+ *
+ * @param {unknown} value
+ * @returns {{ ahkHotkey: string, label: string } | null}
+ */
+export function normalizeBridgeToggleHotkeyRecord(value) {
+  if (typeof value === "string") {
+    const ahkHotkey = value.trim();
+    return ahkHotkey ? { ahkHotkey, label: ahkHotkey } : null;
+  }
+  if (!value || typeof value !== "object" || Array.isArray(value)) return null;
+  const ahkHotkey = String(/** @type {{ ahkHotkey?: unknown }} */ (value).ahkHotkey || "").trim();
+  if (!ahkHotkey) return null;
+  const rawLabel = String(/** @type {{ label?: unknown }} */ (value).label || "").trim();
+  return { ahkHotkey, label: rawLabel || ahkHotkey };
+}
+
+/**
+ * Extract the AHK syntax string for generate/embed.
+ * Accepts a bare string or a stored `{ ahkHotkey, label }` record.
+ *
+ * @param {unknown} value
+ * @returns {string}
+ */
+export function normalizeBridgeToggleHotkey(value) {
+  if (typeof value === "string") return value.trim();
+  if (value && typeof value === "object" && !Array.isArray(value)) {
+    return String(/** @type {{ ahkHotkey?: unknown }} */ (value).ahkHotkey || "").trim();
+  }
+  return "";
+}
+
+/**
+ * True when a Bridge toggle hotkey matches any External hotkey mapping.
+ *
+ * @param {unknown} ahkHotkey
+ * @param {unknown} mappings
+ * @returns {boolean}
+ */
+export function bridgeToggleConflictsWithExternalMappings(ahkHotkey, mappings) {
+  const needle = String(ahkHotkey || "").trim();
+  if (!needle || !Array.isArray(mappings)) return false;
+  for (const mapping of mappings) {
+    const row = normalizeExternalHotkeyMapping(mapping);
+    if (row && row.ahkHotkey === needle) return true;
+  }
+  return false;
+}
+
+/**
+ * True when an External hotkey matches the stored Bridge toggle hotkey.
+ *
+ * @param {unknown} ahkHotkey
+ * @param {unknown} bridgeToggle
+ * @returns {boolean}
+ */
+export function externalHotkeyConflictsWithBridgeToggle(ahkHotkey, bridgeToggle) {
+  const needle = String(ahkHotkey || "").trim();
+  const toggle = normalizeBridgeToggleHotkey(bridgeToggle);
+  return Boolean(needle && toggle && needle === toggle);
+}
+
 function hasPriorSnapshot(lastSnapshot) {
   return Boolean(
     lastSnapshot &&
@@ -188,7 +253,7 @@ function hasPriorSnapshot(lastSnapshot) {
  *   mappings?: ExternalHotkeyMapping[],
  *   commandShortcuts?: CommandShortcutSnapshot,
  *   lastSnapshot?: CommandShortcutSnapshot | null,
- *   bridgeToggleHotkey?: string | null,
+ *   bridgeToggleHotkey?: string | { ahkHotkey?: string, label?: string } | null,
  * }} input
  * @returns {AhkBridgeGenerateResult}
  */
@@ -198,7 +263,7 @@ export function generateAhkBridge(input = {}) {
     input.commandShortcuts && typeof input.commandShortcuts === "object"
       ? input.commandShortcuts
       : {};
-  const bridgeToggleHotkey = normalizeBridgeToggleHotkey(input.bridgeToggleHotkey);
+  const bridgeToggleHotkey = normalizeBridgeToggleHotkey(input.bridgeToggleHotkey ?? null);
 
   if (mappings.length === 0) {
     return {
@@ -237,14 +302,6 @@ export function generateAhkBridge(input = {}) {
     drift,
     scriptText,
   };
-}
-
-/**
- * @param {unknown} value
- * @returns {string}
- */
-function normalizeBridgeToggleHotkey(value) {
-  return typeof value === "string" ? value.trim() : "";
 }
 
 /**

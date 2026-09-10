@@ -1,16 +1,21 @@
 /**
- * Unit tests for AHK bridge settings helpers (#16, #21).
+ * Unit tests for AHK bridge settings helpers (#16, #21, #22).
  * Seam: shared/ahk-bridge.js (isWindowsPlatform, clearedAhkBridgeStorage,
- * resetPatchOmitsAhkBridgeStorage).
+ * resetPatchOmitsAhkBridgeStorage, Bridge toggle hotkey normalize + collision).
  *
- * Covers Windows gating signals and clear/reset storage policy (including Bridge
- * toggle hotkey companion state) — not options DOM.
+ * Covers Windows gating signals, clear/reset storage policy, Bridge toggle
+ * hotkey persist shape, and bidirectional External↔toggle collision — not
+ * options DOM.
  */
 import {
   AHK_BRIDGE_STORAGE,
   ahkBridgeStorageKeys,
+  bridgeToggleConflictsWithExternalMappings,
   clearedAhkBridgeStorage,
+  externalHotkeyConflictsWithBridgeToggle,
   isWindowsPlatform,
+  normalizeBridgeToggleHotkey,
+  normalizeBridgeToggleHotkeyRecord,
   resetPatchOmitsAhkBridgeStorage,
 } from "../shared/ahk-bridge.js";
 
@@ -136,6 +141,112 @@ function assertDeepEqual(actual, expected, message) {
       [AHK_BRIDGE_STORAGE.bridgeToggleHotkey]: "",
     }) === false,
     "reset patch that clears Bridge toggle hotkey is rejected by policy helper",
+  );
+}
+
+// --- Slice 4: Bridge toggle hotkey persist shape (#22) ---
+
+{
+  assertDeepEqual(
+    normalizeBridgeToggleHotkeyRecord(null),
+    null,
+    "null Bridge toggle hotkey record → null",
+  );
+  assertDeepEqual(
+    normalizeBridgeToggleHotkeyRecord(""),
+    null,
+    "empty string Bridge toggle hotkey → null",
+  );
+  assertDeepEqual(
+    normalizeBridgeToggleHotkeyRecord("   "),
+    null,
+    "whitespace-only Bridge toggle hotkey → null",
+  );
+  assertDeepEqual(
+    normalizeBridgeToggleHotkeyRecord("F24"),
+    { ahkHotkey: "F24", label: "F24" },
+    "legacy string Bridge toggle hotkey keeps AHK syntax and defaults label",
+  );
+  assertDeepEqual(
+    normalizeBridgeToggleHotkeyRecord({ ahkHotkey: " ^!t ", label: " Ctrl+Alt+T " }),
+    { ahkHotkey: "^!t", label: "Ctrl+Alt+T" },
+    "object Bridge toggle hotkey trims ahkHotkey + label",
+  );
+  assertDeepEqual(
+    normalizeBridgeToggleHotkeyRecord({ ahkHotkey: "F13", label: "   " }),
+    { ahkHotkey: "F13", label: "F13" },
+    "blank label falls back to ahkHotkey",
+  );
+  assertDeepEqual(
+    normalizeBridgeToggleHotkeyRecord({ ahkHotkey: "", label: "F24" }),
+    null,
+    "object without ahkHotkey → null",
+  );
+
+  assert(
+    normalizeBridgeToggleHotkey("F24") === "F24",
+    "generator normalize accepts string Bridge toggle hotkey",
+  );
+  assert(
+    normalizeBridgeToggleHotkey({ ahkHotkey: "F24", label: "F24" }) === "F24",
+    "generator normalize accepts stored Bridge toggle hotkey record",
+  );
+  assert(
+    normalizeBridgeToggleHotkey({ ahkHotkey: "  ^t  " }) === "^t",
+    "generator normalize trims ahkHotkey from record",
+  );
+  assert(
+    normalizeBridgeToggleHotkey("") === "" &&
+      normalizeBridgeToggleHotkey(null) === "" &&
+      normalizeBridgeToggleHotkey({ label: "F24" }) === "",
+    "generator normalize treats missing/empty Bridge toggle hotkey as omitted",
+  );
+}
+
+// --- Slice 5: Bidirectional External ↔ Bridge toggle collision (#22) ---
+
+{
+  const mappings = [
+    { commandId: "01-play-pause", ahkHotkey: "F13", label: "F13" },
+    { commandId: "02-speed-up", ahkHotkey: "^q", label: "Ctrl+Q" },
+  ];
+
+  assert(
+    bridgeToggleConflictsWithExternalMappings("F13", mappings) === true,
+    "Bridge toggle hotkey matching an External hotkey is a conflict",
+  );
+  assert(
+    bridgeToggleConflictsWithExternalMappings("F24", mappings) === false,
+    "Bridge toggle hotkey unused by External mappings is allowed",
+  );
+  assert(
+    bridgeToggleConflictsWithExternalMappings("  ^q  ", mappings) === true,
+    "Bridge toggle collision trims before compare",
+  );
+  assert(
+    bridgeToggleConflictsWithExternalMappings("", mappings) === false,
+    "empty Bridge toggle hotkey never conflicts",
+  );
+
+  assert(
+    externalHotkeyConflictsWithBridgeToggle("F24", { ahkHotkey: "F24", label: "F24" }) === true,
+    "External hotkey matching stored Bridge toggle hotkey is a conflict",
+  );
+  assert(
+    externalHotkeyConflictsWithBridgeToggle("F13", "F13") === true,
+    "External hotkey matching legacy string Bridge toggle hotkey is a conflict",
+  );
+  assert(
+    externalHotkeyConflictsWithBridgeToggle("F13", { ahkHotkey: "F24", label: "F24" }) === false,
+    "External hotkey distinct from Bridge toggle hotkey is allowed",
+  );
+  assert(
+    externalHotkeyConflictsWithBridgeToggle("F24", "") === false,
+    "External hotkey never conflicts with cleared Bridge toggle hotkey",
+  );
+  assert(
+    externalHotkeyConflictsWithBridgeToggle("F24", null) === false,
+    "External hotkey never conflicts with missing Bridge toggle hotkey",
   );
 }
 

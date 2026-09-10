@@ -4,6 +4,9 @@ All notable changes to PlaybackKeys will be documented in this file.
 
 ## [0.9.0] - 2026-09-10
 
+### Added
+- Added an optional remaps on/off hotkey row to the Windows AHK bridge settings panel so users can record a Bridge toggle hotkey, persist it with companion state, and embed it in the downloaded AHK bridge script.
+
 ### Changed
 - Renumbered all Commands with zero-padded ids so the browser shortcuts page lists non-Skip Commands first, then Skip back/forward for intervals 1–3 as one contiguous block (ADR-0004).
 - Updated in-extension shortcut and AHK mapping lists to the same product order.

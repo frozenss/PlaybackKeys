@@ -34,6 +34,8 @@ const PANEL_PROSE_KEYS = [
   "ahkBridgeGuidance",
   "ahkClearMappings",
   "ahkClearMappingsConfirm",
+  "ahkBridgeToggleLabel",
+  "ahkBridgeToggleDesc",
 ];
 
 /** All user-visible AHK keys that should be localized (short labels too). */
@@ -43,8 +45,12 @@ const ALL_AHK_KEYS = [
   "ahkRecording",
   "ahkClearExternal",
   "ahkNoExternal",
+  "ahkNoBridgeToggle",
   "ahkChromeTargetMissing",
   "ahkHighCollisionWarn",
+  "ahkBridgeToggleHighCollisionWarn",
+  "ahkBridgeToggleConflict",
+  "ahkExternalConflictsWithBridgeToggle",
   "ahkDownload",
   "ahkDownloadDisabledReason",
   "ahkSkipUnboundReason",

@@ -645,11 +645,11 @@
   },
   "ahkClearMappings": {
     "message": "Clear AHK mappings",
-    "description": "Button that clears all External hotkey mappings and related AHK bridge snapshot state."
+    "description": "Button that clears all External hotkey mappings, Bridge toggle hotkey, and related AHK bridge snapshot state."
   },
   "ahkClearMappingsConfirm": {
-    "message": "Clear all External hotkey mappings and AHK bridge download snapshot state?",
-    "description": "Confirm dialog before clearing all AHK bridge companion storage."
+    "message": "Clear all External hotkey mappings, the remaps on/off hotkey, and AHK bridge download snapshot state?",
+    "description": "Confirm dialog before clearing all AHK bridge companion storage, including the Bridge toggle hotkey."
   },
   "ahkRecordExternal": {
     "message": "Record",
@@ -694,5 +694,29 @@
   "ahkDriftDismiss": {
     "message": "Dismiss",
     "description": "Dismiss the AHK chord-drift regenerate hint."
+  },
+  "ahkBridgeToggleLabel": {
+    "message": "Remaps on/off hotkey",
+    "description": "Friendly label for the optional Bridge toggle hotkey row in the AHK panel."
+  },
+  "ahkBridgeToggleDesc": {
+    "message": "Optional — turns External hotkey remapping on or off without disabling this key",
+    "description": "Helper text under the remaps on/off hotkey row."
+  },
+  "ahkNoBridgeToggle": {
+    "message": "Not set",
+    "description": "Empty placeholder when no remaps on/off hotkey is recorded."
+  },
+  "ahkBridgeToggleConflict": {
+    "message": "That key is already used as an External hotkey. Choose a different remaps on/off key.",
+    "description": "Reject saving a Bridge toggle hotkey that collides with an External hotkey."
+  },
+  "ahkExternalConflictsWithBridgeToggle": {
+    "message": "That key is already used as the remaps on/off hotkey. Choose a different External hotkey.",
+    "description": "Reject saving an External hotkey that collides with the Bridge toggle hotkey."
+  },
+  "ahkBridgeToggleHighCollisionWarn": {
+    "message": "This key is commonly typed. AutoHotkey will swallow it globally while the AHK bridge script is running. Bind it anyway?",
+    "description": "One-shot confirm when binding a high-collision Bridge toggle hotkey (global while script runs)."
   }
 }

@@ -397,6 +397,19 @@ a { color: inherit; }
 }
 .ahk-bridge-guidance a:hover { text-decoration: underline; }
 .ahk-bridge-guidance b { color: var(--pk-fg-2); font-weight: 600; }
+.ahk-bridge-toggle {
+  margin: 0 0 12px;
+}
+.ahk-bridge-toggle .ahk-bridge-toggle-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) auto;
+  gap: 16px;
+  align-items: center;
+  padding: 14px 16px;
+  border: 1px solid var(--pk-line);
+  border-radius: 10px;
+  background: var(--pk-inset);
+}
 .ahk-mapping-list {
   display: flex;
   flex-direction: column;
@@ -414,6 +427,20 @@ a { color: inherit; }
   border-top: 1px solid var(--pk-line);
 }
 .ahk-mapping-row:first-child { border-top: 0; }
+.ahk-bridge-toggle .cmd-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--pk-fg);
+  min-width: 0;
+}
+.ahk-bridge-toggle .cmd-name small {
+  display: block;
+  font-size: 11px;
+  color: var(--pk-fg-3);
+  margin-top: 3px;
+  font-family: var(--pk-mono);
+  font-weight: 500;
+}
 .ahk-mapping-row .cmd-name {
   font-size: 13px;
   font-weight: 600;

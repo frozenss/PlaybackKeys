@@ -8,15 +8,20 @@ import { COMMAND_IDS, migrateAhkBridgeStoredState } from "../shared/command-ids.
 import { captureExternalHotkey } from "../shared/external-hotkey.js";
 import {
   AHK_BRIDGE_STORAGE,
+  bridgeToggleConflictsWithExternalMappings,
   clearedAhkBridgeStorage,
+  externalHotkeyConflictsWithBridgeToggle,
   generateAhkBridge,
   isWindowsPlatform,
+  normalizeBridgeToggleHotkeyRecord,
   normalizeExternalHotkeyMapping,
   resetPatchOmitsAhkBridgeStorage,
 } from "../shared/ahk-bridge.js";
 
 /** AHK bridge companion storage lives in AHK_BRIDGE_STORAGE (not DEFAULTS). */
 const AHK_SCRIPT_FILENAME = "PlaybackKeys.ahk";
+/** Sentinel recordingCommandId while capturing the Bridge toggle hotkey. */
+const BRIDGE_TOGGLE_RECORDING_ID = "__bridge_toggle__";
 
 const BUILTIN = [
   { hostname: "youtube.com", origin: "https://www.youtube.com" },
@@ -476,6 +481,23 @@ async function saveAhkExternalMappings(mappings) {
   return normalized;
 }
 
+async function loadAhkBridgeToggleHotkey() {
+  const stored = await chrome.storage.local.get({ [AHK_BRIDGE_STORAGE.bridgeToggleHotkey]: "" });
+  return normalizeBridgeToggleHotkeyRecord(stored[AHK_BRIDGE_STORAGE.bridgeToggleHotkey]);
+}
+
+/**
+ * @param {{ ahkHotkey: string, label?: string } | null | undefined} record
+ */
+async function saveAhkBridgeToggleHotkey(record) {
+  const normalized = normalizeBridgeToggleHotkeyRecord(record);
+  await chrome.storage.local.set({
+    [AHK_BRIDGE_STORAGE.bridgeToggleHotkey]: normalized || "",
+  });
+  flashSaved();
+  return normalized;
+}
+
 /**
  * @param {chrome.commands.Command[] | Iterable<chrome.commands.Command>} cmds
  * @returns {Record<string, string>}
@@ -551,7 +573,8 @@ async function buildAhkGenerateInput(commandMap) {
   const mappings = await loadAhkExternalMappings();
   const commandShortcuts = commandShortcutsFromCommands(cmds);
   const lastSnapshot = await loadAhkLastChordSnapshot();
-  return { mappings, commandShortcuts, lastSnapshot };
+  const bridgeToggleHotkey = await loadAhkBridgeToggleHotkey();
+  return { mappings, commandShortcuts, lastSnapshot, bridgeToggleHotkey };
 }
 
 async function currentCommandMap() {
@@ -563,8 +586,14 @@ async function currentCommandMap() {
  * @param {Map<string, chrome.commands.Command> | null | undefined} commandMap
  */
 async function downloadAhkBridgeScript(commandMap) {
-  const { mappings, commandShortcuts, lastSnapshot } = await buildAhkGenerateInput(commandMap);
-  const result = generateAhkBridge({ mappings, commandShortcuts, lastSnapshot });
+  const { mappings, commandShortcuts, lastSnapshot, bridgeToggleHotkey } =
+    await buildAhkGenerateInput(commandMap);
+  const result = generateAhkBridge({
+    mappings,
+    commandShortcuts,
+    lastSnapshot,
+    bridgeToggleHotkey,
+  });
   if (!result.eligible || !result.scriptText) return;
 
   const blob = new Blob([result.scriptText], { type: "text/plain;charset=utf-8" });
@@ -600,8 +629,14 @@ async function updateAhkDownloadUi(commandMap) {
   const panel = document.getElementById("ahk-bridge");
   if (!downloadBtn || !reasonEl || !skipEl || !driftEl || !panel) return;
 
-  const { mappings, commandShortcuts, lastSnapshot } = await buildAhkGenerateInput(commandMap);
-  const result = generateAhkBridge({ mappings, commandShortcuts, lastSnapshot });
+  const { mappings, commandShortcuts, lastSnapshot, bridgeToggleHotkey } =
+    await buildAhkGenerateInput(commandMap);
+  const result = generateAhkBridge({
+    mappings,
+    commandShortcuts,
+    lastSnapshot,
+    bridgeToggleHotkey,
+  });
 
   downloadBtn.disabled = !result.eligible;
   if (result.eligible) {
@@ -703,6 +738,17 @@ function startExternalHotkeyRecording(commandId, commandMap) {
       return;
     }
 
+    const bridgeToggle = await loadAhkBridgeToggleHotkey();
+    if (externalHotkeyConflictsWithBridgeToggle(captured.ahkHotkey, bridgeToggle)) {
+      alert(t(
+        "ahkExternalConflictsWithBridgeToggle",
+        undefined,
+        "That key is already used as the remaps on/off hotkey. Choose a different External hotkey.",
+      ));
+      await renderAhkBridge(commandMap);
+      return;
+    }
+
     if (captured.highCollision) {
       const ok = confirm(t(
         "ahkHighCollisionWarn",
@@ -726,12 +772,153 @@ function startExternalHotkeyRecording(commandId, commandMap) {
   window.addEventListener("keydown", recordingKeyHandler, true);
 }
 
+function startBridgeToggleHotkeyRecording(commandMap) {
+  stopExternalHotkeyRecording();
+  recordingCommandId = BRIDGE_TOGGLE_RECORDING_ID;
+
+  recordingKeyHandler = async (e) => {
+    if (recordingCommandId !== BRIDGE_TOGGLE_RECORDING_ID) return;
+    e.preventDefault();
+    e.stopPropagation();
+
+    const captured = captureExternalHotkey(e);
+    if (!captured) return;
+
+    // Detach capture before any modal so the confirm dialog cannot re-enter the listener.
+    stopExternalHotkeyRecording();
+
+    if (captured.cancel) {
+      await renderAhkBridge(commandMap);
+      return;
+    }
+
+    const mappings = await loadAhkExternalMappings();
+    if (bridgeToggleConflictsWithExternalMappings(captured.ahkHotkey, mappings)) {
+      alert(t(
+        "ahkBridgeToggleConflict",
+        undefined,
+        "That key is already used as an External hotkey. Choose a different remaps on/off key.",
+      ));
+      await renderAhkBridge(commandMap);
+      return;
+    }
+
+    if (captured.highCollision) {
+      const ok = confirm(t(
+        "ahkBridgeToggleHighCollisionWarn",
+        undefined,
+        "This key is commonly typed. AutoHotkey will swallow it globally while the AHK bridge script is running. Bind it anyway?",
+      ));
+      if (!ok) {
+        await renderAhkBridge(commandMap);
+        return;
+      }
+    }
+
+    await saveAhkBridgeToggleHotkey({
+      ahkHotkey: captured.ahkHotkey,
+      label: captured.label,
+    });
+    await renderAhkBridge(commandMap);
+  };
+
+  window.addEventListener("keydown", recordingKeyHandler, true);
+}
+
+/**
+ * @param {Map<string, chrome.commands.Command> | null | undefined} commandMap
+ * @param {{ ahkHotkey: string, label: string } | null} bridgeToggle
+ */
+function renderAhkBridgeToggleRow(commandMap, bridgeToggle) {
+  const host = document.getElementById("ahk-bridge-toggle");
+  if (!host) return;
+
+  host.innerHTML = "";
+  const isRecording = recordingCommandId === BRIDGE_TOGGLE_RECORDING_ID;
+
+  const row = document.createElement("div");
+  row.className = "ahk-mapping-row ahk-bridge-toggle-row";
+
+  const name = document.createElement("div");
+  name.className = "cmd-name";
+  name.textContent = t("ahkBridgeToggleLabel", undefined, "Remaps on/off hotkey");
+  const small = document.createElement("small");
+  small.textContent = t(
+    "ahkBridgeToggleDesc",
+    undefined,
+    "Optional — turns External hotkey remapping on or off without disabling this key",
+  );
+  name.appendChild(small);
+
+  const external = document.createElement("div");
+  external.className = "ahk-external";
+  const hotkeyLabel = document.createElement("span");
+  hotkeyLabel.className = "hotkey-label" + (bridgeToggle ? "" : " is-empty");
+  if (isRecording) {
+    hotkeyLabel.textContent = t("ahkRecording", undefined, "Press a key…");
+  } else if (bridgeToggle) {
+    hotkeyLabel.textContent = bridgeToggle.label || bridgeToggle.ahkHotkey;
+  } else {
+    hotkeyLabel.textContent = t("ahkNoBridgeToggle", undefined, "Not set");
+  }
+  external.appendChild(hotkeyLabel);
+  if (bridgeToggle && !isRecording) {
+    const ahkSyntax = document.createElement("span");
+    ahkSyntax.className = "hotkey-ahk";
+    ahkSyntax.textContent = bridgeToggle.ahkHotkey;
+    external.appendChild(ahkSyntax);
+  }
+
+  const actions = document.createElement("div");
+  actions.className = "ahk-mapping-actions";
+
+  const recordBtn = document.createElement("button");
+  recordBtn.type = "button";
+  recordBtn.className = "btn-ghost" + (isRecording ? " is-recording" : "");
+  recordBtn.textContent = isRecording
+    ? t("ahkRecording", undefined, "Press a key…")
+    : t("ahkRecordExternal", undefined, "Record");
+  recordBtn.addEventListener("click", async () => {
+    if (recordingCommandId === BRIDGE_TOGGLE_RECORDING_ID) {
+      stopExternalHotkeyRecording();
+      await renderAhkBridge(commandMap);
+      return;
+    }
+    startBridgeToggleHotkeyRecording(commandMap);
+    await renderAhkBridge(commandMap);
+  });
+  actions.appendChild(recordBtn);
+
+  if (bridgeToggle && !isRecording) {
+    const clearBtn = document.createElement("button");
+    clearBtn.type = "button";
+    clearBtn.className = "btn-ghost";
+    clearBtn.textContent = t("ahkClearExternal", undefined, "Clear");
+    clearBtn.addEventListener("click", async () => {
+      stopExternalHotkeyRecording();
+      await saveAhkBridgeToggleHotkey(null);
+      await renderAhkBridge(commandMap);
+    });
+    actions.appendChild(clearBtn);
+  }
+
+  row.append(name, external, actions);
+  host.appendChild(row);
+}
+
 async function renderAhkBridge(commandMap) {
   applyAhkBridgePlatformGating();
   const list = document.getElementById("ahk-mapping-list");
-  if (!list || !isWindows) return;
+  const toggleHost = document.getElementById("ahk-bridge-toggle");
+  if (!list || !isWindows) {
+    if (toggleHost) toggleHost.innerHTML = "";
+    return;
+  }
 
   const mappings = await loadAhkExternalMappings();
+  const bridgeToggle = await loadAhkBridgeToggleHotkey();
+  renderAhkBridgeToggleRow(commandMap, bridgeToggle);
+
   const byCommand = new Map(mappings.map((row) => [row.commandId, row]));
   const cmds = sortCommands(
     commandMap ? [...commandMap.values()] : await chrome.commands.getAll(),
@@ -1001,7 +1188,7 @@ function wireOnce() {
       if (!confirm(t(
         "ahkClearMappingsConfirm",
         undefined,
-        "Clear all External hotkey mappings and AHK bridge download snapshot state?",
+        "Clear all External hotkey mappings, the remaps on/off hotkey, and AHK bridge download snapshot state?",
       ))) return;
       await clearAllAhkBridgeState();
       flashSaved();
