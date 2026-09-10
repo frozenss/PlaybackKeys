@@ -1,0 +1,259 @@
+/**
+ * Pure AHK bridge generator: External hotkey mappings + Command shortcut
+ * snapshot → eligibility, skip info, drift, and AutoHotkey v2 script text.
+ * No DOM / chrome.* (issue #13).
+ */
+
+/**
+ * @typedef {{ commandId: string, ahkHotkey: string, label?: string }} ExternalHotkeyMapping
+ * @typedef {Record<string, string>} CommandShortcutSnapshot
+ *
+ * @typedef {{
+ *   eligible: boolean,
+ *   skippedUnbound: Array<{ commandId: string, ahkHotkey: string, label?: string }>,
+ *   drift: boolean,
+ *   scriptText: string,
+ * }} AhkBridgeGenerateResult
+ */
+
+const MODIFIER_TO_AHK = Object.freeze({
+  ctrl: "^",
+  control: "^",
+  macctrl: "^",
+  shift: "+",
+  alt: "!",
+  option: "!",
+  win: "#",
+  meta: "#",
+  command: "#",
+  cmd: "#",
+});
+
+// Match common AHK examples in the tmp bridge sample: ^!+ then key (e.g. "!+F1", "^!F2").
+const AHK_MODIFIER_ORDER = ["^", "!", "+", "#"];
+
+/**
+ * Encode a chrome.commands shortcut string into an AHK SendInput chord.
+ * Example: "Ctrl+Shift+1" → "^+1"
+ *
+ * @param {string} chromeShortcut
+ * @returns {string}
+ */
+function chromeShortcutToAhkSend(chromeShortcut) {
+  const raw = String(chromeShortcut || "").trim();
+  if (!raw) return "";
+
+  const parts = raw.includes("+")
+    ? raw.split("+").map((p) => p.trim()).filter(Boolean)
+    : [raw];
+
+  const mods = new Set();
+  const keys = [];
+  for (const part of parts) {
+    const ahkMod = MODIFIER_TO_AHK[part.toLowerCase()];
+    if (ahkMod) {
+      mods.add(ahkMod);
+    } else {
+      keys.push(part);
+    }
+  }
+
+  let encoded = "";
+  for (const mod of AHK_MODIFIER_ORDER) {
+    if (mods.has(mod)) encoded += mod;
+  }
+  // Chrome key tokens are usually single keys (digit, letter, F-key name).
+  encoded += keys.join("");
+  return encoded;
+}
+
+function shortcutOf(commandShortcuts, commandId) {
+  const value = commandShortcuts?.[commandId];
+  return typeof value === "string" ? value.trim() : "";
+}
+
+/** @returns {{ commandId: string, ahkHotkey: string, label?: string } | null} */
+function normalizeMappingRow(mapping) {
+  if (!mapping || typeof mapping !== "object") return null;
+  const commandId = String(mapping.commandId || "");
+  const ahkHotkey = String(mapping.ahkHotkey || "").trim();
+  if (!commandId || !ahkHotkey) return null;
+  return {
+    commandId,
+    ahkHotkey,
+    ...(mapping.label != null ? { label: String(mapping.label) } : {}),
+  };
+}
+
+function hasPriorSnapshot(lastSnapshot) {
+  return Boolean(
+    lastSnapshot &&
+      typeof lastSnapshot === "object" &&
+      Object.keys(lastSnapshot).length > 0,
+  );
+}
+
+/**
+ * Generate AHK bridge download metadata and script text.
+ *
+ * @param {{
+ *   mappings?: ExternalHotkeyMapping[],
+ *   commandShortcuts?: CommandShortcutSnapshot,
+ *   lastSnapshot?: CommandShortcutSnapshot | null,
+ * }} input
+ * @returns {AhkBridgeGenerateResult}
+ */
+export function generateAhkBridge(input = {}) {
+  const mappings = Array.isArray(input.mappings) ? input.mappings : [];
+  const commandShortcuts =
+    input.commandShortcuts && typeof input.commandShortcuts === "object"
+      ? input.commandShortcuts
+      : {};
+
+  if (mappings.length === 0) {
+    return {
+      eligible: false,
+      skippedUnbound: [],
+      drift: false,
+      scriptText: "",
+    };
+  }
+
+  /** @type {Array<{ commandId: string, ahkHotkey: string, label?: string, ahkSend: string }>} */
+  const active = [];
+  /** @type {Array<{ commandId: string, ahkHotkey: string, label?: string }>} */
+  const skippedUnbound = [];
+
+  for (const mapping of mappings) {
+    const row = normalizeMappingRow(mapping);
+    if (!row) continue;
+
+    const chromeShortcut = shortcutOf(commandShortcuts, row.commandId);
+    const ahkSend = chromeShortcutToAhkSend(chromeShortcut);
+    if (!chromeShortcut || !ahkSend) {
+      skippedUnbound.push(row);
+      continue;
+    }
+    active.push({ ...row, ahkSend });
+  }
+
+  const eligible = active.length > 0;
+  const scriptText = eligible ? buildScriptText(active) : "";
+  const drift = detectDrift(mappings, commandShortcuts, input.lastSnapshot);
+
+  return {
+    eligible,
+    skippedUnbound,
+    drift,
+    scriptText,
+  };
+}
+
+/**
+ * Drift is true iff any mapped Command's current target chord differs from lastSnapshot.
+ * No prior snapshot (missing / null / non-object / empty object) → false.
+ *
+ * @param {ExternalHotkeyMapping[]} mappings
+ * @param {CommandShortcutSnapshot} commandShortcuts
+ * @param {CommandShortcutSnapshot | null | undefined} lastSnapshot
+ */
+function detectDrift(mappings, commandShortcuts, lastSnapshot) {
+  if (!hasPriorSnapshot(lastSnapshot)) return false;
+
+  for (const mapping of mappings) {
+    const row = normalizeMappingRow(mapping);
+    if (!row) continue;
+
+    const current = shortcutOf(commandShortcuts, row.commandId);
+    const previous = shortcutOf(lastSnapshot, row.commandId);
+    if (current !== previous) return true;
+  }
+  return false;
+}
+
+/**
+ * @param {Array<{ commandId: string, ahkHotkey: string, label?: string, ahkSend: string }>} active
+ */
+function buildScriptText(active) {
+  const hotkeyLines = active
+    .map((row) => {
+      const comment = row.label ? ` ; ${row.label}` : ` ; ${row.commandId}`;
+      return `${row.ahkHotkey}:: SendPlayback("${row.ahkSend}")${comment}`;
+    })
+    .join("\n");
+
+  return `#Requires AutoHotkey v2.0
+#SingleInstance Force
+Persistent()
+
+; PlaybackKeys AHK bridge script (generated)
+; External hotkeys → SendInput of Command target chords.
+; Do not WinActivate the browser; keep the current app focused.
+
+SendMode "Input"
+SetWorkingDir A_ScriptDir
+
+; Only intercept External hotkeys while a usable supported browser window is known.
+#HotIf HasUsableBrowserWindow()
+
+${hotkeyLines}
+
+#HotIf
+
+LastBrowserHwnd := 0
+SetTimer(TrackLastBrowserWindow, 100)
+TrackLastBrowserWindow()
+
+TrackLastBrowserWindow() {
+    global LastBrowserHwnd
+    try {
+        hwnd := WinGetID("A")
+        if IsSupportedBrowserWindow(hwnd) {
+            LastBrowserHwnd := hwnd
+        }
+    } catch {
+    }
+}
+
+HasUsableBrowserWindow() {
+    global LastBrowserHwnd
+    if IsSupportedBrowserWindow(LastBrowserHwnd)
+        return true
+    for exe in ["chrome.exe", "msedge.exe", "brave.exe", "chromium.exe"] {
+        for hwnd in WinGetList("ahk_exe " exe) {
+            if IsSupportedBrowserWindow(hwnd) {
+                LastBrowserHwnd := hwnd
+                return true
+            }
+        }
+    }
+    LastBrowserHwnd := 0
+    return false
+}
+
+IsSupportedBrowserWindow(hwnd) {
+    if !hwnd
+        return false
+    try {
+        if !WinExist("ahk_id " hwnd)
+            return false
+        processName := StrLower(WinGetProcessName("ahk_id " hwnd))
+        ; Runtime allowlist. To add Opera/Vivaldi/etc, append another exe name below
+        ; and also add it to the HasUsableBrowserWindow() loop above.
+        return processName = "chrome.exe"
+            || processName = "msedge.exe"
+            || processName = "brave.exe"
+            || processName = "chromium.exe"
+    } catch {
+        return false
+    }
+}
+
+SendPlayback(targetShortcut) {
+    if !HasUsableBrowserWindow()
+        return
+    ; Do NOT WinActivate the browser — SendInput injects the Command chord globally.
+    SendInput(targetShortcut)
+}
+`;
+}
