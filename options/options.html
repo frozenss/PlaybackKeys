@@ -117,14 +117,25 @@
         <div id="shortcut-list"></div>
         <button class="btn-ghost" id="open-shortcuts" style="margin-top:12px" data-i18n="openChromeShortcutSettings">Open Chrome shortcut settings ↗</button>
 
-        <div class="ahk-bridge" id="ahk-bridge">
-          <div class="ahk-bridge-h">
+        <details class="ahk-bridge" id="ahk-bridge">
+          <summary class="ahk-bridge-h">
             <span class="name" data-i18n="ahkBridgeTitle">Windows: remap with AutoHotkey</span>
             <span class="desc" data-i18n="ahkBridgeDesc">map External hotkeys to Commands</span>
+          </summary>
+          <div class="ahk-bridge-body">
+            <p class="ahk-bridge-note" data-i18n="ahkBridgeNote">Record OS-level External hotkeys for Commands, then download one AHK bridge script. Rows without a Chrome target chord can still be recorded; they are skipped in the script until bound.</p>
+            <div id="ahk-mapping-list" class="ahk-mapping-list"></div>
+            <p id="ahk-skip-reasons" class="ahk-skip-reasons" hidden></p>
+            <div class="ahk-download-row">
+              <button type="button" class="btn-ghost" id="ahk-download" data-i18n="ahkDownload" disabled>Download AHK bridge script</button>
+              <span id="ahk-download-reason" class="ahk-download-reason"></span>
+              <div id="ahk-drift-hint" class="ahk-drift-hint" hidden>
+                <span data-i18n="ahkDriftHint">Chrome Command chords changed since the last download. Regenerate the AHK bridge script.</span>
+                <button type="button" class="btn-ghost" id="ahk-drift-dismiss" data-i18n="ahkDriftDismiss">Dismiss</button>
+              </div>
+            </div>
           </div>
-          <p class="ahk-bridge-note" data-i18n="ahkBridgeNote">Record an OS-level External hotkey for each Command. Download of the AHK bridge script comes in a follow-up.</p>
-          <div id="ahk-mapping-list" class="ahk-mapping-list"></div>
-        </div>
+        </details>
       </section>
 
       <section class="opt-group" id="privacy">

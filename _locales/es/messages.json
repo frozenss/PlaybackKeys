@@ -628,8 +628,8 @@
     "description": "AHK bridge panel short description."
   },
   "ahkBridgeNote": {
-    "message": "Record an OS-level External hotkey for each Command. Download of the AHK bridge script comes in a follow-up.",
-    "description": "AHK bridge panel helper note for External hotkey recording."
+    "message": "Record OS-level External hotkeys for Commands, then download one AHK bridge script. Rows without a Chrome target chord can still be recorded; they are skipped in the script until bound.",
+    "description": "AHK bridge panel helper note for External hotkey recording and download."
   },
   "ahkRecordExternal": {
     "message": "Record",
@@ -654,5 +654,25 @@
   "ahkHighCollisionWarn": {
     "message": "This External hotkey is commonly typed. While a supported browser window is usable, AutoHotkey will swallow it globally. Bind it anyway?",
     "description": "One-shot confirm when binding a high-collision External hotkey."
+  },
+  "ahkDownload": {
+    "message": "Download AHK bridge script",
+    "description": "Button to download the generated AutoHotkey v2 AHK bridge script."
+  },
+  "ahkDownloadDisabledReason": {
+    "message": "Need at least one External hotkey whose Command already has a Chrome target chord.",
+    "description": "Shown beside Download when no complete External hotkey + Command chord row exists."
+  },
+  "ahkSkipUnboundReason": {
+    "message": "Skipped in script (Chrome target unbound): $1",
+    "description": "Explains which mapped Commands are omitted from active AHK hotkey lines. $1 is a comma-separated Command list."
+  },
+  "ahkDriftHint": {
+    "message": "Chrome Command chords changed since the last download. Regenerate the AHK bridge script.",
+    "description": "Dismissible hint beside Download when live chrome.commands chords drift from the last generate snapshot."
+  },
+  "ahkDriftDismiss": {
+    "message": "Dismiss",
+    "description": "Dismiss the AHK chord-drift regenerate hint."
   }
 }

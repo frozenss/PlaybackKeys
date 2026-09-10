@@ -628,8 +628,8 @@
     "description": "AHK bridge panel short description."
   },
   "ahkBridgeNote": {
-    "message": "为每个 Command 录制系统级 External hotkey。AHK bridge script 下载将在后续提供。",
-    "description": "AHK bridge panel helper note for External hotkey recording."
+    "message": "为 Command 录制系统级 External hotkey，然后下载一份 AHK bridge script。即使尚无 Chrome 目标快捷键也可以先录制；未绑定的行会在脚本中跳过，直到绑定为止。",
+    "description": "AHK bridge panel helper note for External hotkey recording and download."
   },
   "ahkRecordExternal": {
     "message": "录制",
@@ -654,5 +654,25 @@
   "ahkHighCollisionWarn": {
     "message": "此 External hotkey 是常用按键。在可用的浏览器窗口存在时，AutoHotkey 会全局吞掉它。仍然绑定吗？",
     "description": "One-shot confirm when binding a high-collision External hotkey."
+  },
+  "ahkDownload": {
+    "message": "下载 AHK bridge script",
+    "description": "Button to download the generated AutoHotkey v2 AHK bridge script."
+  },
+  "ahkDownloadDisabledReason": {
+    "message": "至少需要一个已有 Chrome 目标快捷键的 Command，并为其录制 External hotkey。",
+    "description": "Shown beside Download when no complete External hotkey + Command chord row exists."
+  },
+  "ahkSkipUnboundReason": {
+    "message": "已从脚本跳过（Chrome 目标未绑定）：$1",
+    "description": "Explains which mapped Commands are omitted from active AHK hotkey lines. $1 is a comma-separated Command list."
+  },
+  "ahkDriftHint": {
+    "message": "自上次下载后，Chrome Command 快捷键已更改。请重新生成 AHK bridge script。",
+    "description": "Dismissible hint beside Download when live chrome.commands chords drift from the last generate snapshot."
+  },
+  "ahkDriftDismiss": {
+    "message": "忽略",
+    "description": "Dismiss the AHK chord-drift regenerate hint."
   }
 }

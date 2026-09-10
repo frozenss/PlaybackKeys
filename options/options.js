@@ -6,10 +6,16 @@ import {
   normalizeSkipIntervals,
 } from "../shared/skip-intervals.js";
 import { captureExternalHotkey } from "../shared/external-hotkey.js";
-import { normalizeExternalHotkeyMapping } from "../shared/ahk-bridge.js";
+import {
+  generateAhkBridge,
+  normalizeExternalHotkeyMapping,
+} from "../shared/ahk-bridge.js";
 
-/** Storage key for External hotkey mappings (generator ExternalHotkeyMapping[]). Not in DEFAULTS so reset-all leaves them intact. */
+/** Storage keys for AHK bridge state. Not in DEFAULTS so reset-all leaves them intact. */
 const AHK_EXTERNAL_MAPPINGS_KEY = "ahkExternalMappings";
+const AHK_LAST_CHORD_SNAPSHOT_KEY = "ahkLastChordSnapshot";
+const AHK_DRIFT_DISMISSED_FINGERPRINT_KEY = "ahkDriftDismissedFingerprint";
+const AHK_SCRIPT_FILENAME = "PlaybackKeys.ahk";
 
 const BUILTIN = [
   { hostname: "youtube.com", origin: "https://www.youtube.com" },
@@ -442,6 +448,172 @@ async function saveAhkExternalMappings(mappings) {
   return normalized;
 }
 
+/**
+ * @param {chrome.commands.Command[] | Iterable<chrome.commands.Command>} cmds
+ * @returns {Record<string, string>}
+ */
+function commandShortcutsFromCommands(cmds) {
+  /** @type {Record<string, string>} */
+  const out = {};
+  for (const cmd of cmds) {
+    if (!cmd?.name || cmd.name === "_execute_action") continue;
+    out[cmd.name] = typeof cmd.shortcut === "string" ? cmd.shortcut : "";
+  }
+  return out;
+}
+
+async function loadAhkLastChordSnapshot() {
+  const stored = await chrome.storage.local.get({ [AHK_LAST_CHORD_SNAPSHOT_KEY]: null });
+  const raw = stored[AHK_LAST_CHORD_SNAPSHOT_KEY];
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null;
+  /** @type {Record<string, string>} */
+  const out = {};
+  for (const [commandId, shortcut] of Object.entries(raw)) {
+    out[commandId] = typeof shortcut === "string" ? shortcut : "";
+  }
+  return out;
+}
+
+async function saveAhkLastChordSnapshot(snapshot) {
+  const next =
+    snapshot && typeof snapshot === "object" && !Array.isArray(snapshot) ? { ...snapshot } : {};
+  await chrome.storage.local.set({ [AHK_LAST_CHORD_SNAPSHOT_KEY]: next });
+  return next;
+}
+
+async function loadAhkDriftDismissedFingerprint() {
+  const stored = await chrome.storage.local.get({ [AHK_DRIFT_DISMISSED_FINGERPRINT_KEY]: "" });
+  return typeof stored[AHK_DRIFT_DISMISSED_FINGERPRINT_KEY] === "string"
+    ? stored[AHK_DRIFT_DISMISSED_FINGERPRINT_KEY]
+    : "";
+}
+
+async function saveAhkDriftDismissedFingerprint(fingerprint) {
+  await chrome.storage.local.set({
+    [AHK_DRIFT_DISMISSED_FINGERPRINT_KEY]: typeof fingerprint === "string" ? fingerprint : "",
+  });
+}
+
+/**
+ * Fingerprint of mapped Command chords (current + last generate) for dismiss persistence.
+ * Hint returns when mappings or chords change enough to alter this value.
+ *
+ * @param {Array<{ commandId: string }>} mappings
+ * @param {Record<string, string>} commandShortcuts
+ * @param {Record<string, string> | null} lastSnapshot
+ */
+function ahkDriftFingerprint(mappings, commandShortcuts, lastSnapshot) {
+  const ids = [...new Set(mappings.map((row) => row.commandId))].sort();
+  /** @type {Record<string, { current: string, last: string }>} */
+  const rows = {};
+  for (const id of ids) {
+    rows[id] = {
+      current: typeof commandShortcuts?.[id] === "string" ? commandShortcuts[id] : "",
+      last: typeof lastSnapshot?.[id] === "string" ? lastSnapshot[id] : "",
+    };
+  }
+  return JSON.stringify(rows);
+}
+
+/**
+ * @param {Map<string, chrome.commands.Command> | null | undefined} commandMap
+ */
+async function buildAhkGenerateInput(commandMap) {
+  const cmds = commandMap ? [...commandMap.values()] : await chrome.commands.getAll();
+  const mappings = await loadAhkExternalMappings();
+  const commandShortcuts = commandShortcutsFromCommands(cmds);
+  const lastSnapshot = await loadAhkLastChordSnapshot();
+  return { mappings, commandShortcuts, lastSnapshot };
+}
+
+async function currentCommandMap() {
+  const cmds = await chrome.commands.getAll();
+  return new Map(cmds.map((cmd) => [cmd.name, cmd]));
+}
+
+/**
+ * @param {Map<string, chrome.commands.Command> | null | undefined} commandMap
+ */
+async function downloadAhkBridgeScript(commandMap) {
+  const { mappings, commandShortcuts, lastSnapshot } = await buildAhkGenerateInput(commandMap);
+  const result = generateAhkBridge({ mappings, commandShortcuts, lastSnapshot });
+  if (!result.eligible || !result.scriptText) return;
+
+  const blob = new Blob([result.scriptText], { type: "text/plain;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  try {
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = AHK_SCRIPT_FILENAME;
+    a.rel = "noopener";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  } finally {
+    URL.revokeObjectURL(url);
+  }
+
+  // Successful generate stores the live chord snapshot and clears dismiss state.
+  await saveAhkLastChordSnapshot(commandShortcuts);
+  await saveAhkDriftDismissedFingerprint("");
+  await updateAhkDownloadUi(commandMap);
+}
+
+/**
+ * Update Download eligibility, skip reasons, and expanded-only drift hint.
+ * @param {Map<string, chrome.commands.Command> | null | undefined} commandMap
+ */
+async function updateAhkDownloadUi(commandMap) {
+  const downloadBtn = document.getElementById("ahk-download");
+  const reasonEl = document.getElementById("ahk-download-reason");
+  const skipEl = document.getElementById("ahk-skip-reasons");
+  const driftEl = document.getElementById("ahk-drift-hint");
+  const panel = document.getElementById("ahk-bridge");
+  if (!downloadBtn || !reasonEl || !skipEl || !driftEl || !panel) return;
+
+  const { mappings, commandShortcuts, lastSnapshot } = await buildAhkGenerateInput(commandMap);
+  const result = generateAhkBridge({ mappings, commandShortcuts, lastSnapshot });
+
+  downloadBtn.disabled = !result.eligible;
+  if (result.eligible) {
+    reasonEl.textContent = "";
+    reasonEl.hidden = true;
+  } else {
+    reasonEl.textContent = t(
+      "ahkDownloadDisabledReason",
+      undefined,
+      "Need at least one External hotkey whose Command already has a Chrome target chord.",
+    );
+    reasonEl.hidden = false;
+  }
+
+  if (result.skippedUnbound.length > 0) {
+    const labels = result.skippedUnbound.map((row) => {
+      const meta = COMMAND_LABELS[row.commandId];
+      const commandLabel = meta
+        ? t(meta.key, undefined, meta.fallback)
+        : row.commandId;
+      const hotkey = row.label || row.ahkHotkey;
+      return `${commandLabel} (${hotkey})`;
+    });
+    skipEl.textContent = t(
+      "ahkSkipUnboundReason",
+      [labels.join(", ")],
+      `Skipped in script (Chrome target unbound): ${labels.join(", ")}`,
+    );
+    skipEl.hidden = false;
+  } else {
+    skipEl.textContent = "";
+    skipEl.hidden = true;
+  }
+
+  const fingerprint = ahkDriftFingerprint(mappings, commandShortcuts, lastSnapshot);
+  const dismissed = await loadAhkDriftDismissedFingerprint();
+  const panelExpanded = panel instanceof HTMLDetailsElement ? panel.open : true;
+  const showDrift = panelExpanded && result.drift && fingerprint !== dismissed;
+  driftEl.hidden = !showDrift;
+}
+
 async function upsertAhkExternalMapping(mapping) {
   const current = await loadAhkExternalMappings();
   const next = current.filter((row) => row.commandId !== mapping.commandId);
@@ -600,6 +772,8 @@ async function renderAhkBridge(commandMap) {
     row.append(name, external, actions);
     list.appendChild(row);
   }
+
+  await updateAhkDownloadUi(commandMap);
 }
 let cachedSettings = null;
 
@@ -767,6 +941,31 @@ function wireOnce() {
   }
   document.getElementById("open-shortcuts").addEventListener("click", openShortcutSettings);
   document.getElementById("open-skip-shortcuts").addEventListener("click", openShortcutSettings);
+
+  // AHK bridge: download, drift dismiss, expanded-only drift chrome
+  const ahkPanel = document.getElementById("ahk-bridge");
+  const ahkDownloadBtn = document.getElementById("ahk-download");
+  const ahkDriftDismissBtn = document.getElementById("ahk-drift-dismiss");
+  if (ahkDownloadBtn) {
+    ahkDownloadBtn.addEventListener("click", async () => {
+      if (ahkDownloadBtn.disabled) return;
+      await downloadAhkBridgeScript(await currentCommandMap());
+    });
+  }
+  if (ahkDriftDismissBtn) {
+    ahkDriftDismissBtn.addEventListener("click", async () => {
+      const commandMap = await currentCommandMap();
+      const { mappings, commandShortcuts, lastSnapshot } = await buildAhkGenerateInput(commandMap);
+      const fingerprint = ahkDriftFingerprint(mappings, commandShortcuts, lastSnapshot);
+      await saveAhkDriftDismissedFingerprint(fingerprint);
+      await updateAhkDownloadUi(commandMap);
+    });
+  }
+  if (ahkPanel instanceof HTMLDetailsElement) {
+    ahkPanel.addEventListener("toggle", async () => {
+      await updateAhkDownloadUi(await currentCommandMap());
+    });
+  }
 
   // Reset to defaults
   document.getElementById("reset-defaults").addEventListener("click", async () => {
