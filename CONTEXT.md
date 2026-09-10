@@ -14,7 +14,15 @@ _Avoid_: custom site, extra site, supported site
 
 **Command**:
 A global chord PlaybackKeys registers with the browser. The set is: play/pause, speed up, speed down, reset speed, switch target tab, and one skip-back plus one skip-forward per Skip interval.
-_Avoid_: shortcut (the site's own keys), hotkey
+_Avoid_: shortcut (the site's own keys), hotkey, External hotkey
+
+**External hotkey**:
+The OS-level key or chord a Windows user presses; AutoHotkey intercepts it and turns it into a Command's current target chord via SendInput.
+_Avoid_: Command, shortcut, global shortcut (unqualified)
+
+**AHK bridge script**:
+The generated AutoHotkey v2 script that maps External hotkeys to Commands without activating the browser window.
+_Avoid_: companion app, native host, remap script (unqualified)
 
 **Skip interval**:
 A configured jump length in seconds, shared symmetrically by one skip-back Command and its matching skip-forward Command. PlaybackKeys has three Skip intervals.
