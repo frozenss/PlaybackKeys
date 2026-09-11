@@ -147,8 +147,10 @@ function validateManifest() {
     `CHANGELOG.md's first release heading must be ## [${manifest.version}] (found: ${firstReleaseHeading ? firstReleaseHeading[1] : "none"}).`,
   );
 
-  const tag = process.env.GITHUB_REF_NAME;
-  if (tag) {
+  // Only enforce tag↔version on actual tag builds. Branch/workflow_dispatch
+  // runs still set GITHUB_REF_NAME (e.g. "main"), which must not fail packaging.
+  if (process.env.GITHUB_REF_TYPE === "tag") {
+    const tag = process.env.GITHUB_REF_NAME;
     assert(
       tag === `v${manifest.version}`,
       `Git tag ${tag} does not match expected v${manifest.version} (from manifest.json).`,

@@ -1,9 +1,18 @@
+# Upstream published a public GitHub Release on every v* tag push.
+# This fork is personal-use first: tagging must not auto-publish.
+# Daily zip: `.github/workflows/package.yml` (workflow_dispatch → 14-day artifact).
+#
+# To offer a small-circle Pre-release later: restore tag triggers and/or keep this
+# manual path, rename/disclaim the fork, and avoid implying official CWS builds.
 name: Create Release Package
 
 on:
-  push:
-    tags:
-      - 'v*'
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Type publish-release to create a public GitHub Release (select a v* tag ref)'
+        required: true
+        type: string
 
 jobs:
   create-release-package:
@@ -12,8 +21,20 @@ jobs:
       contents: write
 
     steps:
+      - name: Require publish-release confirmation
+        if: github.event.inputs.confirm != 'publish-release'
+        run: |
+          echo "Refusing to publish: confirm must be exactly 'publish-release' (got '${{ github.event.inputs.confirm }}')."
+          exit 1
+
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Require a version tag ref
+        if: github.ref_type != 'tag'
+        run: |
+          echo "Select a v* tag when running this workflow (ref_type=tag)."
+          exit 1
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -27,11 +48,13 @@ jobs:
       - name: Validate extension
         env:
           GITHUB_REF_NAME: ${{ github.ref_name }}
+          GITHUB_REF_TYPE: ${{ github.ref_type }}
         run: npm run validate
 
       - name: Create zip file
         env:
           GITHUB_REF_NAME: ${{ github.ref_name }}
+          GITHUB_REF_TYPE: ${{ github.ref_type }}
         run: npm run package
 
       - name: Extract release notes from CHANGELOG
@@ -45,5 +68,6 @@ jobs:
           name: PlaybackKeys ${{ github.ref_name }}
           body_path: dist/release-notes.md
           files: dist/PlaybackKeys-${{ github.ref_name }}.zip
+          prerelease: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

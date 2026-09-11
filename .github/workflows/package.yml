@@ -1,0 +1,38 @@
+# Fork (frozenss/PlaybackKeys): personal packaging without a public Release.
+# Run from the Actions tab → "Package Extension" → Run workflow.
+# Download the zip artifact, unzip, then Load unpacked in chrome://extensions.
+name: Package Extension
+
+on:
+  workflow_dispatch:
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate extension
+        run: npm run validate
+
+      - name: Create zip file
+        run: npm run package
+
+      - name: Upload package artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: PlaybackKeys-package
+          path: dist/PlaybackKeys-v*.zip
+          if-no-files-found: error
+          retention-days: 14
