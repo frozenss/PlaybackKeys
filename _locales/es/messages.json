@@ -718,5 +718,9 @@
   "ahkBridgeToggleHighCollisionWarn": {
     "message": "This key is commonly typed. AutoHotkey will swallow it globally while the AHK bridge script is running. Bind it anyway?",
     "description": "One-shot confirm when binding a high-collision Bridge toggle hotkey (global while script runs)."
+  },
+  "ahkUnsupportedKey": {
+    "message": "That key is not supported. Try another.",
+    "description": "Short tip while External hotkey / Bridge toggle recording stays open after an unmapped key press."
   }
 }

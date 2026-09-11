@@ -718,5 +718,9 @@
   "ahkBridgeToggleHighCollisionWarn": {
     "message": "此键是常用按键。在 AHK bridge script 运行期间，AutoHotkey 会全局吞掉它。仍然绑定吗？",
     "description": "One-shot confirm when binding a high-collision Bridge toggle hotkey (global while script runs)."
+  },
+  "ahkUnsupportedKey": {
+    "message": "不支持该按键，请换一个。",
+    "description": "录制 External hotkey / Bridge toggle 时遇到无法映射的键，保持录制并给出短提示。"
   }
 }

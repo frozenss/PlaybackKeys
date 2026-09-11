@@ -3,7 +3,8 @@
  * Seam: shared/external-hotkey.js (captureExternalHotkey).
  *
  * Input: KeyboardEvent-like object.
- * Output: null (ignore), { cancel: true }, or { ahkHotkey, label, highCollision }.
+ * Output: null (silent ignore), { cancel: true }, { unsupported: true },
+ * or { ahkHotkey, label, highCollision }.
  */
 import { captureExternalHotkey } from "../shared/external-hotkey.js";
 
@@ -141,6 +142,98 @@ function event(partial) {
     captureExternalHotkey(event({ key: " ", code: "Space" })),
     { ahkHotkey: "Space", label: "Space", highCollision: true },
     "Space is high-collision",
+  );
+}
+
+// --- Slice 8: OEM period is capturable (high-collision typing punctuation) ---
+
+{
+  assertDeepEqual(
+    captureExternalHotkey(event({ key: ".", code: "Period" })),
+    { ahkHotkey: ".", label: ".", highCollision: true },
+    "Period captures as External hotkey",
+  );
+}
+
+// --- Slice 9: layout glyph on Period binds physical key, not the character ---
+
+{
+  assertDeepEqual(
+    captureExternalHotkey(event({ key: "·", code: "Period" })),
+    { ahkHotkey: ".", label: ".", highCollision: true },
+    "middle-dot on Period captures as physical Period",
+  );
+}
+
+// --- Slice 10: semicolon / backquote are embed-safe; labels stay human symbols ---
+
+{
+  assertDeepEqual(
+    captureExternalHotkey(event({ key: ";", code: "Semicolon" })),
+    { ahkHotkey: "`;", label: ";", highCollision: true },
+    "Semicolon stores embed-safe AHK with symbol label",
+  );
+  assertDeepEqual(
+    captureExternalHotkey(event({ key: "`", code: "Backquote" })),
+    { ahkHotkey: "``", label: "`", highCollision: true },
+    "Backquote stores embed-safe AHK with symbol label",
+  );
+  assertDeepEqual(
+    captureExternalHotkey(event({ key: ";", code: "Semicolon", ctrlKey: true })),
+    { ahkHotkey: "^`;", label: "Ctrl+;", highCollision: false },
+    "Ctrl+Semicolon keeps embed-safe base and suppresses high-collision",
+  );
+}
+
+// --- Slice 11: remaining US OEM punctuation ---
+
+{
+  const cases = [
+    ["-", "Minus", "-", "-"],
+    ["=", "Equal", "=", "="],
+    [",", "Comma", ",", ","],
+    ["/", "Slash", "/", "/"],
+    ["[", "BracketLeft", "[", "["],
+    ["]", "BracketRight", "]", "]"],
+    ["\\", "Backslash", "\\", "\\"],
+    ["'", "Quote", "'", "'"],
+  ];
+  for (const [key, code, ahkHotkey, label] of cases) {
+    assertDeepEqual(
+      captureExternalHotkey(event({ key, code })),
+      { ahkHotkey, label, highCollision: true },
+      `${code} captures as typing punctuation`,
+    );
+  }
+}
+
+// --- Slice 12: Dead / Unidentified → unsupported (not silent null) ---
+
+{
+  assertDeepEqual(
+    captureExternalHotkey(event({ key: "Dead", code: "Quote" })),
+    { unsupported: true },
+    "Dead key is unsupported even when code is a known OEM key",
+  );
+  assertDeepEqual(
+    captureExternalHotkey(event({ key: "Unidentified", code: "KeyA" })),
+    { unsupported: true },
+    "Unidentified is unsupported",
+  );
+  assertDeepEqual(
+    captureExternalHotkey(event({ key: "MediaPlayPause", code: "MediaPlayPause" })),
+    { unsupported: true },
+    "deferred media key is unsupported (not silent)",
+  );
+}
+
+// --- Slice 13: Intl* without a fixed AHK name stays unsupported (no event.key fallback) ---
+
+{
+  assertDeepEqual(
+    captureExternalHotkey(event({ key: "<", code: "IntlBackslash" })),
+    { unsupported: true },
+    "IntlBackslash is unsupported without a code→AHK mapping",
   );
 }
 

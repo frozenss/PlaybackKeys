@@ -1,6 +1,6 @@
 /**
  * Pure External hotkey capture: KeyboardEvent-like → AHK syntax + label.
- * No DOM / chrome.* (issue #14).
+ * No DOM / chrome.* (issue #14 / ADR-0005).
  */
 
 /**
@@ -15,16 +15,19 @@
  * }} KeyboardEventLike
  *
  * @typedef {{ cancel: true }} ExternalHotkeyCancel
+ * @typedef {{ unsupported: true }} ExternalHotkeyUnsupported
  * @typedef {{ ahkHotkey: string, label: string, highCollision: boolean }} ExternalHotkeyCapture
  */
 
 /**
  * Capture an External hotkey from a keyboard event.
- * Returns null for ignore (modifier-only, repeat, unknown),
- * { cancel: true } for Escape, or a capture result.
+ * Returns null for silent ignore (modifier-only, repeat, empty),
+ * { cancel: true } for Escape,
+ * { unsupported: true } for real presses we refuse (Dead/IME/unmapped),
+ * or a capture result.
  *
  * @param {KeyboardEventLike} event
- * @returns {ExternalHotkeyCancel | ExternalHotkeyCapture | null}
+ * @returns {ExternalHotkeyCancel | ExternalHotkeyUnsupported | ExternalHotkeyCapture | null}
  */
 export function captureExternalHotkey(event) {
   if (!event || typeof event !== "object") return null;
@@ -33,9 +36,19 @@ export function captureExternalHotkey(event) {
   const key = String(event.key || "");
   if (key === "Escape") return { cancel: true };
 
+  if (isModifierOnlyKey(key)) return null;
+
+  // Composition / unknown identity: never bind layout glyphs or IME states.
+  if (key === "Dead" || key === "Unidentified" || key === "Process") {
+    return { unsupported: true };
+  }
+
   const code = String(event.code || "");
   const ahkKey = ahkKeyFromEvent(key, code);
-  if (!ahkKey) return null;
+  if (!ahkKey) {
+    if (key || code) return { unsupported: true };
+    return null;
+  }
 
   const ctrl = !!event.ctrlKey;
   const alt = !!event.altKey;
@@ -49,6 +62,16 @@ export function captureExternalHotkey(event) {
     isHighCollisionBaseKey(ahkKey) && !ctrl && !alt && !meta;
 
   return { ahkHotkey, label, highCollision };
+}
+
+function isModifierOnlyKey(key) {
+  return (
+    key === "Control" ||
+    key === "Shift" ||
+    key === "Alt" ||
+    key === "Meta" ||
+    key === "AltGraph"
+  );
 }
 
 function ahkMods(ctrl, alt, shift, meta) {
@@ -73,12 +96,24 @@ function friendlyLabel(ctrl, alt, shift, meta, ahkKey) {
 
 function displayKey(ahkKey) {
   if (/^[a-z]$/.test(ahkKey)) return ahkKey.toUpperCase();
+  // Capture stores embed-safe AHK for ; and ` ; labels show the symbol.
+  if (ahkKey === "`;") return ";";
+  if (ahkKey === "``") return "`";
   return ahkKey;
+}
+
+function embedSafeAhkSymbol(ch) {
+  if (ch === ";") return "`;";
+  if (ch === "`") return "``";
+  return ch;
 }
 
 function isHighCollisionBaseKey(ahkKey) {
   if (/^[a-z]$/.test(ahkKey)) return true;
   if (/^[0-9]$/.test(ahkKey)) return true;
+  const shown = displayKey(ahkKey);
+  // Common typing punctuation / symbols (including embed-safe ; and `).
+  if (shown.length === 1 && /[^a-zA-Z0-9]/.test(shown)) return true;
   return (
     ahkKey === "Space" ||
     ahkKey === "Enter" ||
@@ -96,16 +131,8 @@ function isHighCollisionBaseKey(ahkKey) {
 function ahkKeyFromEvent(key, code) {
   if (!key) return null;
 
-  // Modifier-only presses are not a complete External hotkey.
-  if (
-    key === "Control" ||
-    key === "Shift" ||
-    key === "Alt" ||
-    key === "Meta" ||
-    key === "AltGraph"
-  ) {
-    return null;
-  }
+  // Modifier-only handled in captureExternalHotkey; keep guard for direct use.
+  if (isModifierOnlyKey(key)) return null;
 
   if (/^F\d{1,2}$/.test(key)) return key;
 
@@ -145,5 +172,25 @@ function ahkKeyFromEvent(key, code) {
   if (Object.prototype.hasOwnProperty.call(named, key)) return named[key];
   if (code === "Space") return "Space";
 
+  // Main-keyboard OEM punctuation: physical key via event.code (ADR-0005).
+  const oem = {
+    Period: ".",
+    Comma: ",",
+    Minus: "-",
+    Equal: "=",
+    Slash: "/",
+    BracketLeft: "[",
+    BracketRight: "]",
+    Backslash: "\\",
+    Quote: "'",
+    Semicolon: ";",
+    Backquote: "`",
+  };
+  if (Object.prototype.hasOwnProperty.call(oem, code)) {
+    return embedSafeAhkSymbol(oem[code]);
+  }
+
+  // Intl* without a fixed AHK key name cannot be bound by code alone (no scancode
+  // in KeyboardEvent); do not fall back to event.key (ADR-0005 physical-key rule).
   return null;
 }

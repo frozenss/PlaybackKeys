@@ -425,6 +425,8 @@ async function renderShortcuts(commandMap) {
 let recordingCommandId = null;
 /** @type {((e: KeyboardEvent) => void) | null} */
 let recordingKeyHandler = null;
+/** When set, recording UI shows this instead of the default “Press a key…” copy. */
+let recordingStatusMessage = null;
 
 function stopExternalHotkeyRecording() {
   if (recordingKeyHandler) {
@@ -432,6 +434,27 @@ function stopExternalHotkeyRecording() {
     recordingKeyHandler = null;
   }
   recordingCommandId = null;
+  recordingStatusMessage = null;
+}
+
+function recordingInProgressLabel() {
+  return (
+    recordingStatusMessage ||
+    t("ahkRecording", undefined, "Press a key…")
+  );
+}
+
+/**
+ * Keep recording open and show a short unsupported tip on the hotkey label.
+ * @param {Map<string, chrome.commands.Command> | null | undefined} commandMap
+ */
+async function showUnsupportedRecordingTip(commandMap) {
+  recordingStatusMessage = t(
+    "ahkUnsupportedKey",
+    undefined,
+    "That key is not supported. Try another.",
+  );
+  await renderAhkBridge(commandMap);
 }
 
 /**
@@ -730,6 +753,11 @@ function startExternalHotkeyRecording(commandId, commandMap) {
     const captured = captureExternalHotkey(e);
     if (!captured) return;
 
+    if (captured.unsupported) {
+      await showUnsupportedRecordingTip(commandMap);
+      return;
+    }
+
     // Detach capture before any modal so the confirm dialog cannot re-enter the listener.
     stopExternalHotkeyRecording();
 
@@ -783,6 +811,11 @@ function startBridgeToggleHotkeyRecording(commandMap) {
 
     const captured = captureExternalHotkey(e);
     if (!captured) return;
+
+    if (captured.unsupported) {
+      await showUnsupportedRecordingTip(commandMap);
+      return;
+    }
 
     // Detach capture before any modal so the confirm dialog cannot re-enter the listener.
     stopExternalHotkeyRecording();
@@ -855,7 +888,7 @@ function renderAhkBridgeToggleRow(commandMap, bridgeToggle) {
   const hotkeyLabel = document.createElement("span");
   hotkeyLabel.className = "hotkey-label" + (bridgeToggle ? "" : " is-empty");
   if (isRecording) {
-    hotkeyLabel.textContent = t("ahkRecording", undefined, "Press a key…");
+    hotkeyLabel.textContent = recordingInProgressLabel();
   } else if (bridgeToggle) {
     hotkeyLabel.textContent = bridgeToggle.label || bridgeToggle.ahkHotkey;
   } else {
@@ -955,7 +988,7 @@ async function renderAhkBridge(commandMap) {
     const hotkeyLabel = document.createElement("span");
     hotkeyLabel.className = "hotkey-label" + (mapping ? "" : " is-empty");
     if (isRecording) {
-      hotkeyLabel.textContent = t("ahkRecording", undefined, "Press a key…");
+      hotkeyLabel.textContent = recordingInProgressLabel();
     } else if (mapping) {
       hotkeyLabel.textContent = mapping.label || mapping.ahkHotkey;
     } else {

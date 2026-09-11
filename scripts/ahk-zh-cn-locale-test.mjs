@@ -43,6 +43,7 @@ const ALL_AHK_KEYS = [
   ...PANEL_PROSE_KEYS,
   "ahkRecordExternal",
   "ahkRecording",
+  "ahkUnsupportedKey",
   "ahkClearExternal",
   "ahkNoExternal",
   "ahkNoBridgeToggle",
