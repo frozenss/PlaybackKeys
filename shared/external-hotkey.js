@@ -44,7 +44,9 @@ export function captureExternalHotkey(event) {
 
   const ahkHotkey = `${ahkMods(ctrl, alt, shift, meta)}${ahkKey}`;
   const label = friendlyLabel(ctrl, alt, shift, meta, ahkKey);
-  const highCollision = isHighCollisionBaseKey(ahkKey);
+  // Typing-collision only: Shift-only still warns; Ctrl/Alt/Win suppress (AltGr≈Ctrl+Alt: v1 ok).
+  const highCollision =
+    isHighCollisionBaseKey(ahkKey) && !ctrl && !alt && !meta;
 
   return { ahkHotkey, label, highCollision };
 }

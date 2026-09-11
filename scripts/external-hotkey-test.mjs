@@ -52,7 +52,7 @@ function event(partial) {
   );
 }
 
-// --- Slice 3: Ctrl+letter stores AHK ^ + key ---
+// --- Slice 3: Ctrl+letter stores AHK ^ + key; not a typing-collision warn ---
 
 {
   const result = captureExternalHotkey(
@@ -60,8 +60,8 @@ function event(partial) {
   );
   assertDeepEqual(
     result,
-    { ahkHotkey: "^q", label: "Ctrl+Q", highCollision: true },
-    "Ctrl+Q encodes to AHK ^q",
+    { ahkHotkey: "^q", label: "Ctrl+Q", highCollision: false },
+    "Ctrl+Q encodes to AHK ^q without high-collision warn",
   );
 }
 
@@ -73,8 +73,36 @@ function event(partial) {
   );
   assertDeepEqual(
     result,
-    { ahkHotkey: "^+1", label: "Ctrl+Shift+1", highCollision: true },
-    "Ctrl+Shift+1 encodes to AHK ^+1",
+    { ahkHotkey: "^+1", label: "Ctrl+Shift+1", highCollision: false },
+    "Ctrl+Shift+1 encodes to AHK ^+1 without high-collision warn",
+  );
+}
+
+// --- Slice 4b: Shift+letter is still typing collision ---
+
+{
+  const result = captureExternalHotkey(
+    event({ key: "z", code: "KeyZ", shiftKey: true }),
+  );
+  assertDeepEqual(
+    result,
+    { ahkHotkey: "+z", label: "Shift+Z", highCollision: true },
+    "Shift+Z remains high-collision (capital typing)",
+  );
+}
+
+// --- Slice 4c: Alt / Win suppress typing-collision warn ---
+
+{
+  assertDeepEqual(
+    captureExternalHotkey(event({ key: "z", code: "KeyZ", altKey: true })),
+    { ahkHotkey: "!z", label: "Alt+Z", highCollision: false },
+    "Alt+Z is not a typing-collision warn",
+  );
+  assertDeepEqual(
+    captureExternalHotkey(event({ key: "z", code: "KeyZ", metaKey: true })),
+    { ahkHotkey: "#z", label: "Win+Z", highCollision: false },
+    "Win+Z is not a typing-collision warn",
   );
 }
 
