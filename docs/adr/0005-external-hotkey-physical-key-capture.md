@@ -1,6 +1,6 @@
 # External hotkey capture binds physical keys, not layout characters
 
-External hotkey (and Bridge toggle hotkey) recording must produce AutoHotkey v2 hotkey lines that still work when the user’s keyboard layout or IME changes what `event.key` types. We bind the **physical key** (prefer `KeyboardEvent.code` → AHK key / symbol), not the produced character. Layout glyphs such as `·` on Period are recorded as that OEM key (e.g. `.`), never as a literal `·::` hotkey. Stored `ahkHotkey` strings are **embed-safe** AHK syntax (capture escapes `;` and `` ` ``), so the generator can keep concatenating hotkey lines without a second escaping pass. Friendly `label` stays human-readable symbols.
+External hotkey (and Bridge toggle hotkey) recording must produce AutoHotkey v2 hotkey lines that still work when the user’s keyboard layout or IME changes what `event.key` types. We bind the **physical key** (prefer `KeyboardEvent.code` → AHK key / symbol), not the produced character. Layout glyphs such as `·` on Period are recorded as that OEM key (e.g. `.`), never as a literal `·::` hotkey. Stored `ahkHotkey` strings are **embed-safe** for verbatim `...::` embedding: capture escapes `;` (otherwise a line comment), but stores a **literal** `` ` `` because AHK hotkey names are literal and string-style `` `` `` is `Invalid hotkey`. Friendly `label` stays human-readable symbols.
 
 **Status:** accepted
 

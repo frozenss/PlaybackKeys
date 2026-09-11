@@ -165,7 +165,7 @@ function event(partial) {
   );
 }
 
-// --- Slice 10: semicolon / backquote are embed-safe; labels stay human symbols ---
+// --- Slice 10: semicolon escaped for comments; backquote stays literal (AHK hotkeys) ---
 
 {
   assertDeepEqual(
@@ -173,10 +173,16 @@ function event(partial) {
     { ahkHotkey: "`;", label: ";", highCollision: true },
     "Semicolon stores embed-safe AHK with symbol label",
   );
+  // AHK hotkey names are literal: a single ` is valid; `` is Invalid hotkey.
   assertDeepEqual(
     captureExternalHotkey(event({ key: "`", code: "Backquote" })),
-    { ahkHotkey: "``", label: "`", highCollision: true },
-    "Backquote stores embed-safe AHK with symbol label",
+    { ahkHotkey: "`", label: "`", highCollision: true },
+    "Backquote stores a literal backtick (not string-escaped ``)",
+  );
+  assertDeepEqual(
+    captureExternalHotkey(event({ key: "`", code: "Backquote", ctrlKey: true })),
+    { ahkHotkey: "^`", label: "Ctrl+`", highCollision: false },
+    "Ctrl+Backquote keeps literal backtick base and suppresses high-collision",
   );
   assertDeepEqual(
     captureExternalHotkey(event({ key: ";", code: "Semicolon", ctrlKey: true })),

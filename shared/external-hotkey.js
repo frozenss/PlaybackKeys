@@ -96,15 +96,16 @@ function friendlyLabel(ctrl, alt, shift, meta, ahkKey) {
 
 function displayKey(ahkKey) {
   if (/^[a-z]$/.test(ahkKey)) return ahkKey.toUpperCase();
-  // Capture stores embed-safe AHK for ; and ` ; labels show the symbol.
+  // `; is comment-safe storage for semicolon; legacy `` was a mistaken string-escape.
   if (ahkKey === "`;") return ";";
   if (ahkKey === "``") return "`";
   return ahkKey;
 }
 
 function embedSafeAhkSymbol(ch) {
+  // Hotkey names are literal in AHK: `; prevents a comment; bare ` is required
+  // (`` as a hotkey is "Invalid hotkey" in AutoHotkey v2).
   if (ch === ";") return "`;";
-  if (ch === "`") return "``";
   return ch;
 }
 
