@@ -24,6 +24,10 @@ _Avoid_: Command, shortcut, global shortcut (unqualified), Bridge toggle hotkey
 The generated AutoHotkey v2 script that maps External hotkeys to Commands without activating the browser window.
 _Avoid_: companion app, native host, remap script (unqualified)
 
+**Browser gate**:
+The AHK runtime condition that External hotkey remaps are armed only while a usable supported browser window is known. When off, those remaps are claimed system-wide for the life of the AHK bridge script.
+_Avoid_: game mode, game compatibility mode, #HotIf (implementation), RegisterHotKey mode (implementation)
+
 **Bridge toggle hotkey**:
 The OS-level key or chord, recorded in the extension only so it can be embedded into the AHK bridge script, that enables or disables External hotkey remapping at AHK runtime without ever disabling itself. It is not a Command and does not SendInput a Command chord.
 _Avoid_: External hotkey, Command, Suspend hotkey, global shortcut (unqualified)

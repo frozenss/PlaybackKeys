@@ -643,13 +643,25 @@
     "message": "Install <a href=\"https://www.autohotkey.com/\" target=\"_blank\" rel=\"noopener\">AutoHotkey v2</a>, download the script, then run it (optionally start with Windows). Keep each Command set to <b>Global</b> in Chrome shortcut settings so SendInput still reaches PlaybackKeys while another app is focused.",
     "description": "Brief AutoHotkey v2 install/run guidance plus reminder that Commands must remain Global in Chrome."
   },
+  "ahkBrowserGateLabel": {
+    "message": "Only intercept while a browser is usable",
+    "description": "User-facing Browser gate toggle label (equivalent of 仅在有浏览器时拦截)."
+  },
+  "ahkBrowserGateDesc": {
+    "message": "Browser gate — on by default. Off claims External hotkeys system-wide while the AHK bridge script runs.",
+    "description": "Helper text under the Browser gate toggle explaining default-on and global-claim trade-off."
+  },
+  "ahkBridgePathsGuidance": {
+    "message": "<b>Path A:</b> keep Browser gate on; if External hotkeys fail over an elevated game, run the AHK bridge script as Administrator. <b>Path B:</b> turn Browser gate off for system-wide capture without elevation (keys are swallowed in all apps while the script runs).",
+    "description": "AHK panel dual-path guidance from ADR-0006: elevate with gate on, or gate off for global claim."
+  },
   "ahkClearMappings": {
     "message": "Clear AHK mappings",
-    "description": "Button that clears all External hotkey mappings, Bridge toggle hotkey, and related AHK bridge snapshot state."
+    "description": "Button that clears all External hotkey mappings, Bridge toggle hotkey, Browser gate, and related AHK bridge snapshot state."
   },
   "ahkClearMappingsConfirm": {
-    "message": "Clear all External hotkey mappings, the remaps on/off hotkey, and AHK bridge download snapshot state?",
-    "description": "Confirm dialog before clearing all AHK bridge companion storage, including the Bridge toggle hotkey."
+    "message": "Clear all External hotkey mappings, the remaps on/off hotkey, Browser gate, and AHK bridge download snapshot state?",
+    "description": "Confirm dialog before clearing all AHK bridge companion storage, including the Bridge toggle hotkey and Browser gate."
   },
   "ahkRecordExternal": {
     "message": "Record",
@@ -673,7 +685,11 @@
   },
   "ahkHighCollisionWarn": {
     "message": "This External hotkey is commonly typed. While a supported browser window is usable, AutoHotkey will swallow it globally. Bind it anyway?",
-    "description": "One-shot confirm when binding a high-collision External hotkey."
+    "description": "One-shot confirm when binding a high-collision External hotkey with Browser gate on."
+  },
+  "ahkHighCollisionWarnGateOff": {
+    "message": "This External hotkey is commonly typed. AutoHotkey will swallow it in all applications while the AHK bridge script is running. Bind it anyway?",
+    "description": "One-shot confirm when binding a high-collision External hotkey with Browser gate off (stronger global swallow warning)."
   },
   "ahkDownload": {
     "message": "Download AHK bridge script",
@@ -688,8 +704,8 @@
     "description": "Explains which mapped Commands are omitted from active AHK hotkey lines. $1 is a comma-separated Command list."
   },
   "ahkDriftHint": {
-    "message": "Chrome Command chords changed since the last download. Regenerate the AHK bridge script.",
-    "description": "Dismissible hint beside Download when live chrome.commands chords drift from the last generate snapshot."
+    "message": "AHK bridge settings or Chrome Command chords changed since the last download. Regenerate the AHK bridge script.",
+    "description": "Dismissible hint beside Download when Browser gate or live chrome.commands chords drift from the last generate snapshot."
   },
   "ahkDriftDismiss": {
     "message": "Dismiss",

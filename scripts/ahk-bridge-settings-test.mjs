@@ -13,9 +13,12 @@ import {
   bridgeToggleConflictsWithExternalMappings,
   clearedAhkBridgeStorage,
   externalHotkeyConflictsWithBridgeToggle,
+  externalHotkeyHighCollisionWarn,
   isWindowsPlatform,
   normalizeBridgeToggleHotkey,
   normalizeBridgeToggleHotkeyRecord,
+  normalizeBrowserGate,
+  normalizeLastBrowserGate,
   resetPatchOmitsAhkBridgeStorage,
 } from "../shared/ahk-bridge.js";
 
@@ -85,16 +88,26 @@ function assertDeepEqual(actual, expected, message) {
     ahkBridgeStorageKeys().slice().sort(),
     [
       AHK_BRIDGE_STORAGE.bridgeToggleHotkey,
+      AHK_BRIDGE_STORAGE.browserGate,
       AHK_BRIDGE_STORAGE.driftDismissedFingerprint,
       AHK_BRIDGE_STORAGE.externalMappings,
+      AHK_BRIDGE_STORAGE.lastBrowserGate,
       AHK_BRIDGE_STORAGE.lastChordSnapshot,
     ].sort(),
-    "AHK bridge storage keys include External hotkeys, snapshot companions, and Bridge toggle hotkey",
+    "AHK bridge storage keys include External hotkeys, Browser gate, snapshot companions, and Bridge toggle hotkey",
   );
 
   assert(
     AHK_BRIDGE_STORAGE.bridgeToggleHotkey === "ahkBridgeToggleHotkey",
     "Bridge toggle hotkey uses a dedicated companion storage key",
+  );
+  assert(
+    AHK_BRIDGE_STORAGE.browserGate === "ahkBrowserGate",
+    "Browser gate uses a dedicated companion storage key",
+  );
+  assert(
+    AHK_BRIDGE_STORAGE.lastBrowserGate === "ahkLastBrowserGate",
+    "Last-download Browser gate uses a dedicated companion storage key",
   );
 
   assertDeepEqual(
@@ -104,8 +117,10 @@ function assertDeepEqual(actual, expected, message) {
       [AHK_BRIDGE_STORAGE.lastChordSnapshot]: null,
       [AHK_BRIDGE_STORAGE.driftDismissedFingerprint]: "",
       [AHK_BRIDGE_STORAGE.bridgeToggleHotkey]: "",
+      [AHK_BRIDGE_STORAGE.browserGate]: true,
+      [AHK_BRIDGE_STORAGE.lastBrowserGate]: null,
     },
-    "Clear AHK mappings wipes mappings, snapshot state, and Bridge toggle hotkey",
+    "Clear AHK mappings wipes mappings/snapshot/toggle and resets Browser gate to default on",
   );
 }
 
@@ -141,6 +156,56 @@ function assertDeepEqual(actual, expected, message) {
       [AHK_BRIDGE_STORAGE.bridgeToggleHotkey]: "",
     }) === false,
     "reset patch that clears Bridge toggle hotkey is rejected by policy helper",
+  );
+  assert(
+    resetPatchOmitsAhkBridgeStorage({
+      ...playbackDefaults,
+      [AHK_BRIDGE_STORAGE.browserGate]: true,
+    }) === false,
+    "reset patch that touches Browser gate is rejected by policy helper",
+  );
+}
+
+// --- Browser gate persist shape (default on) ---
+
+{
+  assert(normalizeBrowserGate(undefined) === true, "missing Browser gate → on");
+  assert(normalizeBrowserGate(null) === true, "null Browser gate → on");
+  assert(normalizeBrowserGate(true) === true, "true Browser gate → on");
+  assert(normalizeBrowserGate(false) === false, "false Browser gate → off");
+  assert(normalizeBrowserGate("false") === true, "non-boolean truthy-ish string does not turn gate off");
+  assert(normalizeLastBrowserGate(undefined) === null, "missing last Browser gate → null");
+  assert(normalizeLastBrowserGate(null) === null, "null last Browser gate → null");
+  assert(normalizeLastBrowserGate(true) === true, "true last Browser gate preserved");
+  assert(normalizeLastBrowserGate(false) === false, "false last Browser gate preserved");
+  assert(normalizeLastBrowserGate("true") === null, "non-boolean last Browser gate → null");
+}
+
+// --- Gate-off high-collision External hotkey confirm copy ---
+
+{
+  const gated = externalHotkeyHighCollisionWarn(true);
+  assert(
+    gated.messageKey === "ahkHighCollisionWarn",
+    "Browser gate on uses gated high-collision message key",
+  );
+  assert(
+    /usable|browser/i.test(gated.fallback) && !/all applications/i.test(gated.fallback),
+    "gated high-collision fallback mentions usable browser, not all applications",
+  );
+
+  const ungated = externalHotkeyHighCollisionWarn(false);
+  assert(
+    ungated.messageKey === "ahkHighCollisionWarnGateOff",
+    "Browser gate off uses stronger high-collision message key",
+  );
+  assert(
+    /all applications/i.test(ungated.fallback),
+    "gate-off high-collision fallback warns key is swallowed in all applications",
+  );
+  assert(
+    externalHotkeyHighCollisionWarn().messageKey === "ahkHighCollisionWarn",
+    "omitted Browser gate defaults to gated high-collision copy",
   );
 }
 

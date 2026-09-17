@@ -1,10 +1,11 @@
 /**
- * Unit tests for AHK bridge generator (#13, #21).
+ * Unit tests for AHK bridge generator (#13, #21, #23).
  * Seam: shared/ahk-bridge.js (generateAhkBridge).
  *
  * Inputs: External hotkey mappings + Command shortcut snapshot (+ optional prior
- * snapshot and optional Bridge toggle hotkey).
- * Outputs: eligibility, skipped-unbound details, drift, full AHK bridge script text.
+ * snapshot, optional Bridge toggle hotkey, Browser gate + last-download gate).
+ * Outputs: eligibility, skipped-unbound details, chord drift / browserGateChanged /
+ * needsRegenerate, full AHK bridge script text.
  */
 import { generateAhkBridge } from "../shared/ahk-bridge.js";
 
@@ -273,6 +274,156 @@ const BASELINE_NO_TOGGLE_SCRIPT = generateAhkBridge({
   assert(
     fromRecord.scriptText === result.scriptText,
     "stored Bridge toggle hotkey record embeds the same as a bare AHK string",
+  );
+}
+
+// --- Browser gate on (default): remaps stay under HasUsableBrowserWindow #HotIf ---
+
+{
+  const omitted = generateAhkBridge({
+    mappings: BASELINE_MAPPINGS,
+    commandShortcuts: BASELINE_SHORTCUTS,
+  });
+  const explicitOn = generateAhkBridge({
+    mappings: BASELINE_MAPPINGS,
+    commandShortcuts: BASELINE_SHORTCUTS,
+    browserGate: true,
+  });
+  assert(
+    omitted.scriptText === explicitOn.scriptText,
+    "omitted browserGate matches explicit Browser gate on",
+  );
+  assert(
+    omitted.scriptText.includes("#HotIf HasUsableBrowserWindow()\n"),
+    "Browser gate on keeps remap #HotIf HasUsableBrowserWindow()",
+  );
+  assert(
+    /Path A:|Path B:/i.test(omitted.scriptText),
+    "generated script header comments describe Path A and Path B",
+  );
+  assert(
+    !/\*RunAs|Run\s*\*\s*RunAs|A_IsAdmin/i.test(omitted.scriptText),
+    "default generated script has no auto-*RunAs / self-elevation",
+  );
+}
+
+// --- Browser gate off: External hotkey remaps are global (no remap browser #HotIf) ---
+
+{
+  const result = generateAhkBridge({
+    mappings: BASELINE_MAPPINGS,
+    commandShortcuts: BASELINE_SHORTCUTS,
+    browserGate: false,
+  });
+  assert(result.eligible === true, "Browser gate off does not affect eligibility");
+  assert(result.scriptText.includes("F13::"), "gate-off script still embeds External hotkey");
+  assert(
+    result.scriptText.includes('SendPlayback("^+1")'),
+    "gate-off script still embeds Command chord",
+  );
+  assert(
+    !/#HotIf\s+HasUsableBrowserWindow\(\)/.test(result.scriptText),
+    "Browser gate off omits HasUsableBrowserWindow remap #HotIf",
+  );
+  assert(
+    result.scriptText.includes("HasUsableBrowserWindow()"),
+    "gate-off script still defines HasUsableBrowserWindow for SendPlayback no-op",
+  );
+  assert(
+    /all applications|system-wide|Browser gate OFF/i.test(result.scriptText),
+    "gate-off script comments state keys are claimed system-wide",
+  );
+  assert(
+    /Path A:|Path B:/i.test(result.scriptText),
+    "gate-off script header still describes Path A and Path B",
+  );
+  assert(
+    !/\*RunAs|Run\s*\*\s*RunAs|A_IsAdmin/i.test(result.scriptText),
+    "gate-off script has no auto-*RunAs / self-elevation",
+  );
+  assert(
+    result.scriptText !== BASELINE_NO_TOGGLE_SCRIPT,
+    "gate-off script differs from default gate-on output",
+  );
+}
+
+// --- Browser gate off + Bridge toggle: no remap #HotIf; handlers check the flag ---
+
+{
+  const result = generateAhkBridge({
+    mappings: BASELINE_MAPPINGS,
+    commandShortcuts: BASELINE_SHORTCUTS,
+    browserGate: false,
+    bridgeToggleHotkey: "F24",
+  });
+  assert(result.scriptText.includes("F24::"), "gate-off + toggle still embeds Bridge toggle");
+  assert(
+    !/^#HotIf\b/m.test(result.scriptText),
+    "gate-off + toggle uses no remap #HotIf directive (keeps RegisterHotKey-style capture)",
+  );
+  assert(
+    /F13::\s*\{[\s\S]*BridgeRemapsEnabled[\s\S]*SendPlayback\("\^\+1"\)/.test(result.scriptText),
+    "gate-off + toggle External hotkey handlers check BridgeRemapsEnabled then SendPlayback",
+  );
+  const toggleIndex = result.scriptText.indexOf("F24::");
+  const remapIndex = result.scriptText.indexOf("F13::");
+  assert(toggleIndex >= 0 && remapIndex >= 0, "toggle and External hotkey lines present");
+  assert(
+    toggleIndex < remapIndex,
+    "Bridge toggle stays before External hotkey remaps when Browser gate is off",
+  );
+}
+
+// --- Changing Browser gate after a prior download → needsRegenerate ---
+
+{
+  const aligned = generateAhkBridge({
+    mappings: BASELINE_MAPPINGS,
+    commandShortcuts: BASELINE_SHORTCUTS,
+    lastSnapshot: BASELINE_SHORTCUTS,
+    browserGate: true,
+    lastBrowserGate: true,
+  });
+  assert(aligned.drift === false, "aligned chords → drift false");
+  assert(
+    aligned.browserGateChanged === false,
+    "same Browser gate as last download → browserGateChanged false",
+  );
+  assert(
+    aligned.needsRegenerate === false,
+    "aligned chords + gate → needsRegenerate false",
+  );
+
+  const gateFlipped = generateAhkBridge({
+    mappings: BASELINE_MAPPINGS,
+    commandShortcuts: BASELINE_SHORTCUTS,
+    lastSnapshot: BASELINE_SHORTCUTS,
+    browserGate: false,
+    lastBrowserGate: true,
+  });
+  assert(gateFlipped.drift === false, "gate-only change is not chord drift");
+  assert(
+    gateFlipped.browserGateChanged === true,
+    "Browser gate differs from last download → browserGateChanged true",
+  );
+  assert(
+    gateFlipped.needsRegenerate === true,
+    "Browser gate change after download → needsRegenerate true",
+  );
+
+  const neverDownloaded = generateAhkBridge({
+    mappings: BASELINE_MAPPINGS,
+    commandShortcuts: BASELINE_SHORTCUTS,
+    browserGate: false,
+    lastBrowserGate: null,
+  });
+  assert(
+    neverDownloaded.browserGateChanged === false,
+    "no prior download → browserGateChanged false",
+  );
+  assert(
+    neverDownloaded.needsRegenerate === false,
+    "no prior download → needsRegenerate false even if gate is off",
   );
 }
 

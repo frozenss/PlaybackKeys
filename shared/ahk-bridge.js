@@ -4,7 +4,8 @@
  * info, drift, and AutoHotkey v2 script text (#13); optional Bridge toggle
  * hotkey embedding (#21); Bridge toggle persist/normalize + External
  * collision helpers for the options recorder (#22); Windows gating and
- * clear/reset storage policy for the companion panel (#16).
+ * clear/reset storage policy for the companion panel (#16); Browser gate
+ * generate/persist + regenerate-needed when the gate drifts (#23).
  * No DOM / chrome.*.
  */
 
@@ -16,6 +17,8 @@
  *   eligible: boolean,
  *   skippedUnbound: Array<{ commandId: string, ahkHotkey: string, label?: string }>,
  *   drift: boolean,
+ *   browserGateChanged: boolean,
+ *   needsRegenerate: boolean,
  *   scriptText: string,
  * }} AhkBridgeGenerateResult
  *
@@ -32,6 +35,8 @@ export const AHK_BRIDGE_STORAGE = Object.freeze({
   lastChordSnapshot: "ahkLastChordSnapshot",
   driftDismissedFingerprint: "ahkDriftDismissedFingerprint",
   bridgeToggleHotkey: "ahkBridgeToggleHotkey",
+  browserGate: "ahkBrowserGate",
+  lastBrowserGate: "ahkLastBrowserGate",
 });
 
 /**
@@ -45,8 +50,9 @@ export function ahkBridgeStorageKeys() {
  * Storage patch that clears External hotkey mappings and related bridge snapshot state.
  * Used by the explicit "Clear AHK mappings" control — not by Reset all to defaults.
  *
- * @returns {Record<string, [] | null | string>}
- *   Clears External hotkey mappings, generate snapshot state, and Bridge toggle hotkey.
+ * @returns {Record<string, [] | null | string | boolean>}
+ *   Clears External hotkey mappings, generate snapshot state, and Bridge toggle hotkey;
+ *   resets Browser gate to default on and clears last-download gate.
  */
 export function clearedAhkBridgeStorage() {
   return {
@@ -54,6 +60,8 @@ export function clearedAhkBridgeStorage() {
     [AHK_BRIDGE_STORAGE.lastChordSnapshot]: null,
     [AHK_BRIDGE_STORAGE.driftDismissedFingerprint]: "",
     [AHK_BRIDGE_STORAGE.bridgeToggleHotkey]: "",
+    [AHK_BRIDGE_STORAGE.browserGate]: true,
+    [AHK_BRIDGE_STORAGE.lastBrowserGate]: null,
   };
 }
 
@@ -238,6 +246,50 @@ export function externalHotkeyConflictsWithBridgeToggle(ahkHotkey, bridgeToggle)
   return Boolean(needle && toggle && needle === toggle);
 }
 
+/**
+ * Browser gate preference: default on unless explicitly false.
+ *
+ * @param {unknown} value
+ * @returns {boolean}
+ */
+export function normalizeBrowserGate(value) {
+  return value !== false;
+}
+
+/**
+ * Last-download Browser gate snapshot. Only true/false count as a prior download.
+ *
+ * @param {unknown} value
+ * @returns {boolean | null}
+ */
+export function normalizeLastBrowserGate(value) {
+  if (value === true) return true;
+  if (value === false) return false;
+  return null;
+}
+
+/**
+ * High-collision External hotkey confirm copy depends on Browser gate.
+ * Gate off must warn that the key is swallowed in all applications while the script runs.
+ *
+ * @param {unknown} [browserGate]
+ * @returns {{ messageKey: string, fallback: string }}
+ */
+export function externalHotkeyHighCollisionWarn(browserGate) {
+  if (normalizeBrowserGate(browserGate)) {
+    return {
+      messageKey: "ahkHighCollisionWarn",
+      fallback:
+        "This External hotkey is commonly typed. While a supported browser window is usable, AutoHotkey will swallow it globally. Bind it anyway?",
+    };
+  }
+  return {
+    messageKey: "ahkHighCollisionWarnGateOff",
+    fallback:
+      "This External hotkey is commonly typed. AutoHotkey will swallow it in all applications while the AHK bridge script is running. Bind it anyway?",
+  };
+}
+
 function hasPriorSnapshot(lastSnapshot) {
   return Boolean(
     lastSnapshot &&
@@ -254,6 +306,8 @@ function hasPriorSnapshot(lastSnapshot) {
  *   commandShortcuts?: CommandShortcutSnapshot,
  *   lastSnapshot?: CommandShortcutSnapshot | null,
  *   bridgeToggleHotkey?: string | { ahkHotkey?: string, label?: string } | null,
+ *   browserGate?: boolean,
+ *   lastBrowserGate?: boolean | null,
  * }} input
  * @returns {AhkBridgeGenerateResult}
  */
@@ -264,12 +318,18 @@ export function generateAhkBridge(input = {}) {
       ? input.commandShortcuts
       : {};
   const bridgeToggleHotkey = normalizeBridgeToggleHotkey(input.bridgeToggleHotkey ?? null);
+  const browserGate = normalizeBrowserGate(input.browserGate);
+  const lastBrowserGate = normalizeLastBrowserGate(input.lastBrowserGate);
+  const browserGateChanged =
+    lastBrowserGate !== null && lastBrowserGate !== browserGate;
 
   if (mappings.length === 0) {
     return {
       eligible: false,
       skippedUnbound: [],
       drift: false,
+      browserGateChanged,
+      needsRegenerate: browserGateChanged,
       scriptText: "",
     };
   }
@@ -293,13 +353,17 @@ export function generateAhkBridge(input = {}) {
   }
 
   const eligible = active.length > 0;
-  const scriptText = eligible ? buildScriptText(active, bridgeToggleHotkey) : "";
+  const scriptText = eligible
+    ? buildScriptText(active, bridgeToggleHotkey, browserGate)
+    : "";
   const drift = detectDrift(mappings, commandShortcuts, input.lastSnapshot);
 
   return {
     eligible,
     skippedUnbound,
     drift,
+    browserGateChanged,
+    needsRegenerate: drift || browserGateChanged,
     scriptText,
   };
 }
@@ -329,8 +393,9 @@ function detectDrift(mappings, commandShortcuts, lastSnapshot) {
 /**
  * @param {Array<{ commandId: string, ahkHotkey: string, label?: string, ahkSend: string }>} active
  * @param {string} [bridgeToggleHotkey]
+ * @param {boolean} [browserGate]
  */
-function buildScriptText(active, bridgeToggleHotkey = "") {
+function buildScriptText(active, bridgeToggleHotkey = "", browserGate = true) {
   const hotkeyLines = active
     .map((row) => {
       const comment = row.label ? ` ; ${row.label}` : ` ; ${row.commandId}`;
@@ -351,9 +416,44 @@ ${bridgeToggleHotkey}:: {
 
 `
     : "";
-  const remapHotIf = bridgeToggleHotkey
-    ? "#HotIf HasUsableBrowserWindow() && BridgeRemapsEnabled"
-    : "#HotIf HasUsableBrowserWindow()";
+
+  let remapBlock;
+  if (browserGate) {
+    const remapHotIf = bridgeToggleHotkey
+      ? "#HotIf HasUsableBrowserWindow() && BridgeRemapsEnabled"
+      : "#HotIf HasUsableBrowserWindow()";
+    remapBlock = `; Browser gate ON: only intercept External hotkeys while a usable supported browser window is known.
+${remapHotIf}
+
+${hotkeyLines}
+
+#HotIf
+`;
+  } else if (bridgeToggleHotkey) {
+    // No remap #HotIf when Browser gate is off: keep RegisterHotKey-style capture.
+    // Bridge toggle still gates SendPlayback via an in-handler flag check.
+    const gatedLines = active
+      .map((row) => {
+        const comment = row.label ? ` ; ${row.label}` : ` ; ${row.commandId}`;
+        return `${row.ahkHotkey}:: {${comment}
+    global BridgeRemapsEnabled
+    if !BridgeRemapsEnabled
+        return
+    SendPlayback("${row.ahkSend}")
+}`;
+      })
+      .join("\n");
+    remapBlock = `; Browser gate OFF: External hotkeys are claimed system-wide while this script runs
+; (no remap #HotIf). Bridge toggle still enables/disables SendPlayback via BridgeRemapsEnabled.
+; SendPlayback may no-op without a usable browser, but the key is already consumed.
+${gatedLines}
+`;
+  } else {
+    remapBlock = `; Browser gate OFF: External hotkeys are claimed system-wide while this script runs.
+; SendPlayback may no-op without a usable browser, but the key is already consumed.
+${hotkeyLines}
+`;
+  }
 
   return `#Requires AutoHotkey v2.0
 #SingleInstance Force
@@ -362,17 +462,17 @@ Persistent()
 ; PlaybackKeys AHK bridge script (generated)
 ; External hotkeys → SendInput of Command target chords.
 ; Do not WinActivate the browser; keep the current app focused.
+;
+; Path A: keep Browser gate on; if External hotkeys fail over an elevated game
+; foreground, run this AHK bridge script as Administrator.
+; Path B: turn Browser gate off for system-wide capture without elevation
+; (keys are swallowed in all applications while the script runs).
+; This default generate does not auto-elevate on start.
 
 SendMode "Input"
 SetWorkingDir A_ScriptDir
 
-${togglePrefix}; Only intercept External hotkeys while a usable supported browser window is known.
-${remapHotIf}
-
-${hotkeyLines}
-
-#HotIf
-
+${togglePrefix}${remapBlock}
 LastBrowserHwnd := 0
 SetTimer(TrackLastBrowserWindow, 100)
 TrackLastBrowserWindow()

@@ -127,6 +127,14 @@
           <div class="ahk-bridge-body">
             <p class="ahk-bridge-note" data-i18n="ahkBridgeNote">Record OS-level External hotkeys for Commands, then download one AHK bridge script. Rows without a Chrome target chord can still be recorded; they are skipped in the script until bound.</p>
             <p class="ahk-bridge-guidance" data-i18n-html="ahkBridgeGuidance">Install <a href="https://www.autohotkey.com/" target="_blank" rel="noopener">AutoHotkey v2</a>, download the script, then run it (optionally start with Windows). Keep each Command set to <b>Global</b> in Chrome shortcut settings so SendInput still reaches PlaybackKeys while another app is focused.</p>
+            <div class="ahk-browser-gate opt-row toggle-row">
+              <div class="lbl">
+                <span data-i18n="ahkBrowserGateLabel">Only intercept while a browser is usable</span>
+                <small data-i18n="ahkBrowserGateDesc">Browser gate — on by default. Off claims External hotkeys system-wide while the AHK bridge script runs.</small>
+              </div>
+              <div class="switch-lg" id="ahk-browser-gate-toggle" role="switch" tabindex="0" aria-checked="true"></div>
+            </div>
+            <p class="ahk-bridge-paths" data-i18n-html="ahkBridgePathsGuidance"><b>Path A:</b> keep Browser gate on; if External hotkeys fail over an elevated game, run the AHK bridge script as Administrator. <b>Path B:</b> turn Browser gate off for system-wide capture without elevation (keys are swallowed in all apps while the script runs).</p>
             <div id="ahk-bridge-toggle" class="ahk-bridge-toggle"></div>
             <div id="ahk-mapping-list" class="ahk-mapping-list"></div>
             <p id="ahk-skip-reasons" class="ahk-skip-reasons" hidden></p>
@@ -134,7 +142,7 @@
               <button type="button" class="btn-ghost" id="ahk-download" data-i18n="ahkDownload" disabled>Download AHK bridge script</button>
               <span id="ahk-download-reason" class="ahk-download-reason"></span>
               <div id="ahk-drift-hint" class="ahk-drift-hint" hidden>
-                <span data-i18n="ahkDriftHint">Chrome Command chords changed since the last download. Regenerate the AHK bridge script.</span>
+                <span data-i18n="ahkDriftHint">AHK bridge settings or Chrome Command chords changed since the last download. Regenerate the AHK bridge script.</span>
                 <button type="button" class="btn-ghost" id="ahk-drift-dismiss" data-i18n="ahkDriftDismiss">Dismiss</button>
               </div>
             </div>

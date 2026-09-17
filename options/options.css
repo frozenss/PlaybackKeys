@@ -397,6 +397,20 @@ a { color: inherit; }
 }
 .ahk-bridge-guidance a:hover { text-decoration: underline; }
 .ahk-bridge-guidance b { color: var(--pk-fg-2); font-weight: 600; }
+.ahk-browser-gate {
+  margin: 0 0 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--pk-line);
+  border-radius: 10px;
+  background: var(--pk-inset);
+}
+.ahk-bridge-paths {
+  margin: 0 0 12px;
+  font-size: 12px;
+  color: var(--pk-fg-3);
+  max-width: 72ch;
+}
+.ahk-bridge-paths b { color: var(--pk-fg-2); font-weight: 600; }
 .ahk-bridge-toggle {
   margin: 0 0 12px;
 }

@@ -69,6 +69,25 @@ and Linux. A few caveats from Chrome's docs:
 To scope a command back to "only when Chrome is focused", switch its
 dropdown in `chrome://extensions/shortcuts` from "Global" to "In Chrome".
 
+## Windows AHK bridge (optional)
+
+On Windows, Settings → Shortcuts includes an optional **AHK bridge** panel.
+Record **External hotkeys**, download one AutoHotkey v2 **AHK bridge script**,
+and keep Chrome **Commands** set to Global. The script `SendInput`s those
+Command chords without activating the browser.
+
+**Browser gate** (default on: “only intercept while a browser is usable”)
+arms External hotkey remaps only while a usable supported browser window is
+known. Two complementary paths when an elevated game is in the foreground:
+
+- **Path A:** keep Browser gate on; if External hotkeys fail over that elevated
+  foreground, run the AHK bridge script as Administrator.
+- **Path B:** turn Browser gate off so remaps are claimed system-wide while the
+  script runs (no elevation required; keys are swallowed in all apps).
+
+Changing Browser gate after a download means regenerating the script. Default
+downloads do not auto-elevate.
+
 ## Tab targeting
 
 When a shortcut fires, PlaybackKeys picks a target tab in this order. Every

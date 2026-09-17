@@ -643,13 +643,25 @@
     "message": "安装 <a href=\"https://www.autohotkey.com/\" target=\"_blank\" rel=\"noopener\">AutoHotkey v2</a>，下载脚本并运行（可选随 Windows 启动）。请在 Chrome 快捷键设置中将每个 Command 保持为 <b>Global</b>，以便在其他应用处于前台时，SendInput 仍能送达 PlaybackKeys。",
     "description": "Brief AutoHotkey v2 install/run guidance plus reminder that Commands must remain Global in Chrome."
   },
+  "ahkBrowserGateLabel": {
+    "message": "仅在有浏览器时拦截",
+    "description": "User-facing Browser gate toggle label (equivalent of 仅在有浏览器时拦截)."
+  },
+  "ahkBrowserGateDesc": {
+    "message": "Browser gate — 默认开启。关闭后，在 AHK bridge script 运行期间会系统级占用 External hotkey。",
+    "description": "Helper text under the Browser gate toggle explaining default-on and global-claim trade-off."
+  },
+  "ahkBridgePathsGuidance": {
+    "message": "<b>路径 A：</b>保持 Browser gate 开启；若在提权游戏前台下 External hotkey 失效，请以管理员身份运行 AHK bridge script。<b>路径 B：</b>关闭 Browser gate，无需提权即可系统级捕获（脚本运行期间会在所有应用中吞掉这些按键）。",
+    "description": "AHK panel dual-path guidance from ADR-0006: elevate with gate on, or gate off for global claim."
+  },
   "ahkClearMappings": {
     "message": "清除 AHK 映射",
-    "description": "Button that clears all External hotkey mappings, Bridge toggle hotkey, and related AHK bridge snapshot state."
+    "description": "Button that clears all External hotkey mappings, Bridge toggle hotkey, Browser gate, and related AHK bridge snapshot state."
   },
   "ahkClearMappingsConfirm": {
-    "message": "确定清除所有 External hotkey 映射、重映射开/关热键以及 AHK bridge 下载快照状态？",
-    "description": "Confirm dialog before clearing all AHK bridge companion storage, including the Bridge toggle hotkey."
+    "message": "确定清除所有 External hotkey 映射、重映射开/关热键、Browser gate 以及 AHK bridge 下载快照状态？",
+    "description": "Confirm dialog before clearing all AHK bridge companion storage, including the Bridge toggle hotkey and Browser gate."
   },
   "ahkRecordExternal": {
     "message": "录制",
@@ -673,7 +685,11 @@
   },
   "ahkHighCollisionWarn": {
     "message": "此 External hotkey 是常用按键。在可用的浏览器窗口存在时，AutoHotkey 会全局吞掉它。仍然绑定吗？",
-    "description": "One-shot confirm when binding a high-collision External hotkey."
+    "description": "One-shot confirm when binding a high-collision External hotkey with Browser gate on."
+  },
+  "ahkHighCollisionWarnGateOff": {
+    "message": "此 External hotkey 是常用按键。在 AHK bridge script 运行期间，AutoHotkey 会在所有应用中吞掉它。仍然绑定吗？",
+    "description": "One-shot confirm when binding a high-collision External hotkey with Browser gate off (stronger global swallow warning)."
   },
   "ahkDownload": {
     "message": "下载 AHK bridge script",
@@ -688,8 +704,8 @@
     "description": "Explains which mapped Commands are omitted from active AHK hotkey lines. $1 is a comma-separated Command list."
   },
   "ahkDriftHint": {
-    "message": "自上次下载后，Chrome Command 快捷键已更改。请重新生成 AHK bridge script。",
-    "description": "Dismissible hint beside Download when live chrome.commands chords drift from the last generate snapshot."
+    "message": "自上次下载后，AHK bridge 设置或 Chrome Command 快捷键已更改。请重新生成 AHK bridge script。",
+    "description": "Dismissible hint beside Download when Browser gate or live chrome.commands chords drift from the last generate snapshot."
   },
   "ahkDriftDismiss": {
     "message": "忽略",
