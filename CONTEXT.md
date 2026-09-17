@@ -28,6 +28,10 @@ _Avoid_: companion app, native host, remap script (unqualified)
 The AHK runtime condition that External hotkey remaps are armed only while a usable supported browser window is known. When off, those remaps are claimed system-wide for the life of the AHK bridge script.
 _Avoid_: game mode, game compatibility mode, #HotIf (implementation), RegisterHotKey mode (implementation)
 
+**Self-elevation**:
+The optional AHK-panel setting (default off) that, when enabled, makes Download embed an AutoHotkey `*RunAs` restart so the AHK bridge script can match elevated foreground apps (Path A). UAC still applies; complementary to Browser gate, not a replacement for turning the gate off.
+_Avoid_: auto-admin (unqualified), always elevate, Run as administrator (the manual Path A action), UI Access
+
 **Bridge toggle hotkey**:
 The OS-level key or chord, recorded in the extension only so it can be embedded into the AHK bridge script, that enables or disables External hotkey remapping at AHK runtime without ever disabling itself. It is not a Command and does not SendInput a Command chord.
 _Avoid_: External hotkey, Command, Suspend hotkey, global shortcut (unqualified)

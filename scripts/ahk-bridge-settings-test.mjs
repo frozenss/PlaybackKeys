@@ -1,11 +1,12 @@
 /**
- * Unit tests for AHK bridge settings helpers (#16, #21, #22).
+ * Unit tests for AHK bridge settings helpers (#16, #21, #22, #23, #24).
  * Seam: shared/ahk-bridge.js (isWindowsPlatform, clearedAhkBridgeStorage,
- * resetPatchOmitsAhkBridgeStorage, Bridge toggle hotkey normalize + collision).
+ * resetPatchOmitsAhkBridgeStorage, Bridge toggle hotkey normalize + collision,
+ * Browser gate + self-elevate persist shape).
  *
  * Covers Windows gating signals, clear/reset storage policy, Bridge toggle
- * hotkey persist shape, and bidirectional External↔toggle collision — not
- * options DOM.
+ * hotkey persist shape, bidirectional External↔toggle collision, and
+ * self-elevate default-off normalize — not options DOM.
  */
 import {
   AHK_BRIDGE_STORAGE,
@@ -19,6 +20,8 @@ import {
   normalizeBridgeToggleHotkeyRecord,
   normalizeBrowserGate,
   normalizeLastBrowserGate,
+  normalizeLastSelfElevate,
+  normalizeSelfElevate,
   resetPatchOmitsAhkBridgeStorage,
 } from "../shared/ahk-bridge.js";
 
@@ -93,8 +96,10 @@ function assertDeepEqual(actual, expected, message) {
       AHK_BRIDGE_STORAGE.externalMappings,
       AHK_BRIDGE_STORAGE.lastBrowserGate,
       AHK_BRIDGE_STORAGE.lastChordSnapshot,
+      AHK_BRIDGE_STORAGE.lastSelfElevate,
+      AHK_BRIDGE_STORAGE.selfElevate,
     ].sort(),
-    "AHK bridge storage keys include External hotkeys, Browser gate, snapshot companions, and Bridge toggle hotkey",
+    "AHK bridge storage keys include External hotkeys, Browser gate, self-elevate, snapshot companions, and Bridge toggle hotkey",
   );
 
   assert(
@@ -109,6 +114,14 @@ function assertDeepEqual(actual, expected, message) {
     AHK_BRIDGE_STORAGE.lastBrowserGate === "ahkLastBrowserGate",
     "Last-download Browser gate uses a dedicated companion storage key",
   );
+  assert(
+    AHK_BRIDGE_STORAGE.selfElevate === "ahkSelfElevate",
+    "Self-elevate uses a dedicated companion storage key",
+  );
+  assert(
+    AHK_BRIDGE_STORAGE.lastSelfElevate === "ahkLastSelfElevate",
+    "Last-download self-elevate uses a dedicated companion storage key",
+  );
 
   assertDeepEqual(
     clearedAhkBridgeStorage(),
@@ -119,8 +132,10 @@ function assertDeepEqual(actual, expected, message) {
       [AHK_BRIDGE_STORAGE.bridgeToggleHotkey]: "",
       [AHK_BRIDGE_STORAGE.browserGate]: true,
       [AHK_BRIDGE_STORAGE.lastBrowserGate]: null,
+      [AHK_BRIDGE_STORAGE.selfElevate]: false,
+      [AHK_BRIDGE_STORAGE.lastSelfElevate]: null,
     },
-    "Clear AHK mappings wipes mappings/snapshot/toggle and resets Browser gate to default on",
+    "Clear AHK mappings wipes mappings/snapshot/toggle, resets Browser gate on and self-elevate off",
   );
 }
 
@@ -164,6 +179,13 @@ function assertDeepEqual(actual, expected, message) {
     }) === false,
     "reset patch that touches Browser gate is rejected by policy helper",
   );
+  assert(
+    resetPatchOmitsAhkBridgeStorage({
+      ...playbackDefaults,
+      [AHK_BRIDGE_STORAGE.selfElevate]: false,
+    }) === false,
+    "reset patch that touches self-elevate is rejected by policy helper",
+  );
 }
 
 // --- Browser gate persist shape (default on) ---
@@ -179,6 +201,22 @@ function assertDeepEqual(actual, expected, message) {
   assert(normalizeLastBrowserGate(true) === true, "true last Browser gate preserved");
   assert(normalizeLastBrowserGate(false) === false, "false last Browser gate preserved");
   assert(normalizeLastBrowserGate("true") === null, "non-boolean last Browser gate → null");
+}
+
+// --- Self-elevate persist shape (default off) ---
+
+{
+  assert(normalizeSelfElevate(undefined) === false, "missing self-elevate → off");
+  assert(normalizeSelfElevate(null) === false, "null self-elevate → off");
+  assert(normalizeSelfElevate(false) === false, "false self-elevate → off");
+  assert(normalizeSelfElevate(true) === true, "true self-elevate → on");
+  assert(normalizeSelfElevate("true") === false, "non-boolean string does not turn self-elevate on");
+  assert(normalizeSelfElevate(1) === false, "truthy non-boolean does not turn self-elevate on");
+  assert(normalizeLastSelfElevate(undefined) === null, "missing last self-elevate → null");
+  assert(normalizeLastSelfElevate(null) === null, "null last self-elevate → null");
+  assert(normalizeLastSelfElevate(true) === true, "true last self-elevate preserved");
+  assert(normalizeLastSelfElevate(false) === false, "false last self-elevate preserved");
+  assert(normalizeLastSelfElevate("false") === null, "non-boolean last self-elevate → null");
 }
 
 // --- Gate-off high-collision External hotkey confirm copy ---

@@ -652,16 +652,24 @@
     "description": "Helper text under the Browser gate toggle explaining default-on and global-claim trade-off."
   },
   "ahkBridgePathsGuidance": {
-    "message": "<b>路径 A：</b>保持 Browser gate 开启；若在提权游戏前台下 External hotkey 失效，请以管理员身份运行 AHK bridge script。<b>路径 B：</b>关闭 Browser gate，无需提权即可系统级捕获（脚本运行期间会在所有应用中吞掉这些按键）。",
-    "description": "AHK panel dual-path guidance from ADR-0006: elevate with gate on, or gate off for global claim."
+    "message": "<b>路径 A：</b>保持 Browser gate 开启；若在提权游戏前台下 External hotkey 失效，请以管理员身份运行 AHK bridge script（或在 Download 前开启可选的自提权）。<b>路径 B：</b>关闭 Browser gate，无需提权即可系统级捕获（脚本运行期间会在所有应用中吞掉这些按键）。",
+    "description": "AHK panel dual-path guidance from ADR-0006: elevate with gate on (manual or optional self-elevation), or gate off for global claim."
+  },
+  "ahkSelfElevateLabel": {
+    "message": "启动时请求管理员权限（可选）",
+    "description": "User-facing optional self-elevation toggle label for the AHK bridge panel."
+  },
+  "ahkSelfElevateDesc": {
+    "message": "自提权 — 可选，默认关闭。开启后，Download 会嵌入 UAC 重启逻辑，使 AHK bridge script 能匹配提权前台应用（路径 A）。与 Browser gate 互补，不能替代路径 B。",
+    "description": "Helper text under the self-elevation toggle explaining default-off and Path A complementarity."
   },
   "ahkClearMappings": {
     "message": "清除 AHK 映射",
-    "description": "Button that clears all External hotkey mappings, Bridge toggle hotkey, Browser gate, and related AHK bridge snapshot state."
+    "description": "Button that clears all External hotkey mappings, Bridge toggle hotkey, Browser gate, self-elevation, and related AHK bridge snapshot state."
   },
   "ahkClearMappingsConfirm": {
-    "message": "确定清除所有 External hotkey 映射、重映射开/关热键、Browser gate 以及 AHK bridge 下载快照状态？",
-    "description": "Confirm dialog before clearing all AHK bridge companion storage, including the Bridge toggle hotkey and Browser gate."
+    "message": "确定清除所有 External hotkey 映射、重映射开/关热键、Browser gate、自提权以及 AHK bridge 下载快照状态？",
+    "description": "Confirm dialog before clearing all AHK bridge companion storage, including the Bridge toggle hotkey, Browser gate, and self-elevation."
   },
   "ahkRecordExternal": {
     "message": "录制",

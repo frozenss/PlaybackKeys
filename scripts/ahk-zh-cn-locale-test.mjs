@@ -34,6 +34,8 @@ const PANEL_PROSE_KEYS = [
   "ahkBridgeGuidance",
   "ahkBrowserGateLabel",
   "ahkBrowserGateDesc",
+  "ahkSelfElevateLabel",
+  "ahkSelfElevateDesc",
   "ahkBridgePathsGuidance",
   "ahkClearMappings",
   "ahkClearMappingsConfirm",

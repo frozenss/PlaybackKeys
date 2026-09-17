@@ -18,6 +18,8 @@ import {
   normalizeBrowserGate,
   normalizeExternalHotkeyMapping,
   normalizeLastBrowserGate,
+  normalizeLastSelfElevate,
+  normalizeSelfElevate,
   resetPatchOmitsAhkBridgeStorage,
 } from "../shared/ahk-bridge.js";
 
@@ -547,6 +549,29 @@ async function saveAhkLastBrowserGate(value) {
   return next;
 }
 
+async function loadAhkSelfElevate() {
+  const stored = await chrome.storage.local.get({ [AHK_BRIDGE_STORAGE.selfElevate]: false });
+  return normalizeSelfElevate(stored[AHK_BRIDGE_STORAGE.selfElevate]);
+}
+
+async function saveAhkSelfElevate(enabled) {
+  const next = normalizeSelfElevate(enabled);
+  await chrome.storage.local.set({ [AHK_BRIDGE_STORAGE.selfElevate]: next });
+  flashSaved();
+  return next;
+}
+
+async function loadAhkLastSelfElevate() {
+  const stored = await chrome.storage.local.get({ [AHK_BRIDGE_STORAGE.lastSelfElevate]: null });
+  return normalizeLastSelfElevate(stored[AHK_BRIDGE_STORAGE.lastSelfElevate]);
+}
+
+async function saveAhkLastSelfElevate(value) {
+  const next = normalizeLastSelfElevate(value);
+  await chrome.storage.local.set({ [AHK_BRIDGE_STORAGE.lastSelfElevate]: next });
+  return next;
+}
+
 /**
  * @param {chrome.commands.Command[] | Iterable<chrome.commands.Command>} cmds
  * @returns {Record<string, string>}
@@ -594,15 +619,17 @@ async function saveAhkDriftDismissedFingerprint(fingerprint) {
 }
 
 /**
- * Fingerprint of mapped Command chords + Browser gate (current + last generate)
- * for dismiss persistence. Hint returns when chords or gate change enough to
- * alter this value.
+ * Fingerprint of mapped Command chords + Browser gate + self-elevate
+ * (current + last generate) for dismiss persistence. Hint returns when chords
+ * or generate settings change enough to alter this value.
  *
  * @param {Array<{ commandId: string }>} mappings
  * @param {Record<string, string>} commandShortcuts
  * @param {Record<string, string> | null} lastSnapshot
  * @param {boolean} browserGate
  * @param {boolean | null} lastBrowserGate
+ * @param {boolean} [selfElevate]
+ * @param {boolean | null} [lastSelfElevate]
  */
 function ahkDriftFingerprint(
   mappings,
@@ -610,6 +637,8 @@ function ahkDriftFingerprint(
   lastSnapshot,
   browserGate = true,
   lastBrowserGate = null,
+  selfElevate = false,
+  lastSelfElevate = null,
 ) {
   const ids = [...new Set(mappings.map((row) => row.commandId))].sort();
   /** @type {Record<string, { current: string, last: string }>} */
@@ -624,6 +653,8 @@ function ahkDriftFingerprint(
     chords: rows,
     browserGate: normalizeBrowserGate(browserGate),
     lastBrowserGate: normalizeLastBrowserGate(lastBrowserGate),
+    selfElevate: normalizeSelfElevate(selfElevate),
+    lastSelfElevate: normalizeLastSelfElevate(lastSelfElevate),
   });
 }
 
@@ -638,6 +669,8 @@ async function buildAhkGenerateInput(commandMap) {
   const bridgeToggleHotkey = await loadAhkBridgeToggleHotkey();
   const browserGate = await loadAhkBrowserGate();
   const lastBrowserGate = await loadAhkLastBrowserGate();
+  const selfElevate = await loadAhkSelfElevate();
+  const lastSelfElevate = await loadAhkLastSelfElevate();
   return {
     mappings,
     commandShortcuts,
@@ -645,6 +678,8 @@ async function buildAhkGenerateInput(commandMap) {
     bridgeToggleHotkey,
     browserGate,
     lastBrowserGate,
+    selfElevate,
+    lastSelfElevate,
   };
 }
 
@@ -664,6 +699,8 @@ async function downloadAhkBridgeScript(commandMap) {
     bridgeToggleHotkey,
     browserGate,
     lastBrowserGate,
+    selfElevate,
+    lastSelfElevate,
   } = await buildAhkGenerateInput(commandMap);
   const result = generateAhkBridge({
     mappings,
@@ -672,6 +709,8 @@ async function downloadAhkBridgeScript(commandMap) {
     bridgeToggleHotkey,
     browserGate,
     lastBrowserGate,
+    selfElevate,
+    lastSelfElevate,
   });
   if (!result.eligible || !result.scriptText) return;
 
@@ -689,9 +728,10 @@ async function downloadAhkBridgeScript(commandMap) {
     URL.revokeObjectURL(url);
   }
 
-  // Successful generate stores chord + Browser gate snapshots and clears dismiss state.
+  // Successful generate stores chord + gate + self-elevate snapshots and clears dismiss state.
   await saveAhkLastChordSnapshot(commandShortcuts);
   await saveAhkLastBrowserGate(browserGate);
+  await saveAhkLastSelfElevate(selfElevate);
   await saveAhkDriftDismissedFingerprint("");
   await updateAhkDownloadUi(commandMap);
 }
@@ -716,6 +756,8 @@ async function updateAhkDownloadUi(commandMap) {
     bridgeToggleHotkey,
     browserGate,
     lastBrowserGate,
+    selfElevate,
+    lastSelfElevate,
   } = await buildAhkGenerateInput(commandMap);
   const result = generateAhkBridge({
     mappings,
@@ -724,6 +766,8 @@ async function updateAhkDownloadUi(commandMap) {
     bridgeToggleHotkey,
     browserGate,
     lastBrowserGate,
+    selfElevate,
+    lastSelfElevate,
   });
 
   downloadBtn.disabled = !result.eligible;
@@ -765,6 +809,8 @@ async function updateAhkDownloadUi(commandMap) {
     lastSnapshot,
     browserGate,
     lastBrowserGate,
+    selfElevate,
+    lastSelfElevate,
   );
   const dismissed = await loadAhkDriftDismissedFingerprint();
   const panelExpanded = panel instanceof HTMLDetailsElement ? panel.open : true;
@@ -1015,6 +1061,13 @@ function renderAhkBrowserGateSwitch(enabled) {
   applyAria(el, !!enabled);
 }
 
+function renderAhkSelfElevateSwitch(enabled) {
+  const el = document.getElementById("ahk-self-elevate-toggle");
+  if (!el) return;
+  el.classList.toggle("on", !!enabled);
+  applyAria(el, !!enabled);
+}
+
 async function renderAhkBridge(commandMap) {
   applyAhkBridgePlatformGating();
   const list = document.getElementById("ahk-mapping-list");
@@ -1027,6 +1080,7 @@ async function renderAhkBridge(commandMap) {
   const mappings = await loadAhkExternalMappings();
   const bridgeToggle = await loadAhkBridgeToggleHotkey();
   renderAhkBrowserGateSwitch(await loadAhkBrowserGate());
+  renderAhkSelfElevateSwitch(await loadAhkSelfElevate());
   renderAhkBridgeToggleRow(commandMap, bridgeToggle);
 
   const byCommand = new Map(mappings.map((row) => [row.commandId, row]));
@@ -1281,13 +1335,14 @@ function wireOnce() {
   // Open shortcuts (Shortcuts section only; unbound Add chips call the same helper)
   document.getElementById("open-shortcuts").addEventListener("click", openBrowserShortcuts);
 
-  // AHK bridge: Browser gate, download, clear-all, drift dismiss, expanded-only drift chrome
+  // AHK bridge: Browser gate, self-elevate, download, clear-all, drift dismiss
   applyAhkBridgePlatformGating();
   const ahkPanel = document.getElementById("ahk-bridge");
   const ahkDownloadBtn = document.getElementById("ahk-download");
   const ahkClearMappingsBtn = document.getElementById("ahk-clear-mappings");
   const ahkDriftDismissBtn = document.getElementById("ahk-drift-dismiss");
   const ahkBrowserGateToggle = document.getElementById("ahk-browser-gate-toggle");
+  const ahkSelfElevateToggle = document.getElementById("ahk-self-elevate-toggle");
   if (ahkBrowserGateToggle) {
     ahkBrowserGateToggle.addEventListener("click", async () => {
       const next = !ahkBrowserGateToggle.classList.contains("on");
@@ -1302,6 +1357,20 @@ function wireOnce() {
       }
     });
   }
+  if (ahkSelfElevateToggle) {
+    ahkSelfElevateToggle.addEventListener("click", async () => {
+      const next = !ahkSelfElevateToggle.classList.contains("on");
+      await saveAhkSelfElevate(next);
+      renderAhkSelfElevateSwitch(next);
+      await updateAhkDownloadUi(await currentCommandMap());
+    });
+    ahkSelfElevateToggle.addEventListener("keydown", (e) => {
+      if (e.key === " " || e.key === "Enter") {
+        e.preventDefault();
+        ahkSelfElevateToggle.click();
+      }
+    });
+  }
   if (ahkDownloadBtn) {
     ahkDownloadBtn.addEventListener("click", async () => {
       if (ahkDownloadBtn.disabled) return;
@@ -1313,7 +1382,7 @@ function wireOnce() {
       if (!confirm(t(
         "ahkClearMappingsConfirm",
         undefined,
-        "Clear all External hotkey mappings, the remaps on/off hotkey, Browser gate, and AHK bridge download snapshot state?",
+        "Clear all External hotkey mappings, the remaps on/off hotkey, Browser gate, self-elevation, and AHK bridge download snapshot state?",
       ))) return;
       await clearAllAhkBridgeState();
       flashSaved();
@@ -1329,6 +1398,8 @@ function wireOnce() {
         lastSnapshot,
         browserGate,
         lastBrowserGate,
+        selfElevate,
+        lastSelfElevate,
       } = await buildAhkGenerateInput(commandMap);
       const fingerprint = ahkDriftFingerprint(
         mappings,
@@ -1336,6 +1407,8 @@ function wireOnce() {
         lastSnapshot,
         browserGate,
         lastBrowserGate,
+        selfElevate,
+        lastSelfElevate,
       );
       await saveAhkDriftDismissedFingerprint(fingerprint);
       await updateAhkDownloadUi(commandMap);

@@ -134,7 +134,14 @@
               </div>
               <div class="switch-lg" id="ahk-browser-gate-toggle" role="switch" tabindex="0" aria-checked="true"></div>
             </div>
-            <p class="ahk-bridge-paths" data-i18n-html="ahkBridgePathsGuidance"><b>Path A:</b> keep Browser gate on; if External hotkeys fail over an elevated game, run the AHK bridge script as Administrator. <b>Path B:</b> turn Browser gate off for system-wide capture without elevation (keys are swallowed in all apps while the script runs).</p>
+            <div class="ahk-self-elevate opt-row toggle-row">
+              <div class="lbl">
+                <span data-i18n="ahkSelfElevateLabel">Request admin on start (optional)</span>
+                <small data-i18n="ahkSelfElevateDesc">Self-elevation — optional, off by default. When on, Download embeds a UAC restart so the AHK bridge script can match elevated foreground apps (Path A). Complementary to Browser gate, not a replacement for Path B.</small>
+              </div>
+              <div class="switch-lg" id="ahk-self-elevate-toggle" role="switch" tabindex="0" aria-checked="false"></div>
+            </div>
+            <p class="ahk-bridge-paths" data-i18n-html="ahkBridgePathsGuidance"><b>Path A:</b> keep Browser gate on; if External hotkeys fail over an elevated game, run the AHK bridge script as Administrator (or enable optional self-elevation before Download). <b>Path B:</b> turn Browser gate off for system-wide capture without elevation (keys are swallowed in all apps while the script runs).</p>
             <div id="ahk-bridge-toggle" class="ahk-bridge-toggle"></div>
             <div id="ahk-mapping-list" class="ahk-mapping-list"></div>
             <p id="ahk-skip-reasons" class="ahk-skip-reasons" hidden></p>

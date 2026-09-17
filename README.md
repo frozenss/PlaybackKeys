@@ -81,12 +81,15 @@ arms External hotkey remaps only while a usable supported browser window is
 known. Two complementary paths when an elevated game is in the foreground:
 
 - **Path A:** keep Browser gate on; if External hotkeys fail over that elevated
-  foreground, run the AHK bridge script as Administrator.
+  foreground, run the AHK bridge script as Administrator, or enable the optional
+  **self-elevation** switch (default off) before Download so the script asks for
+  admin via UAC on start.
 - **Path B:** turn Browser gate off so remaps are claimed system-wide while the
   script runs (no elevation required; keys are swallowed in all apps).
 
-Changing Browser gate after a download means regenerating the script. Default
-downloads do not auto-elevate.
+Changing Browser gate or self-elevation after a download means regenerating the
+script. Self-elevation is optional and complementary to Browser gate — not a
+replacement for Path B.
 
 ## Tab targeting
 

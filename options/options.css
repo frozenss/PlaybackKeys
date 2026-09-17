@@ -397,7 +397,8 @@ a { color: inherit; }
 }
 .ahk-bridge-guidance a:hover { text-decoration: underline; }
 .ahk-bridge-guidance b { color: var(--pk-fg-2); font-weight: 600; }
-.ahk-browser-gate {
+.ahk-browser-gate,
+.ahk-self-elevate {
   margin: 0 0 12px;
   padding: 12px 14px;
   border: 1px solid var(--pk-line);

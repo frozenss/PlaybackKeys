@@ -5,7 +5,8 @@
  * hotkey embedding (#21); Bridge toggle persist/normalize + External
  * collision helpers for the options recorder (#22); Windows gating and
  * clear/reset storage policy for the companion panel (#16); Browser gate
- * generate/persist + regenerate-needed when the gate drifts (#23).
+ * generate/persist + regenerate-needed when the gate drifts (#23); optional
+ * self-elevate (*RunAs) embed default off + regenerate-needed (#24).
  * No DOM / chrome.*.
  */
 
@@ -18,6 +19,7 @@
  *   skippedUnbound: Array<{ commandId: string, ahkHotkey: string, label?: string }>,
  *   drift: boolean,
  *   browserGateChanged: boolean,
+ *   selfElevateChanged: boolean,
  *   needsRegenerate: boolean,
  *   scriptText: string,
  * }} AhkBridgeGenerateResult
@@ -37,6 +39,8 @@ export const AHK_BRIDGE_STORAGE = Object.freeze({
   bridgeToggleHotkey: "ahkBridgeToggleHotkey",
   browserGate: "ahkBrowserGate",
   lastBrowserGate: "ahkLastBrowserGate",
+  selfElevate: "ahkSelfElevate",
+  lastSelfElevate: "ahkLastSelfElevate",
 });
 
 /**
@@ -52,7 +56,8 @@ export function ahkBridgeStorageKeys() {
  *
  * @returns {Record<string, [] | null | string | boolean>}
  *   Clears External hotkey mappings, generate snapshot state, and Bridge toggle hotkey;
- *   resets Browser gate to default on and clears last-download gate.
+ *   resets Browser gate to default on, self-elevate to default off, and clears
+ *   last-download gate/self-elevate snapshots.
  */
 export function clearedAhkBridgeStorage() {
   return {
@@ -62,9 +67,10 @@ export function clearedAhkBridgeStorage() {
     [AHK_BRIDGE_STORAGE.bridgeToggleHotkey]: "",
     [AHK_BRIDGE_STORAGE.browserGate]: true,
     [AHK_BRIDGE_STORAGE.lastBrowserGate]: null,
+    [AHK_BRIDGE_STORAGE.selfElevate]: false,
+    [AHK_BRIDGE_STORAGE.lastSelfElevate]: null,
   };
 }
-
 /**
  * True when a reset-all patch leaves AHK bridge companion keys untouched.
  *
@@ -269,6 +275,28 @@ export function normalizeLastBrowserGate(value) {
 }
 
 /**
+ * Self-elevate preference: default off unless explicitly true.
+ * When on, Download embeds an optional *RunAs restart (Path A); UAC still applies.
+ *
+ * @param {unknown} value
+ * @returns {boolean}
+ */
+export function normalizeSelfElevate(value) {
+  return value === true;
+}
+
+/**
+ * Last-download self-elevate snapshot. Only true/false count as a prior download.
+ *
+ * @param {unknown} value
+ * @returns {boolean | null}
+ */
+export function normalizeLastSelfElevate(value) {
+  if (value === true) return true;
+  if (value === false) return false;
+  return null;
+}
+/**
  * High-collision External hotkey confirm copy depends on Browser gate.
  * Gate off must warn that the key is swallowed in all applications while the script runs.
  *
@@ -308,6 +336,8 @@ function hasPriorSnapshot(lastSnapshot) {
  *   bridgeToggleHotkey?: string | { ahkHotkey?: string, label?: string } | null,
  *   browserGate?: boolean,
  *   lastBrowserGate?: boolean | null,
+ *   selfElevate?: boolean,
+ *   lastSelfElevate?: boolean | null,
  * }} input
  * @returns {AhkBridgeGenerateResult}
  */
@@ -322,6 +352,11 @@ export function generateAhkBridge(input = {}) {
   const lastBrowserGate = normalizeLastBrowserGate(input.lastBrowserGate);
   const browserGateChanged =
     lastBrowserGate !== null && lastBrowserGate !== browserGate;
+  const selfElevate = normalizeSelfElevate(input.selfElevate);
+  const lastSelfElevate = normalizeLastSelfElevate(input.lastSelfElevate);
+  const selfElevateChanged =
+    lastSelfElevate !== null && lastSelfElevate !== selfElevate;
+  const settingChanged = browserGateChanged || selfElevateChanged;
 
   if (mappings.length === 0) {
     return {
@@ -329,7 +364,8 @@ export function generateAhkBridge(input = {}) {
       skippedUnbound: [],
       drift: false,
       browserGateChanged,
-      needsRegenerate: browserGateChanged,
+      selfElevateChanged,
+      needsRegenerate: settingChanged,
       scriptText: "",
     };
   }
@@ -354,7 +390,7 @@ export function generateAhkBridge(input = {}) {
 
   const eligible = active.length > 0;
   const scriptText = eligible
-    ? buildScriptText(active, bridgeToggleHotkey, browserGate)
+    ? buildScriptText(active, bridgeToggleHotkey, browserGate, selfElevate)
     : "";
   const drift = detectDrift(mappings, commandShortcuts, input.lastSnapshot);
 
@@ -363,11 +399,11 @@ export function generateAhkBridge(input = {}) {
     skippedUnbound,
     drift,
     browserGateChanged,
-    needsRegenerate: drift || browserGateChanged,
+    selfElevateChanged,
+    needsRegenerate: drift || settingChanged,
     scriptText,
   };
 }
-
 /**
  * Drift is true iff any mapped Command's current target chord differs from lastSnapshot.
  * No prior snapshot (missing / null / non-object / empty object) → false.
@@ -394,8 +430,14 @@ function detectDrift(mappings, commandShortcuts, lastSnapshot) {
  * @param {Array<{ commandId: string, ahkHotkey: string, label?: string, ahkSend: string }>} active
  * @param {string} [bridgeToggleHotkey]
  * @param {boolean} [browserGate]
+ * @param {boolean} [selfElevate]
  */
-function buildScriptText(active, bridgeToggleHotkey = "", browserGate = true) {
+function buildScriptText(
+  active,
+  bridgeToggleHotkey = "",
+  browserGate = true,
+  selfElevate = false,
+) {
   const hotkeyLines = active
     .map((row) => {
       const comment = row.label ? ` ; ${row.label}` : ` ; ${row.commandId}`;
@@ -455,6 +497,28 @@ ${hotkeyLines}
 `;
   }
 
+  const elevationComment = selfElevate
+    ? `; Optional self-elevation is ON (Path A helper): restart elevated via UAC so
+; External hotkeys can observe keys while an elevated foreground app has focus.
+; Complementary to Browser gate — not a replacement for Path B (gate off).`
+    : `; Self-elevation is OFF (default): this generate does not auto-elevate on start.`;
+
+  const elevationBlock = selfElevate
+    ? `; Restart elevated when not already admin. Canceling UAC exits this instance.
+full_command_line := DllCall("GetCommandLine", "str")
+if !(A_IsAdmin || RegExMatch(full_command_line, " /restart(?!\\S)")) {
+    try {
+        if A_IsCompiled
+            Run '*RunAs "' A_ScriptFullPath '" /restart'
+        else
+            Run '*RunAs "' A_AhkPath '" /restart "' A_ScriptFullPath '"'
+    }
+    ExitApp
+}
+
+`
+    : "";
+
   return `#Requires AutoHotkey v2.0
 #SingleInstance Force
 Persistent()
@@ -464,12 +528,13 @@ Persistent()
 ; Do not WinActivate the browser; keep the current app focused.
 ;
 ; Path A: keep Browser gate on; if External hotkeys fail over an elevated game
-; foreground, run this AHK bridge script as Administrator.
+; foreground, run this AHK bridge script as Administrator (or enable optional
+; self-elevation before Download so this script asks for admin via UAC on start).
 ; Path B: turn Browser gate off for system-wide capture without elevation
 ; (keys are swallowed in all applications while the script runs).
-; This default generate does not auto-elevate on start.
+${elevationComment}
 
-SendMode "Input"
+${elevationBlock}SendMode "Input"
 SetWorkingDir A_ScriptDir
 
 ${togglePrefix}${remapBlock}

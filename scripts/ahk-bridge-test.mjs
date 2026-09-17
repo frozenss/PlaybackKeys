@@ -1,11 +1,12 @@
 /**
- * Unit tests for AHK bridge generator (#13, #21, #23).
+ * Unit tests for AHK bridge generator (#13, #21, #23, #24).
  * Seam: shared/ahk-bridge.js (generateAhkBridge).
  *
  * Inputs: External hotkey mappings + Command shortcut snapshot (+ optional prior
- * snapshot, optional Bridge toggle hotkey, Browser gate + last-download gate).
+ * snapshot, optional Bridge toggle hotkey, Browser gate + last-download gate,
+ * optional self-elevate + last-download self-elevate).
  * Outputs: eligibility, skipped-unbound details, chord drift / browserGateChanged /
- * needsRegenerate, full AHK bridge script text.
+ * selfElevateChanged / needsRegenerate, full AHK bridge script text.
  */
 import { generateAhkBridge } from "../shared/ahk-bridge.js";
 
@@ -424,6 +425,144 @@ const BASELINE_NO_TOGGLE_SCRIPT = generateAhkBridge({
   assert(
     neverDownloaded.needsRegenerate === false,
     "no prior download → needsRegenerate false even if gate is off",
+  );
+}
+
+// --- Self-elevate off (default): no auto-*RunAs / A_IsAdmin restart ---
+
+{
+  const omitted = generateAhkBridge({
+    mappings: BASELINE_MAPPINGS,
+    commandShortcuts: BASELINE_SHORTCUTS,
+  });
+  const explicitOff = generateAhkBridge({
+    mappings: BASELINE_MAPPINGS,
+    commandShortcuts: BASELINE_SHORTCUTS,
+    selfElevate: false,
+  });
+  assert(
+    omitted.scriptText === explicitOff.scriptText,
+    "omitted selfElevate matches explicit self-elevate off",
+  );
+  assert(
+    omitted.selfElevateChanged === false,
+    "default generate with no prior self-elevate snapshot → selfElevateChanged false",
+  );
+  assert(
+    !/\*RunAs|A_IsAdmin/i.test(omitted.scriptText),
+    "self-elevate off embeds no *RunAs / A_IsAdmin auto-elevation",
+  );
+  assert(
+    /does not auto-elevate|no auto-elevate/i.test(omitted.scriptText),
+    "self-elevate off script comments state no auto-elevate on start",
+  );
+}
+
+// --- Self-elevate on: Download embeds *RunAs restart (UAC still required) ---
+
+{
+  const result = generateAhkBridge({
+    mappings: BASELINE_MAPPINGS,
+    commandShortcuts: BASELINE_SHORTCUTS,
+    selfElevate: true,
+  });
+  assert(result.eligible === true, "self-elevate on does not affect eligibility");
+  assert(
+    /\*RunAs/.test(result.scriptText) && /A_IsAdmin/.test(result.scriptText),
+    "self-elevate on embeds *RunAs restart gated by A_IsAdmin",
+  );
+  assert(
+    /\/restart/.test(result.scriptText),
+    "self-elevate on uses /restart to avoid single-instance prompt loops",
+  );
+  assert(
+    result.scriptText.includes("F13::") &&
+      result.scriptText.includes('SendPlayback("^+1")'),
+    "self-elevate on still embeds External hotkey remaps",
+  );
+  assert(
+    /optional|Path A|UAC|Administrator/i.test(result.scriptText),
+    "self-elevate on script comments describe optional Path A elevation",
+  );
+  assert(
+    result.scriptText !== BASELINE_NO_TOGGLE_SCRIPT,
+    "self-elevate on script differs from default off output",
+  );
+
+  const gateOffElevated = generateAhkBridge({
+    mappings: BASELINE_MAPPINGS,
+    commandShortcuts: BASELINE_SHORTCUTS,
+    browserGate: false,
+    selfElevate: true,
+  });
+  assert(
+    /\*RunAs/.test(gateOffElevated.scriptText) &&
+      !/#HotIf\s+HasUsableBrowserWindow\(\)/.test(gateOffElevated.scriptText),
+    "self-elevate on can combine with Browser gate off",
+  );
+}
+
+// --- Changing self-elevate after a prior download → needsRegenerate ---
+
+{
+  const aligned = generateAhkBridge({
+    mappings: BASELINE_MAPPINGS,
+    commandShortcuts: BASELINE_SHORTCUTS,
+    lastSnapshot: BASELINE_SHORTCUTS,
+    selfElevate: false,
+    lastSelfElevate: false,
+  });
+  assert(
+    aligned.selfElevateChanged === false,
+    "same self-elevate as last download → selfElevateChanged false",
+  );
+  assert(
+    aligned.needsRegenerate === false,
+    "aligned chords + self-elevate → needsRegenerate false",
+  );
+
+  const flippedOn = generateAhkBridge({
+    mappings: BASELINE_MAPPINGS,
+    commandShortcuts: BASELINE_SHORTCUTS,
+    lastSnapshot: BASELINE_SHORTCUTS,
+    selfElevate: true,
+    lastSelfElevate: false,
+  });
+  assert(flippedOn.drift === false, "self-elevate-only change is not chord drift");
+  assert(
+    flippedOn.selfElevateChanged === true,
+    "self-elevate differs from last download → selfElevateChanged true",
+  );
+  assert(
+    flippedOn.needsRegenerate === true,
+    "self-elevate change after download → needsRegenerate true",
+  );
+
+  const flippedOff = generateAhkBridge({
+    mappings: BASELINE_MAPPINGS,
+    commandShortcuts: BASELINE_SHORTCUTS,
+    lastSnapshot: BASELINE_SHORTCUTS,
+    selfElevate: false,
+    lastSelfElevate: true,
+  });
+  assert(
+    flippedOff.selfElevateChanged === true && flippedOff.needsRegenerate === true,
+    "turning self-elevate off after an elevated download → needsRegenerate",
+  );
+
+  const neverDownloaded = generateAhkBridge({
+    mappings: BASELINE_MAPPINGS,
+    commandShortcuts: BASELINE_SHORTCUTS,
+    selfElevate: true,
+    lastSelfElevate: null,
+  });
+  assert(
+    neverDownloaded.selfElevateChanged === false,
+    "no prior download → selfElevateChanged false",
+  );
+  assert(
+    neverDownloaded.needsRegenerate === false,
+    "no prior download → needsRegenerate false even if self-elevate is on",
   );
 }
 
